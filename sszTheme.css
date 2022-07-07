@@ -1,0 +1,239 @@
+/* Body */
+  body {
+    background-color: white;
+  }
+
+/* Sidebar Panel */
+  .well {
+    background-color: white;
+  }
+
+.shiny-input-container:not(.shiny-input-container-inline) {
+  width: 600px;
+  max-width: 100%;
+}
+
+
+/* Buttons */
+  .btn {
+    background-color: rgb(239, 239, 239);
+    border-color: rgb(59, 59, 59);
+    transition-duration: 0.4s;
+    font-size: 13px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+
+.btn:hover {
+  border-color: rgb(133, 133, 133);
+}
+
+.btn:focus {
+  border-color: rgb(133, 133, 133);
+  transition-duration: 0.4s;
+}
+
+.btn:active {
+  border-color: rgb(133, 133, 133);
+}
+
+.downloadLinkIcon {
+  margin-left: 5px;ß
+}
+
+.downloadLink {
+  transition-duration: 0.4s;
+  margin-bottom: 5px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.downloadLinkOGD {
+  font-size: 13px;
+  color: #333333;
+}
+
+.radio {
+  font-family: "Arial", sans-serif;
+}
+
+.autocomplete {
+  color: #0F05A0;
+}
+
+/* Text */
+  .shiny-options-group {
+    font-size: 13px;
+  }
+
+.selectize-input {
+  font-size: 13px;
+}
+
+.selectize-dropdown {
+  font-size: 13px;
+}
+
+.well {
+  min-height: 400px;
+}
+
+/* Headings */
+  h2 {
+    font-family: "Arial Black", sans-serif;
+  }
+
+h5 {
+  font-family: "Arial", sans-serif;
+  font-weight: bold;
+  margin-top: 20px;
+  color: #0F05A0
+}
+
+.h5 {
+  font-family: "Arial", sans-serif;
+  font-weight: bold;
+  margin-top: 20px;
+  color: #0F05A0
+}
+
+h6 {
+  font-size: 12px;
+  font-weight:normal;
+}
+
+a {
+  color: #0F05A0;
+    text-decoration: none;
+}
+
+.shiny-download-link {
+  color: #333333;
+    font-size: 13px;
+}
+
+
+.title_div {
+  font-family: "Arial", sans-serif;
+  font-weight: bold;
+  font-size: 14px;
+  color: #0F05A0;
+    margin-top: -5Spx;
+}
+
+.subtitle_div {
+  font-family: "Arial", sans-serif;
+  font-weight: bold;
+  font-size: 12px;
+  color: #000000;
+}
+
+.subSubtitle_div {
+  font-family: "Arial", sans-serif;
+  font-size: 12px;
+  color: #000000;
+}
+
+.tableTitle_div {
+  font-family: "Arial", sans-serif;
+  font-size: 12px;
+  color: #0F05A0;
+    margin-top: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.info_div {
+  font-family: "Arial", sans-serif;
+  font-size: 13px;
+  margin-top: 40px;
+}
+
+/* Tables */
+  .shiny-html-output table td {
+    font-size: 80%;
+  }
+
+#countDivTwo {
+margin-top: 20px;
+}
+
+
+/* Autocomplete Drop Down Menu */
+  .autocomplete-items div {
+    border-bottom: 0px;
+    font-size: 13px;
+  }
+
+.autocomplete-items div:hover {
+  background-color: #f6f6f6;
+    font-size: 13px;
+}
+
+.autocomplete-active {
+  background-color: #f6f6f6 !important; 
+    color: black;
+  font-size: 13px;
+}
+
+.form-control {
+  font-size: 13px;
+}
+
+.control-label {
+  color: #0F05A0
+}
+
+/* Drop Downs */
+  .option[data-value = "Ganze Stadt"] {
+    font-weight: bold !important;
+  }
+
+.option[data-value = "Kreis 1"] {
+  font-weight: bold !important;
+}
+
+.option[data-value = "Kreis 2"] {
+  font-weight: bold !important;
+}
+
+.option[data-value = "Kreis 3"] {
+  font-weight: bold !important;
+}
+
+.option[data-value = "Kreis 4"] {
+  font-weight: bold !important;
+}
+
+.option[data-value = "Kreis 5"] {
+  font-weight: bold !important;
+}
+
+.option[data-value = "Kreis 6"] {
+  font-weight: bold !important;
+}
+
+.option[data-value = "Kreis 7"] {
+  font-weight: bold !important;
+}
+
+.option[data-value = "Kreis 8"] {
+  font-weight: bold !important;
+}
+
+.option[data-value = "Kreis 9"] {
+  font-weight: bold !important;
+}
+
+.option[data-value = "Kreis 10"] {
+  font-weight: bold !important;
+}
+
+.option[data-value = "Kreis 11"] {
+  font-weight: bold !important;
+}
+
+.option[data-value = "Kreis 12"] {
+  font-weight: bold !important;
+}
