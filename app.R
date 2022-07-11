@@ -248,7 +248,7 @@ server <- function(input, output, session) {
         # hier müssen wir case sensitivity rausnehmen!!!
         } else {
             filtered <- data %>%
-                filter(grepl(input$suchfeld, Abstimmungstext)) %>%
+                filter(grepl(input$suchfeld, Abstimmungstext, ignore.case=TRUE)) %>%
                 dplyr::filter(Datum >= input$selectZeitraum[1] & Datum <= input$selectZeitraum[2]) %>% 
                 mutate(Datum = as.character(as.Date(Datum, "%d.%m.%Y")),
                        Stimmberechtigte = as.integer(Stimmberechtigte))  %>% 
