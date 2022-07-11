@@ -7,7 +7,8 @@ library(knitr)
 library(kableExtra)
 library(ggplot2)
 library(xlsx)
-library(dqshiny)
+library(lubridate)
+library(DT)
 
 
 ### Load Data
@@ -45,9 +46,9 @@ data <- df2 %>%
            'Stimmberechtigte' = Stimmberechtigt,
            'Ja-Stimmen' = Ja,
            'Nein-Stimmen' = Nein,
-           'Stimmbeteiligung' = Stimmbeteiligung....,
-           'Ja-Anteil' = Ja....,
-           'Nein-Anteil' = Nein....,
+           'Stimmbeteiligung (in %)' = Stimmbeteiligung....,
+           'Ja-Anteil (in %)' = Ja....,
+           'Nein-Anteil (in %)' = Nein....,
            'Stände Ja' = StaendeJa,
            'Stände Nein' = StaendeNein)
 
@@ -76,7 +77,7 @@ ui <- fluidPage(
             dateRangeInput("selectZeitraum",
                            "Datum (z.B. 25.01.2004):",
                            start = "1993-01-01",
-                           end = Sys.Date(),
+                           end = NULL,
                            format = "dd.mm.yyyy",
                            startview = "month",
                            weekstart = 0,
@@ -191,10 +192,10 @@ ui <- fluidPage(
         
         # Show a plot of the generated distribution
         mainPanel(
-            textOutput("RangeTest"),
-            br(),
+            textOutput("Suchmaschine"),
+            DT::dataTableOutput("Resultateliste"),
             textOutput("DatumTest"),
-            tableOutput("Resultateliste")
+            textOutput("RangeTest")
         )
     )
 )
@@ -217,6 +218,7 @@ server <- function(input, output) {
             pull(Datum) %>% 
             unique()
         datum
+    })
         
         ## Get Data for Download
         dataDownload <- eventReactive(input$suchfeld, {
@@ -226,20 +228,22 @@ server <- function(input, output) {
                 filtered <- data %>%
                     dplyr::filter(`Politische Ebene` %in% input$selectEbene,
                                   Datum >= input$selectZeitraum[1],
-                                  Datum <= input$selectZeitraum[2]) 
+                                  Datum <= input$selectZeitraum[2]) %>% 
+                    mutate(Datum = as.character(as.Date(Datum, "%d.%m.%Y")),
+                           Stimmberechtigte = as.integer(Stimmberechtigte)) 
                 
                 # Filter Area for Results of Vote/Referendum
                 if(input$selectArea == "Alle Gebiete") {
                     filtered <- filtered %>% 
-                        select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, Stimmbeteiligung, `Ja-Anteil`, `Nein-Anteil`)
+                        select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
                 } else if(input$selectArea == "Stadtkreise") {
                     filtered <- filtered %>% 
                         filter(Gebiet == input$selectArea) %>% 
-                        select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, Stimmbeteiligung, `Ja-Anteil`, `Nein-Anteil`)
+                        select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
                 } else {
                     filtered <- filtered %>% 
                         filter(Gebiet == input$selectArea) %>% 
-                        select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, Stimmbeteiligung, `Ja-Anteil`, `Nein-Anteil`)
+                        select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
                 }
                 filtered
                 
@@ -250,20 +254,22 @@ server <- function(input, output) {
                     filter(grepl(input$suchfeld, Abstimmungstext)) %>%
                     filter(`Politische Ebene` %in% input$selectEbene,
                            Datum >= input$selectZeitraum[1],
-                           Datum <= input$selectZeitraum[2]) 
+                           Datum <= input$selectZeitraum[2]) %>% 
+                    mutate(Datum = as.character(as.Date(Datum, "%d.%m.%Y")),
+                           Stimmberechtigte = as.integer(Stimmberechtigte)) 
                 
                 # Filter Area for Results of Vote/Referendum
                 if(input$selectArea == "Alle Gebiete") {
                     filtered <- filtered %>% 
-                        select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, Stimmbeteiligung, `Ja-Anteil`, `Nein-Anteil`)
+                        select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
                 } else if(input$selectArea == "Stadtkreise") {
                     filtered <- filtered %>% 
                         filter(Gebiet == input$selectArea) %>% 
-                        select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, Stimmbeteiligung, `Ja-Anteil`, `Nein-Anteil`)
+                        select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
                 } else {
                     filtered <- filtered %>% 
                         filter(Gebiet == input$selectArea) %>% 
-                        select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, Stimmbeteiligung, `Ja-Anteil`, `Nein-Anteil`)
+                        select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
                 }
                 filtered
             }
@@ -319,9 +325,9 @@ server <- function(input, output) {
             }
         )
         
-        output$Resultateliste <- renderTable({
-            dataDownload()
-        })
+        output$Resultateliste <- DT::renderDataTable({
+            dataDownload() 
+        }
         
         output$DatumTest <- renderText({
             dataDate()
