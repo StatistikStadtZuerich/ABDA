@@ -11,6 +11,7 @@ library(lubridate)
 library(DT)
 
 
+
 ### Load Data
 ## URLS
 URLs <- c("https://data.stadt-zuerich.ch/dataset/politik_abstimmungen_seit1933/download/abstimmungen_seit1933.csv")
@@ -27,15 +28,17 @@ clusterExport(cl, "URLs")
 data <- parLapply(cl, URLs, dataDownload)
 
 df <- data.frame(Reduce(rbind, data))
-df2 <- df %>% 
-    mutate(Name_Politische_Ebene = "Alle politischen Ebenen")
 
-data <- df2 %>% 
-    bind_rows(df) %>% 
+data <- df %>%  
     mutate(Abstimmungs_Datum = as.Date(Abstimmungs_Datum, "%d.%m.%Y")) %>% 
     mutate(Name_Resultat_Gebiet = case_when(
         Name_Resultat_Gebiet == "Stadt Zürich" & !is.na(Nr_Wahlkreis_StZH) ~ "Stadtkreise",
         TRUE ~ Name_Resultat_Gebiet
+    )) %>% 
+    mutate(Name_Politische_Ebene = case_when(
+        Name_Politische_Ebene == "Eidgenossenschaft" ~ "Eidgenössische Vorlagen",
+        Name_Politische_Ebene == "Stadt Zürich" ~ "Städtische Vorlagen",
+        Name_Politische_Ebene == "Kanton Zürich" ~ "Kantonale Vorlagen",
     )) %>% 
     # Rename variables
     rename(Abstimmungstext = Abstimmungs_Text,
@@ -89,8 +92,8 @@ ui <- fluidPage(
             # Select level of vote/referendum
             radioButtons("selectEbene",
                          "Politische Ebene der Abstimmung:",
-                         choices = unique(data$`Politische Ebene`),
-                         selected = "Stadt Zürich"),
+                         choices = c("Alle Vorlagen", "Eidgenössische Vorlagen", "Kantonale Vorlagen", "Städtische Vorlagen"),
+                         selected = "Alle Vorlagen"),
             
             
             # # Ebene 1: 
@@ -196,11 +199,7 @@ ui <- fluidPage(
         mainPanel(
             textOutput("Suchmaschine"),
             br(),
-            DT::dataTableOutput("Resultateliste"),
-            br(),
-            textOutput("DatumTest"),
-            br(),
-            textOutput("RangeTest")
+            DT::dataTableOutput("Resultateliste")
         )
     )
 )
@@ -231,24 +230,38 @@ server <- function(input, output, session) {
         # Filter: No Search
         if(input$suchfeld == "") {
             filtered <- data %>%
-                dplyr::filter(`Politische Ebene` %in% input$selectEbene) %>% 
                 dplyr::filter(Datum >= input$selectZeitraum[1] & Datum <= input$selectZeitraum[2]) %>% 
                 mutate(Datum = as.character(as.Date(Datum, "%d.%m.%Y")),
                        Stimmberechtigte = as.integer(Stimmberechtigte))  %>% 
                 select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
-            filtered
             
-            # Filter: With Search   
-            # hier müssen wir case sensitivity rausnehmen!!!
+            # Filter the level of vote
+            if(input$selectEbene == "Alle Vorlagen"){
+                filtered
+            }else{
+              filtered <- filtered %>% 
+                  filter(`Politische Ebene` %in% input$selectEbene)
+              filtered
+            }
+            
+        # Filter: With Search   
+        # hier müssen wir case sensitivity rausnehmen!!!
         } else {
             filtered <- data %>%
                 filter(grepl(input$suchfeld, Abstimmungstext)) %>%
-                filter(`Politische Ebene` %in% input$selectEbene) %>% 
                 dplyr::filter(Datum >= input$selectZeitraum[1] & Datum <= input$selectZeitraum[2]) %>% 
                 mutate(Datum = as.character(as.Date(Datum, "%d.%m.%Y")),
                        Stimmberechtigte = as.integer(Stimmberechtigte))  %>% 
                 select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
-            filtered
+            
+            # Filter the level of vote
+            if(input$selectEbene == "Alle Vorlagen"){
+                filtered
+            }else{
+                filtered <- filtered %>% 
+                    filter(`Politische Ebene` %in% input$selectEbene)
+                filtered
+            }
         }
     })
     
@@ -303,14 +316,7 @@ server <- function(input, output, session) {
         output$Resultateliste <- DT::renderDataTable({
             dataDownload() 
         })
-        
-        # output$DatumTest <- renderText({
-        #     dataDate()
-        # })
-        # 
-        # output$RangeTest <- renderText({
-        #     dataRange()
-        # })
+
         
     ## Change Action Query Button when first selected
     observe({
