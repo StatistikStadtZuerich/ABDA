@@ -245,7 +245,6 @@ server <- function(input, output, session) {
             }
             
         # Filter: With Search   
-        # hier müssen wir case sensitivity rausnehmen!!!
         } else {
             filtered <- data %>%
                 filter(grepl(input$suchfeld, Abstimmungstext, ignore.case=TRUE)) %>%
