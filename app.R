@@ -60,6 +60,8 @@ ui <- fluidPage(
     # CSS
     includeCSS("sszTheme.css"),
     
+    br(),
+    
     # Application title
     titlePanel("Abstimmungsresultate App"),
     
@@ -77,7 +79,7 @@ ui <- fluidPage(
             dateRangeInput("selectZeitraum",
                            "Datum (z.B. 25.01.2004):",
                            start = "1993-01-01",
-                           end = NULL,
+                           end = Sys.Date(),
                            format = "dd.mm.yyyy",
                            startview = "month",
                            weekstart = 0,
@@ -91,59 +93,59 @@ ui <- fluidPage(
                          selected = "Stadt Zürich"),
             
             
-            # Ebene 1: 
-            conditionalPanel(
-                condition = 'input.selectEbene == "Alle politischen Ebenen"',
-                
-                # Select geographic context
-                selectInput("selectArea",
-                            "Resultat für Gebiet:",
-                            choices = c("Alle Gebiete", "Eidgenossenschaft", "Kanton Zürich", "Stadt Zürich", "Stadtkreise"),
-                            selected = "Stadt Zürich")
-                
-            ),
-            
-            
-            # Ebene 2: 
-            conditionalPanel(
-                condition = 'input.selectEbene == "Eidgenossenschaft"',
-                
-                # Select geographic context
-                selectInput("selectArea",
-                            "Resultat für Gebiet:",
-                            choices = c("Alle Gebiete", "Eidgenossenschaft", "Kanton Zürich", "Stadt Zürich", "Stadtkreise"),
-                            selected = "Stadt Zürich")
-                
-            ),
-            
-            # Ebene 3: 
-            conditionalPanel(
-                condition = 'input.selectEbene == "Kanton Zürich"',
-                
-                # Select geographic context
-                selectInput("selectArea",
-                            "Resultat für Gebiet:",
-                            choices = c("Alle Gebiete", "Kanton Zürich", "Stadt Zürich", "Stadtkreise"),
-                            selected = "Stadt Zürich")
-                
-            ),
-            
-            # Ebene 4: 
-            conditionalPanel(
-                condition = 'input.selectEbene == "Stadt Zürich"',
-                
-                # Select geographic context
-                selectInput("selectArea",
-                            "Resultat für Gebiet:",
-                            choices = c("Alle Gebiete", "Stadt Zürich", "Stadtkreise"),
-                            selected = "Stadt Zürich")
-                
-            ),
+            # # Ebene 1: 
+            # conditionalPanel(
+            #     condition = 'input.selectEbene == "Alle politischen Ebenen"',
+            #     
+            #     # Select geographic context
+            #     selectInput("selectArea",
+            #                 "Resultat für Gebiet:",
+            #                 choices = c("Alle Gebiete", "Eidgenossenschaft", "Kanton Zürich", "Stadt Zürich", "Stadtkreise"),
+            #                 selected = "Stadt Zürich")
+            #     
+            # ),
+            # 
+            # 
+            # # Ebene 2: 
+            # conditionalPanel(
+            #     condition = 'input.selectEbene == "Eidgenossenschaft"',
+            #     
+            #     # Select geographic context
+            #     selectInput("selectArea",
+            #                 "Resultat für Gebiet:",
+            #                 choices = c("Alle Gebiete", "Eidgenossenschaft", "Kanton Zürich", "Stadt Zürich", "Stadtkreise"),
+            #                 selected = "Stadt Zürich")
+            #     
+            # ),
+            # 
+            # # Ebene 3: 
+            # conditionalPanel(
+            #     condition = 'input.selectEbene == "Kanton Zürich"',
+            #     
+            #     # Select geographic context
+            #     selectInput("selectArea",
+            #                 "Resultat für Gebiet:",
+            #                 choices = c("Alle Gebiete", "Kanton Zürich", "Stadt Zürich", "Stadtkreise"),
+            #                 selected = "Stadt Zürich")
+            #     
+            # ),
+            # 
+            # # Ebene 4: 
+            # conditionalPanel(
+            #     condition = 'input.selectEbene == "Stadt Zürich"',
+            #     
+            #     # Select geographic context
+            #     selectInput("selectArea",
+            #                 "Resultat für Gebiet:",
+            #                 choices = c("Alle Gebiete", "Stadt Zürich", "Stadtkreise"),
+            #                 selected = "Stadt Zürich")
+            #     
+            # ),
             
             
             # Action Button
             actionButton("buttonStart",
-                         " Abfrage starten", 
+                         "Abfrage starten", 
                          icon = icon("database")),
             br(),
             
@@ -193,15 +195,18 @@ ui <- fluidPage(
         # Show a plot of the generated distribution
         mainPanel(
             textOutput("Suchmaschine"),
+            br(),
             DT::dataTableOutput("Resultateliste"),
+            br(),
             textOutput("DatumTest"),
+            br(),
             textOutput("RangeTest")
         )
     )
 )
 
 # Define server logic required to draw a histogram
-server <- function(input, output) {
+server <- function(input, output, session) {
     
     ## Test with Date
     dataRange <- eventReactive(input$buttonStart, {
@@ -220,62 +225,34 @@ server <- function(input, output) {
         datum
     })
         
-        ## Get Data for Download
-        dataDownload <- eventReactive(input$suchfeld, {
+    ## Get Data for Download
+    dataDownload <- eventReactive(input$buttonStart, {
+        
+        # Filter: No Search
+        if(input$suchfeld == "") {
+            filtered <- data %>%
+                dplyr::filter(`Politische Ebene` %in% input$selectEbene) %>% 
+                dplyr::filter(Datum >= input$selectZeitraum[1] & Datum <= input$selectZeitraum[2]) %>% 
+                mutate(Datum = as.character(as.Date(Datum, "%d.%m.%Y")),
+                       Stimmberechtigte = as.integer(Stimmberechtigte))  %>% 
+                select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
+            filtered
             
-            # Filter: No Search
-            if(is.null(input$suchfeld)) {
-                filtered <- data %>%
-                    dplyr::filter(`Politische Ebene` %in% input$selectEbene,
-                                  Datum >= input$selectZeitraum[1],
-                                  Datum <= input$selectZeitraum[2]) %>% 
-                    mutate(Datum = as.character(as.Date(Datum, "%d.%m.%Y")),
-                           Stimmberechtigte = as.integer(Stimmberechtigte)) 
-                
-                # Filter Area for Results of Vote/Referendum
-                if(input$selectArea == "Alle Gebiete") {
-                    filtered <- filtered %>% 
-                        select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
-                } else if(input$selectArea == "Stadtkreise") {
-                    filtered <- filtered %>% 
-                        filter(Gebiet == input$selectArea) %>% 
-                        select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
-                } else {
-                    filtered <- filtered %>% 
-                        filter(Gebiet == input$selectArea) %>% 
-                        select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
-                }
-                filtered
-                
-                # Filter: With Search   
-                # hier müssen wir case sensitivity rausnehmen!!!
-            } else {
-                filtered <- data %>%
-                    filter(grepl(input$suchfeld, Abstimmungstext)) %>%
-                    filter(`Politische Ebene` %in% input$selectEbene,
-                           Datum >= input$selectZeitraum[1],
-                           Datum <= input$selectZeitraum[2]) %>% 
-                    mutate(Datum = as.character(as.Date(Datum, "%d.%m.%Y")),
-                           Stimmberechtigte = as.integer(Stimmberechtigte)) 
-                
-                # Filter Area for Results of Vote/Referendum
-                if(input$selectArea == "Alle Gebiete") {
-                    filtered <- filtered %>% 
-                        select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
-                } else if(input$selectArea == "Stadtkreise") {
-                    filtered <- filtered %>% 
-                        filter(Gebiet == input$selectArea) %>% 
-                        select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
-                } else {
-                    filtered <- filtered %>% 
-                        filter(Gebiet == input$selectArea) %>% 
-                        select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
-                }
-                filtered
-            }
-        })
-        
-        
+            # Filter: With Search   
+            # hier müssen wir case sensitivity rausnehmen!!!
+        } else {
+            filtered <- data %>%
+                filter(grepl(input$suchfeld, Abstimmungstext)) %>%
+                filter(`Politische Ebene` %in% input$selectEbene) %>% 
+                dplyr::filter(Datum >= input$selectZeitraum[1] & Datum <= input$selectZeitraum[2]) %>% 
+                mutate(Datum = as.character(as.Date(Datum, "%d.%m.%Y")),
+                       Stimmberechtigte = as.integer(Stimmberechtigte))  %>% 
+                select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
+            filtered
+        }
+    })
+    
+    
         ## Write Download Table
         # CSV
         output$downloadDataCSV <- downloadHandler(
@@ -284,17 +261,15 @@ server <- function(input, output) {
                 if(suchfeld == "") {
                     suchfeld <- gsub(" ", "-", "Alle Abstimmungen", fixed = TRUE)
                     level <- gsub(" ", "-", input$selectEbene, fixed = TRUE)
-                    area <- gsub(" ", "-", input$selectArea, fixed = TRUE)
                     time1 <- gsub(" ", "-", input$selectZeitraum[1], fixed = TRUE)
                     time2 <- gsub(" ", "-", input$selectZeitraum[2], fixed = TRUE)
-                    paste0("Abstimmungsresultate_", suchfeld, "_", level, "_", area, "_", time1, "_bis_", time2, ".csv")
+                    paste0("Abstimmungsresultate_", suchfeld, "_", level, "_", time1, "_bis_", time2, ".csv")
                 } else {
                     suchfeld <- gsub(" ", "-", input$price, fixed = TRUE)
                     level <- gsub(" ", "-", input$selectEbene, fixed = TRUE)
-                    area <- gsub(" ", "-", input$selectArea, fixed = TRUE)
                     time1 <- gsub(" ", "-", input$selectZeitraum[1], fixed = TRUE)
                     time2 <- gsub(" ", "-", input$selectZeitraum[2], fixed = TRUE)
-                    paste0("Abstimmungsresultate_", suchfeld, "_", level, "_", area, "_", time1, "_bis_", time2, ".csv")
+                    paste0("Abstimmungsresultate_", suchfeld, "_", level, "_", time1, "_bis_", time2, ".csv")
                 }
             },
             content = function(file) {
@@ -327,17 +302,24 @@ server <- function(input, output) {
         
         output$Resultateliste <- DT::renderDataTable({
             dataDownload() 
-        }
-        
-        output$DatumTest <- renderText({
-            dataDate()
         })
         
-        output$RangeTest <- renderText({
-            dataRange()
-        })
+        # output$DatumTest <- renderText({
+        #     dataDate()
+        # })
+        # 
+        # output$RangeTest <- renderText({
+        #     dataRange()
+        # })
         
-        
+    ## Change Action Query Button when first selected
+    observe({
+        req(input$buttonStart)
+        updateActionButton(session, "buttonStart",
+                           label = "Erneute Abfrage",
+                           icon = icon("refresh"))
+    })
+    
     }
     
     # Run the application 
