@@ -9,6 +9,7 @@ library(ggplot2)
 library(xlsx)
 library(lubridate)
 library(DT)
+library(shinydashboard)
 
 
 
@@ -178,6 +179,8 @@ ui <- fluidPage(
             # # Option 1
             # DT::dataTableOutput("Resultateliste")
 
+            
+            
             # # Option 2
             # # Ebene 1:
             # conditionalPanel(
@@ -228,33 +231,37 @@ ui <- fluidPage(
             #     )
             # )
             
-            # Option 3
-            # Ebene 1:
-            conditionalPanel(
-                condition = 'input.selectEbene == "Alle Vorlagen"',
-                
-                uiOutput("tabCH")
-            ),
-            # Ebene 2:
-            conditionalPanel(
-                condition = 'input.selectEbene == "Eidgenössische Vorlagen"',
-                
-                uiOutput("tabCH")
-            ),
-            # Ebene 3:
-            conditionalPanel(
-                condition = 'input.selectEbene == "Kantonale Vorlagen',
-                
-                uiOutput("tabKtZH")
-            ),
-            # Ebene 4:
-            conditionalPanel(
-                condition = 'input.selectEbene == "Städtische Vorlagen',
-                
-                uiOutput("tabStZH")
-            )
-
-           # uiOutput("tabs")
+            
+            
+            # # Option 3
+            # # Ebene 1:
+            # conditionalPanel(
+            #     condition = 'input.selectEbene == "Alle Vorlagen"',
+            #     
+            #     uiOutput("tabCH")
+            # ),
+            # # Ebene 2:
+            # conditionalPanel(
+            #     condition = 'input.selectEbene == "Eidgenössische Vorlagen"',
+            #     
+            #     uiOutput("tabCH")
+            # ),
+            # # Ebene 3:
+            # conditionalPanel(
+            #     condition = 'input.selectEbene == "Kantonale Vorlagen',
+            #     
+            #     uiOutput("tabKtZH")
+            # ),
+            # # Ebene 4:
+            # conditionalPanel(
+            #     condition = 'input.selectEbene == "Städtische Vorlagen',
+            #     
+            #     uiOutput("tabStZH")
+            # )
+            
+            
+            # Option 4
+           uiOutput("ui")
         )
     )
 )
@@ -418,34 +425,91 @@ server <- function(input, output, session) {
     
     
     # # Option 3
-    output$tabCH <- renderUI({
-        tabsetPanel(
-            # Select geographic context
-            tabPanel("Resultat für Schweiz", DT::dataTableOutput("ResultatelisteCH")),
-            tabPanel("Resultat für Kanton Zürich", DT::dataTableOutput("ResultatelisteKtZH")),
-            tabPanel("Resultat für Stadt Zürich", DT::dataTableOutput("ResultatelisteStZH")),
-            tabPanel("Resultat für Stadtkreise", DT::dataTableOutput("ResultatelisteZHkr"))
-        )
-    })
+    # output$tabCH <- renderUI({
+    #     tabsetPanel(
+    #         # Select geographic context
+    #         tabPanel("Resultat für Schweiz", DT::dataTableOutput("ResultatelisteCH")),
+    #         tabPanel("Resultat für Kanton Zürich", DT::dataTableOutput("ResultatelisteKtZH")),
+    #         tabPanel("Resultat für Stadt Zürich", DT::dataTableOutput("ResultatelisteStZH")),
+    #         tabPanel("Resultat für Stadtkreise", DT::dataTableOutput("ResultatelisteZHkr"))
+    #     )
+    # })
+    # 
+    # output$tabKtZH <- renderUI({
+    #     tabsetPanel(
+    #         # Select geographic context
+    #         tabPanel("Resultat für Schweiz", DT::dataTableOutput("ResultatelisteCH")),
+    #         tabPanel("Resultat für Kanton Zürich", DT::dataTableOutput("ResultatelisteKtZH")),
+    #         tabPanel("Resultat für Stadt Zürich", DT::dataTableOutput("ResultatelisteStZH")),
+    #         tabPanel("Resultat für Stadtkreise", DT::dataTableOutput("ResultatelisteZHkr"))
+    #     )
+    # })
+    # 
+    # output$tabStZH <- renderUI({
+    #     tabsetPanel(
+    #         # Select geographic context
+    #         tabPanel("Resultat für Schweiz", DT::dataTableOutput("ResultatelisteCH")),
+    #         tabPanel("Resultat für Kanton Zürich", DT::dataTableOutput("ResultatelisteKtZH")),
+    #         tabPanel("Resultat für Stadt Zürich", DT::dataTableOutput("ResultatelisteStZH")),
+    #         tabPanel("Resultat für Stadtkreise", DT::dataTableOutput("ResultatelisteZHkr"))
+    #     )
+    # })
     
-    output$tabKtZH <- renderUI({
-        tabsetPanel(
-            # Select geographic context
-            tabPanel("Resultat für Schweiz", DT::dataTableOutput("ResultatelisteCH")),
-            tabPanel("Resultat für Kanton Zürich", DT::dataTableOutput("ResultatelisteKtZH")),
-            tabPanel("Resultat für Stadt Zürich", DT::dataTableOutput("ResultatelisteStZH")),
-            tabPanel("Resultat für Stadtkreise", DT::dataTableOutput("ResultatelisteZHkr"))
-        )
-    })
     
-    output$tabStZH <- renderUI({
-        tabsetPanel(
-            # Select geographic context
-            tabPanel("Resultat für Schweiz", DT::dataTableOutput("ResultatelisteCH")),
-            tabPanel("Resultat für Kanton Zürich", DT::dataTableOutput("ResultatelisteKtZH")),
-            tabPanel("Resultat für Stadt Zürich", DT::dataTableOutput("ResultatelisteStZH")),
-            tabPanel("Resultat für Stadtkreise", DT::dataTableOutput("ResultatelisteZHkr"))
-        )
+    # Option 4
+    output$ui <- renderUI(#input$buttonStart, 
+                          {
+        
+        check1 <- input$selectEbene == "Alle Vorlagen"
+        check2 <- input$selectEbene == "Eidgenössische Vorlagen"
+        check3 <- input$selectEbene == "Kantonale Vorlagen"
+        check4 <- input$selectEbene == "Städtische Vorlagen"
+        
+        if(check1){
+            tabsetPanel(id= "ttabs",
+                   tabPanel("Resultat für Schweiz", DT::dataTableOutput("ResultatelisteCH")),
+                   tabPanel("Resultat für Kanton Zürich", DT::dataTableOutput("ResultatelisteKtZH")),
+                   tabPanel("Resultat für Stadt Zürich", DT::dataTableOutput("ResultatelisteStZH")),
+                   tabPanel("Resultat für Stadtkreise", DT::dataTableOutput("ResultatelisteZHkr"))
+            )
+        }
+        else if(check2){
+            tabsetPanel(id= "ttabs",
+                   tabPanel("Resultat für Schweiz", DT::dataTableOutput("ResultatelisteCH")),
+                   tabPanel("Resultat für Kanton Zürich", DT::dataTableOutput("ResultatelisteKtZH")),
+                   tabPanel("Resultat für Stadt Zürich", DT::dataTableOutput("ResultatelisteStZH")),
+                   tabPanel("Resultat für Stadtkreise", DT::dataTableOutput("ResultatelisteZHkr"))
+            )
+        }
+        else if(check3){
+            tabsetPanel(id= "ttabs",
+                   tabPanel("Resultat für Kanton Zürich", DT::dataTableOutput("ResultatelisteKtZH")),
+                   tabPanel("Resultat für Stadt Zürich", DT::dataTableOutput("ResultatelisteStZH")),
+                   tabPanel("Resultat für Stadtkreise", DT::dataTableOutput("ResultatelisteZHkr"))
+            )
+        }
+        else if(check4){
+            tabsetPanel(id= "ttabs",
+                   tabPanel("Resultat für Stadt Zürich", DT::dataTableOutput("ResultatelisteStZH")),
+                   tabPanel("Resultat für Stadtkreise", DT::dataTableOutput("ResultatelisteZHkr"))
+            )
+        }
+        else{return(NULL)}
+        
+        output$ResultatelisteCH <- DT::renderDataTable(input$buttonStart, {
+            dataDownload() %>% filter(Gebiet == "Eidgenossenschaft")
+            })
+
+        output$ResultatelisteKtZH <- DT::renderDataTable(input$buttonStart, {
+            dataDownload() %>% filter(Gebiet == "Kanton Zürich")
+        })
+        output$ResultatelisteStZH <- DT::renderDataTable(input$buttonStart, {
+            dataDownload() %>% filter(Gebiet == "Stadt Zürich")
+        })
+        output$ResultatelisteZHKr <- DT::renderDataTable(input$buttonStart, {
+            dataDownload() %>% filter(Gebiet == "Stadtkreise")
+        })
+
     })
     
    
