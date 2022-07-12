@@ -96,56 +96,6 @@ ui <- fluidPage(
                          selected = "Alle Vorlagen"),
             
             
-            # # Ebene 1: 
-            # conditionalPanel(
-            #     condition = 'input.selectEbene == "Alle politischen Ebenen"',
-            #     
-            #     # Select geographic context
-            #     selectInput("selectArea",
-            #                 "Resultat für Gebiet:",
-            #                 choices = c("Alle Gebiete", "Eidgenossenschaft", "Kanton Zürich", "Stadt Zürich", "Stadtkreise"),
-            #                 selected = "Stadt Zürich")
-            #     
-            # ),
-            # 
-            # 
-            # # Ebene 2: 
-            # conditionalPanel(
-            #     condition = 'input.selectEbene == "Eidgenossenschaft"',
-            #     
-            #     # Select geographic context
-            #     selectInput("selectArea",
-            #                 "Resultat für Gebiet:",
-            #                 choices = c("Alle Gebiete", "Eidgenossenschaft", "Kanton Zürich", "Stadt Zürich", "Stadtkreise"),
-            #                 selected = "Stadt Zürich")
-            #     
-            # ),
-            # 
-            # # Ebene 3: 
-            # conditionalPanel(
-            #     condition = 'input.selectEbene == "Kanton Zürich"',
-            #     
-            #     # Select geographic context
-            #     selectInput("selectArea",
-            #                 "Resultat für Gebiet:",
-            #                 choices = c("Alle Gebiete", "Kanton Zürich", "Stadt Zürich", "Stadtkreise"),
-            #                 selected = "Stadt Zürich")
-            #     
-            # ),
-            # 
-            # # Ebene 4: 
-            # conditionalPanel(
-            #     condition = 'input.selectEbene == "Stadt Zürich"',
-            #     
-            #     # Select geographic context
-            #     selectInput("selectArea",
-            #                 "Resultat für Gebiet:",
-            #                 choices = c("Alle Gebiete", "Stadt Zürich", "Stadtkreise"),
-            #                 selected = "Stadt Zürich")
-            #     
-            # ),
-            
-            
             # Action Button
             actionButton("buttonStart",
                          "Abfrage starten", 
@@ -221,8 +171,90 @@ ui <- fluidPage(
             
             # Table for BZO 99 (prices)
             # htmlOutput("resultsPrice99")
+            
+            
             br(),
-            DT::dataTableOutput("Resultateliste")
+            
+            # # Option 1
+            # DT::dataTableOutput("Resultateliste")
+
+            # # Option 2
+            # # Ebene 1:
+            # conditionalPanel(
+            #     condition = 'input.selectEbene == c("Alle Vorlagen", "Eidgenössische Vorlagen")',
+            # 
+            #     tabsetPanel(
+            #         # Select geographic context
+            #         tabPanel("Resultat für Schweiz", DT::dataTableOutput("ResultatelisteCH")),
+            #         tabPanel("Resultat für Kanton Zürich", DT::dataTableOutput("ResultatelisteKtZH")),
+            #         tabPanel("Resultat für Stadt Zürich", DT::dataTableOutput("ResultatelisteStZH")),
+            #         tabPanel("Resultat für Stadtkreise", DT::dataTableOutput("ResultatelisteZHkr"))
+            #     )
+            # ),
+            # 
+            # # # Ebene 2:
+            # # conditionalPanel(
+            # #     condition = 'input.selectEbene == "Eidgenössische Vorlagen"',
+            # #
+            # # tabsetPanel(
+            # #     # Select geographic context
+            # #     tabPanel("Resultat für Schweiz", DT::dataTableOutput("ResultatelisteCH")),
+            # #     tabPanel("Resultat für Kanton Zürich", DT::dataTableOutput("ResultatelisteKtZH")),
+            # #     tabPanel("Resultat für Stadt Zürich", DT::dataTableOutput("ResultatelisteStZH")),
+            # #     tabPanel("Resultat für Stadtkreise", DT::dataTableOutput("ResultatelisteZHkr"))
+            # # )
+            # # ),
+            # 
+            # # Ebene 3:
+            # conditionalPanel(
+            #     condition = 'input.selectEbene == "Kantonale Vorlagen"',
+            # 
+            #     tabsetPanel(
+            #         # Select geographic context
+            #         tabPanel("Resultat für Kanton Zürich", DT::dataTableOutput("ResultatelisteKtZH")),
+            #         tabPanel("Resultat für Stadt Zürich", DT::dataTableOutput("ResultatelisteStZH")),
+            #         tabPanel("Resultat für Stadtkreise", DT::dataTableOutput("ResultatelisteZHkr"))
+            #     )
+            # ),
+            # 
+            # # Ebene 4:
+            # conditionalPanel(
+            #     condition = 'input.selectEbene == "Städtische Vorlagen"',
+            # 
+            #     tabsetPanel(
+            #         # Select geographic context
+            #         tabPanel("Resultat für Stadt Zürich", DT::dataTableOutput("ResultatelisteStZH")),
+            #         tabPanel("Resultat für Stadtkreise", DT::dataTableOutput("ResultatelisteZHkr"))
+            #     )
+            # )
+            
+            # Option 3
+            # Ebene 1:
+            conditionalPanel(
+                condition = 'input.selectEbene == "Alle Vorlagen"',
+                
+                uiOutput("tabCH")
+            ),
+            # Ebene 2:
+            conditionalPanel(
+                condition = 'input.selectEbene == "Eidgenössische Vorlagen"',
+                
+                uiOutput("tabCH")
+            ),
+            # Ebene 3:
+            conditionalPanel(
+                condition = 'input.selectEbene == "Kantonale Vorlagen',
+                
+                uiOutput("tabKtZH")
+            ),
+            # Ebene 4:
+            conditionalPanel(
+                condition = 'input.selectEbene == "Städtische Vorlagen',
+                
+                uiOutput("tabStZH")
+            )
+
+           # uiOutput("tabs")
         )
     )
 )
@@ -317,58 +349,106 @@ server <- function(input, output, session) {
     })
     
     
-        ## Write Download Table
-        # CSV
-        output$downloadDataCSV <- downloadHandler(
-            filename = function(price) {
-                suchfeld <- input$suchfeld
-                if(suchfeld == "") {
-                    suchfeld <- gsub(" ", "-", "Alle Abstimmungen", fixed = TRUE)
-                    level <- gsub(" ", "-", input$selectEbene, fixed = TRUE)
-                    time1 <- gsub(" ", "-", input$selectZeitraum[1], fixed = TRUE)
-                    time2 <- gsub(" ", "-", input$selectZeitraum[2], fixed = TRUE)
-                    paste0("Abstimmungsresultate_", suchfeld, "_", level, "_", time1, "_bis_", time2, ".csv")
-                } else {
-                    suchfeld <- gsub(" ", "-", input$price, fixed = TRUE)
-                    level <- gsub(" ", "-", input$selectEbene, fixed = TRUE)
-                    time1 <- gsub(" ", "-", input$selectZeitraum[1], fixed = TRUE)
-                    time2 <- gsub(" ", "-", input$selectZeitraum[2], fixed = TRUE)
-                    paste0("Abstimmungsresultate_", suchfeld, "_", level, "_", time1, "_bis_", time2, ".csv")
-                }
-            },
-            content = function(file) {
-                write.csv(dataDownload(), file, row.names = FALSE, na = " ")
+    ## Write Download Table
+    # CSV
+    output$downloadDataCSV <- downloadHandler(
+        filename = function(price) {
+            suchfeld <- input$suchfeld
+            if(suchfeld == "") {
+                suchfeld <- gsub(" ", "-", "Alle Abstimmungen", fixed = TRUE)
+                level <- gsub(" ", "-", input$selectEbene, fixed = TRUE)
+                time1 <- gsub(" ", "-", input$selectZeitraum[1], fixed = TRUE)
+                time2 <- gsub(" ", "-", input$selectZeitraum[2], fixed = TRUE)
+                paste0("Abstimmungsresultate_", suchfeld, "_", level, "_", time1, "_bis_", time2, ".csv")
+            } else {
+                suchfeld <- gsub(" ", "-", input$price, fixed = TRUE)
+                level <- gsub(" ", "-", input$selectEbene, fixed = TRUE)
+                time1 <- gsub(" ", "-", input$selectZeitraum[1], fixed = TRUE)
+                time2 <- gsub(" ", "-", input$selectZeitraum[2], fixed = TRUE)
+                paste0("Abstimmungsresultate_", suchfeld, "_", level, "_", time1, "_bis_", time2, ".csv")
             }
-        )
-        
-        # Excel
-        output$downloadDataEXCEL <- downloadHandler(
-            filename = function(price) {
-                suchfeld <- input$suchfeld
-                if(suchfeld == "") {
-                    suchfeld <- gsub(" ", "-", "Alle Abstimmungen", fixed = TRUE)
-                    level <- gsub(" ", "-", input$selectEbene, fixed = TRUE)
-                    time1 <- gsub(" ", "-", input$selectZeitraum[1], fixed = TRUE)
-                    time2 <- gsub(" ", "-", input$selectZeitraum[2], fixed = TRUE)
-                    paste0("Abstimmungsresultate_", suchfeld, "_", level, "_", time1, "_bis_", time2, ".xlsx")
-                } else {
-                    suchfeld <- gsub(" ", "-", input$price, fixed = TRUE)
-                    level <- gsub(" ", "-", input$selectEbene, fixed = TRUE)
-                    time1 <- gsub(" ", "-", input$selectZeitraum[1], fixed = TRUE)
-                    time2 <- gsub(" ", "-", input$selectZeitraum[2], fixed = TRUE)
-                    paste0("Abstimmungsresultate_", suchfeld, "_", level, "_", time1, "_bis_", time2, ".xlsx")
-                }
-            },
-            content = function(file) {
-                xlsx::write.xlsx(dataDownload(), file, row.names = FALSE, showNA = FALSE)
+        },
+        content = function(file) {
+            write.csv(dataDownload(), file, row.names = FALSE, na = " ")
+        }
+    )
+    
+    # Excel
+    output$downloadDataEXCEL <- downloadHandler(
+        filename = function(price) {
+            suchfeld <- input$suchfeld
+            if(suchfeld == "") {
+                suchfeld <- gsub(" ", "-", "Alle Abstimmungen", fixed = TRUE)
+                level <- gsub(" ", "-", input$selectEbene, fixed = TRUE)
+                time1 <- gsub(" ", "-", input$selectZeitraum[1], fixed = TRUE)
+                time2 <- gsub(" ", "-", input$selectZeitraum[2], fixed = TRUE)
+                paste0("Abstimmungsresultate_", suchfeld, "_", level, "_", time1, "_bis_", time2, ".xlsx")
+            } else {
+                suchfeld <- gsub(" ", "-", input$price, fixed = TRUE)
+                level <- gsub(" ", "-", input$selectEbene, fixed = TRUE)
+                time1 <- gsub(" ", "-", input$selectZeitraum[1], fixed = TRUE)
+                time2 <- gsub(" ", "-", input$selectZeitraum[2], fixed = TRUE)
+                paste0("Abstimmungsresultate_", suchfeld, "_", level, "_", time1, "_bis_", time2, ".xlsx")
             }
+        },
+        content = function(file) {
+            xlsx::write.xlsx(dataDownload(), file, row.names = FALSE, showNA = FALSE)
+        }
+    )
+    
+    # # Option1
+    # output$Resultateliste <- DT::renderDataTable({
+    #     dataDownload()
+    # })
+    
+    # # Option 2
+    # output$ResultatelisteCH <- DT::renderDataTable(input$buttonStart, {
+    #     dataDownload() %>% filter(Gebiet == "Eidgenossenschaft")
+    #     })
+    # 
+    # output$ResultatelisteKtZH <- DT::renderDataTable(input$buttonStart, {
+    #     dataDownload() %>% filter(Gebiet == "Kanton Zürich")
+    # })
+    # output$ResultatelisteStZH <- DT::renderDataTable(input$buttonStart, {
+    #     dataDownload() %>% filter(Gebiet == "Stadt Zürich")
+    # })
+    # output$ResultatelisteZHKr <- DT::renderDataTable(input$buttonStart, {
+    #     dataDownload() %>% filter(Gebiet == "Stadtkreise")
+    # })
+    
+    
+    # # Option 3
+    output$tabCH <- renderUI({
+        tabsetPanel(
+            # Select geographic context
+            tabPanel("Resultat für Schweiz", DT::dataTableOutput("ResultatelisteCH")),
+            tabPanel("Resultat für Kanton Zürich", DT::dataTableOutput("ResultatelisteKtZH")),
+            tabPanel("Resultat für Stadt Zürich", DT::dataTableOutput("ResultatelisteStZH")),
+            tabPanel("Resultat für Stadtkreise", DT::dataTableOutput("ResultatelisteZHkr"))
         )
-        
-        
-        
-        output$Resultateliste <- DT::renderDataTable({
-            dataDownload() 
-        })
+    })
+    
+    output$tabKtZH <- renderUI({
+        tabsetPanel(
+            # Select geographic context
+            tabPanel("Resultat für Schweiz", DT::dataTableOutput("ResultatelisteCH")),
+            tabPanel("Resultat für Kanton Zürich", DT::dataTableOutput("ResultatelisteKtZH")),
+            tabPanel("Resultat für Stadt Zürich", DT::dataTableOutput("ResultatelisteStZH")),
+            tabPanel("Resultat für Stadtkreise", DT::dataTableOutput("ResultatelisteZHkr"))
+        )
+    })
+    
+    output$tabStZH <- renderUI({
+        tabsetPanel(
+            # Select geographic context
+            tabPanel("Resultat für Schweiz", DT::dataTableOutput("ResultatelisteCH")),
+            tabPanel("Resultat für Kanton Zürich", DT::dataTableOutput("ResultatelisteKtZH")),
+            tabPanel("Resultat für Stadt Zürich", DT::dataTableOutput("ResultatelisteStZH")),
+            tabPanel("Resultat für Stadtkreise", DT::dataTableOutput("ResultatelisteZHkr"))
+        )
+    })
+    
+   
 
         
     ## Change Action Query Button when first selected
