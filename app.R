@@ -197,7 +197,30 @@ ui <- fluidPage(
         
         # Show a plot of the generated distribution
         mainPanel(
-            textOutput("Suchmaschine"),
+            
+            #Table Title (prices)
+            tags$div(
+                id = "title_id",
+                class = "title_div",
+                textOutput("title")
+            ),
+            
+            # Table Subtitle (prices)
+            tags$div(
+                id = "subtitle_id",
+                class = "subtitle_div",
+                textOutput("subtitle")
+            ),
+            
+            # Table Subsubtitle (prices)
+            tags$div(
+                id = "subSubtitle_id",
+                class = "subSubtitle_div",
+                textOutput("subSubtitle")
+            ),
+            
+            # Table for BZO 99 (prices)
+            # htmlOutput("resultsPrice99")
             br(),
             DT::dataTableOutput("Resultateliste")
         )
@@ -264,6 +287,35 @@ server <- function(input, output, session) {
         }
     })
     
+    # Captions
+    # Reactive Title
+    titleReactive <- eventReactive(input$buttonStart, {
+        if(input$suchfeld == ""){
+            title <- "Ohne Suchtext"
+        } else {
+            title <- paste0("Suche: ", input$suchfeld)
+        }
+    })
+    output$title <- renderText({
+        titleReactive()
+    })
+    
+    # Reactive Subtitle
+    subtitleReactive <- eventReactive(input$buttonStart, {
+        subtitle <- input$selectEbene
+    })
+    output$subtitle <- renderText({
+        subtitleReactive()
+    })
+    
+    # Reactive Sub-Subtitle
+    subSubtitleReactive <- eventReactive(input$buttonStart, {
+        subSubtitle <- paste0("Zeitraum: ", input$selectZeitraum[1], " bis ", input$selectZeitraum[2])
+    })
+    output$subSubtitle <- renderText({
+        subSubtitleReactive()
+    })
+    
     
         ## Write Download Table
         # CSV
@@ -311,6 +363,8 @@ server <- function(input, output, session) {
                 xlsx::write.xlsx(dataDownload(), file, row.names = FALSE, showNA = FALSE)
             }
         )
+        
+        
         
         output$Resultateliste <- DT::renderDataTable({
             dataDownload() 
