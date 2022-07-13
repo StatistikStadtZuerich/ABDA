@@ -10,7 +10,7 @@ library(xlsx)
 library(lubridate)
 library(DT)
 library(shinydashboard)
-
+library(reactable)
 
 
 ### Load Data
@@ -76,11 +76,11 @@ ui <- fluidPage(
         sidebarPanel(
             
             # Text input to facilitate search
-            textInput("suchfeld",
+            textInput("textSearch",
                       "Suchtext:"),
             
             # Select Date Range
-            dateRangeInput("selectZeitraum",
+            dateRangeInput("selectDateRange",
                            "Datum (z.B. 25.01.2004):",
                            start = "1993-01-01",
                            end = Sys.Date(),
@@ -91,7 +91,7 @@ ui <- fluidPage(
                            separator = " bis "),
             
             # Select level of vote/referendum
-            radioButtons("selectEbene",
+            radioButtons("selectPolLevel",
                          "Politische Ebene der Abstimmung:",
                          choices = c("Alle Vorlagen", "Eidgenössische Vorlagen", "Kantonale Vorlagen", "Städtische Vorlagen"),
                          selected = "Alle Vorlagen"),
@@ -177,34 +177,35 @@ ui <- fluidPage(
             br(),
                 
             conditionalPanel(
-                condition = "input.buttonStart && input.selectEbene == 'Alle Vorlagen' | input.selectEbene == 'Eidgenössische Vorlagen'",
+                condition = "input.buttonStart && input.selectPolLevel == 'Alle Vorlagen' | input.selectPolLevel == 'Eidgenössische Vorlagen'",
                 tabsetPanel(
                     id= "ttabs",
                     # Select geographic context
-                    tabPanel("Resultat für Schweiz", value=1,DT::dataTableOutput("ResultatelisteCH")),
-                    tabPanel("Resultat für Kanton Zürich",value=2,DT::dataTableOutput("ResultatelisteKtZH")),
-                    tabPanel("Resultat für Stadt Zürich", value=3, DT::dataTableOutput("ResultatelisteStZH")),
-                    tabPanel("Resultat für Stadtkreise", value=4, DT::dataTableOutput("ResultatelisteZHkr"))
+                    tabPanel("Resultat für Schweiz", value = 1, DT::dataTableOutput("voteListCH")),
+                    tabPanel("Resultat für Kanton Zürich",value = 2, DT::dataTableOutput("voteListKtZH")),
+                    tabPanel("Resultat für Stadt Zürich", value = 3, DT::dataTableOutput("voteListStZH")),
+                    tabPanel("Resultat für Stadtkreise", value = 4, DT::dataTableOutput("voteListZHkr"))
                 )
             ),
             conditionalPanel(
-                condition = "input.buttonStart && input.selectEbene == 'Kantonale Vorlagen'",
+                condition = "input.buttonStart && input.selectPolLevel == 'Kantonale Vorlagen'",
                 tabsetPanel(
                     id= "ttabs",
                     # Select geographic context
-                    tabPanel("Resultat für Kanton Zürich", value=5, DT::dataTableOutput("ResultatelisteKtZH2")),
-                    tabPanel("Resultat für Stadt Zürich", value=6, DT::dataTableOutput("ResultatelisteStZH2")),
-                    tabPanel("Resultat für Stadtkreise", value=7, DT::dataTableOutput("ResultatelisteZHkr2"))
+                    tabPanel("Resultat für Kanton Zürich", value = 5, reactableOutput("voteListKtZH2")),
+                    tabPanel("Resultat für Stadt Zürich", value = 6, reactableOutput("voteListStZH2")),
+                    tabPanel("Resultat für Stadtkreise", value = 7, reactableOutput("voteListZHkr2"))
                 )
             ),
             conditionalPanel(
-                condition = "input.buttonStart && input.selectEbene == 'Städtische Vorlagen'",
+                condition = "input.buttonStart && input.selectPolLevel == 'Städtische Vorlagen'",
                 tabsetPanel(
                     id= "ttabs",
                     # Select geographic context
-                    tabPanel("Resultat für Stadt Zürich", value=8, DT::dataTableOutput("ResultatelisteStZH3")),
-                    tabPanel("Resultat für Stadtkreise", value=9, DT::dataTableOutput("ResultatelisteZHkr3"))
+                    tabPanel("Resultat für Stadt Zürich", value = 8,reactableOutput("voteListStZH3")),
+                    tabPanel("Resultat für Stadtkreise", value = 9, reactableOutput("voteListZHkr3"))
                 )
+                # https://stackoverflow.com/questions/38797646/hyperlink-from-one-datatable-to-another-in-shiny
             )
         )
     )
@@ -215,56 +216,56 @@ server <- function(input, output, session) {
     
     ## Test with Date
     dataRange <- eventReactive(input$buttonStart, {
-        dateRange <- input$selectZeitraum
+        dateRange <- input$selectDateRange
         dateRange
     })
     
     dataDate <- eventReactive(input$buttonStart, {
         datum <- data %>%
             dplyr::filter(
-                `Politische Ebene` %in% input$selectEbene,
-                Datum >= input$selectZeitraum[1],
-                Datum <= input$selectZeitraum[2]) %>% 
+                `Politische Ebene` %in% input$selectPolLevel,
+                Datum >= input$selectDateRange[1],
+                Datum <= input$selectDateRange[2]) %>% 
             pull(Datum) %>% 
             unique()
         datum
     })
         
     ## Get Data for Download
-    dataDownload <- eventReactive(input$buttonStart, {
+    filteredData <- eventReactive(input$buttonStart, {
         
         # Filter: No Search
-        if(input$suchfeld == "") {
+        if(input$textSearch == "") {
             filtered <- data %>%
-                dplyr::filter(Datum >= input$selectZeitraum[1] & Datum <= input$selectZeitraum[2]) %>% 
+                dplyr::filter(Datum >= input$selectDateRange[1] & Datum <= input$selectDateRange[2]) %>% 
                 mutate(Datum = as.character(as.Date(Datum, "%d.%m.%Y")),
                        Stimmberechtigte = as.integer(Stimmberechtigte))  %>% 
                 select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
             
             # Filter the level of vote
-            if(input$selectEbene == "Alle Vorlagen"){
+            if(input$selectPolLevel == "Alle Vorlagen"){
                 filtered
             }else{
               filtered <- filtered %>% 
-                  filter(`Politische Ebene` %in% input$selectEbene)
+                  filter(`Politische Ebene` %in% input$selectPolLevel)
               filtered
             }
             
         # Filter: With Search   
         } else {
             filtered <- data %>%
-                filter(grepl(input$suchfeld, Abstimmungstext, ignore.case=TRUE)) %>%
-                dplyr::filter(Datum >= input$selectZeitraum[1] & Datum <= input$selectZeitraum[2]) %>% 
+                filter(grepl(input$textSearch, Abstimmungstext, ignore.case=TRUE)) %>%
+                dplyr::filter(Datum >= input$selectDateRange[1] & Datum <= input$selectDateRange[2]) %>% 
                 mutate(Datum = as.character(as.Date(Datum, "%d.%m.%Y")),
                        Stimmberechtigte = as.integer(Stimmberechtigte))  %>% 
                 select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
             
             # Filter the level of vote
-            if(input$selectEbene == "Alle Vorlagen"){
+            if(input$selectPolLevel == "Alle Vorlagen"){
                 filtered
             }else{
                 filtered <- filtered %>% 
-                    filter(`Politische Ebene` %in% input$selectEbene)
+                    filter(`Politische Ebene` %in% input$selectPolLevel)
                 filtered
             }
         }
@@ -273,10 +274,10 @@ server <- function(input, output, session) {
     # Captions
     # Reactive Title
     titleReactive <- eventReactive(input$buttonStart, {
-        if(input$suchfeld == ""){
+        if(input$textSearch == ""){
             title <- "Ohne Suchtext"
         } else {
-            title <- paste0("Suche: ", input$suchfeld)
+            title <- paste0("Suche: ", input$textSearch)
         }
     })
     output$title <- renderText({
@@ -285,7 +286,7 @@ server <- function(input, output, session) {
     
     # Reactive Subtitle
     subtitleReactive <- eventReactive(input$buttonStart, {
-        subtitle <- input$selectEbene
+        subtitle <- input$selectPolLevel
     })
     output$subtitle <- renderText({
         subtitleReactive()
@@ -293,7 +294,7 @@ server <- function(input, output, session) {
     
     # Reactive Sub-Subtitle
     subSubtitleReactive <- eventReactive(input$buttonStart, {
-        subSubtitle <- paste0("Zeitraum: ", input$selectZeitraum[1], " bis ", input$selectZeitraum[2])
+        subSubtitle <- paste0("Zeitraum: ", input$selectDateRange[1], " bis ", input$selectDateRange[2])
     })
     output$subSubtitle <- renderText({
         subSubtitleReactive()
@@ -304,79 +305,87 @@ server <- function(input, output, session) {
     # CSV
     output$downloadDataCSV <- downloadHandler(
         filename = function(price) {
-            suchfeld <- input$suchfeld
-            if(suchfeld == "") {
-                suchfeld <- gsub(" ", "-", "Alle Abstimmungen", fixed = TRUE)
-                level <- gsub(" ", "-", input$selectEbene, fixed = TRUE)
-                time1 <- gsub(" ", "-", input$selectZeitraum[1], fixed = TRUE)
-                time2 <- gsub(" ", "-", input$selectZeitraum[2], fixed = TRUE)
-                paste0("Abstimmungsresultate_", suchfeld, "_", level, "_", time1, "_bis_", time2, ".csv")
+            textSearch <- input$textSearch
+            if(textSearch == "") {
+                textSearch <- gsub(" ", "-", "Alle Abstimmungen", fixed = TRUE)
+                level <- gsub(" ", "-", input$selectPolLevel, fixed = TRUE)
+                time1 <- gsub(" ", "-", input$selectDateRange[1], fixed = TRUE)
+                time2 <- gsub(" ", "-", input$selectDateRange[2], fixed = TRUE)
+                paste0("Abstimmungsresultate_", textSearch, "_", level, "_", time1, "_bis_", time2, ".csv")
             } else {
-                suchfeld <- gsub(" ", "-", input$price, fixed = TRUE)
-                level <- gsub(" ", "-", input$selectEbene, fixed = TRUE)
-                time1 <- gsub(" ", "-", input$selectZeitraum[1], fixed = TRUE)
-                time2 <- gsub(" ", "-", input$selectZeitraum[2], fixed = TRUE)
-                paste0("Abstimmungsresultate_", suchfeld, "_", level, "_", time1, "_bis_", time2, ".csv")
+                textSearch <- gsub(" ", "-", input$price, fixed = TRUE)
+                level <- gsub(" ", "-", input$selectPolLevel, fixed = TRUE)
+                time1 <- gsub(" ", "-", input$selectDateRange[1], fixed = TRUE)
+                time2 <- gsub(" ", "-", input$selectDateRange[2], fixed = TRUE)
+                paste0("Abstimmungsresultate_", textSearch, "_", level, "_", time1, "_bis_", time2, ".csv")
             }
         },
         content = function(file) {
-            write.csv(dataDownload(), file, row.names = FALSE, na = " ")
+            write.csv(filteredData(), file, row.names = FALSE, na = " ")
         }
     )
     
     # Excel
     output$downloadDataEXCEL <- downloadHandler(
         filename = function(price) {
-            suchfeld <- input$suchfeld
-            if(suchfeld == "") {
-                suchfeld <- gsub(" ", "-", "Alle Abstimmungen", fixed = TRUE)
-                level <- gsub(" ", "-", input$selectEbene, fixed = TRUE)
-                time1 <- gsub(" ", "-", input$selectZeitraum[1], fixed = TRUE)
-                time2 <- gsub(" ", "-", input$selectZeitraum[2], fixed = TRUE)
-                paste0("Abstimmungsresultate_", suchfeld, "_", level, "_", time1, "_bis_", time2, ".xlsx")
+            textSearch <- input$textSearch
+            if(textSearch == "") {
+                textSearch <- gsub(" ", "-", "Alle Abstimmungen", fixed = TRUE)
+                level <- gsub(" ", "-", input$selectPolLevel, fixed = TRUE)
+                time1 <- gsub(" ", "-", input$selectDateRange[1], fixed = TRUE)
+                time2 <- gsub(" ", "-", input$selectDateRange[2], fixed = TRUE)
+                paste0("Abstimmungsresultate_", textSearch, "_", level, "_", time1, "_bis_", time2, ".xlsx")
             } else {
-                suchfeld <- gsub(" ", "-", input$price, fixed = TRUE)
-                level <- gsub(" ", "-", input$selectEbene, fixed = TRUE)
-                time1 <- gsub(" ", "-", input$selectZeitraum[1], fixed = TRUE)
-                time2 <- gsub(" ", "-", input$selectZeitraum[2], fixed = TRUE)
-                paste0("Abstimmungsresultate_", suchfeld, "_", level, "_", time1, "_bis_", time2, ".xlsx")
+                textSearch <- gsub(" ", "-", input$price, fixed = TRUE)
+                level <- gsub(" ", "-", input$selectPolLevel, fixed = TRUE)
+                time1 <- gsub(" ", "-", input$selectDateRange[1], fixed = TRUE)
+                time2 <- gsub(" ", "-", input$selectDateRange[2], fixed = TRUE)
+                paste0("Abstimmungsresultate_", textSearch, "_", level, "_", time1, "_bis_", time2, ".xlsx")
             }
         },
         content = function(file) {
-            xlsx::write.xlsx(dataDownload(), file, row.names = FALSE, showNA = FALSE)
+            xlsx::write.xlsx(filteredData(), file, row.names = FALSE, showNA = FALSE)
         }
     )
     
 
-    output$ResultatelisteCH <- DT::renderDataTable( {
-        dataDownload() %>% filter(Gebiet == "Eidgenossenschaft")
+    output$voteListCH <- DT::renderDataTable({
+        tableOutput1 <- filteredData() %>% filter(Gebiet == "Eidgenossenschaft")
+        tableOutput1
         })
-
-    output$ResultatelisteKtZH <- DT::renderDataTable( {
-        dataDownload() %>% filter(Gebiet == "Kanton Zürich")
+    output$voteListKtZH <- DT::renderDataTable({
+        tableOutput1 <- filteredData() %>% filter(Gebiet == "Kanton Zürich")
+        tableOutput1
     })
-    output$ResultatelisteStZH <- DT::renderDataTable({
-        dataDownload() %>% filter(Gebiet == "Stadt Zürich")
+    output$voteListStZH <- DT::renderDataTable({
+        tableOutput1 <- filteredData() %>% filter(Gebiet == "Stadt Zürich")
+        tableOutput1
     })
-    output$ResultatelisteZHkr <- DT::renderDataTable( {
-        dataDownload() %>% filter(Gebiet == "Stadtkreise")
-    })
-    
-    output$ResultatelisteKtZH2 <- DT::renderDataTable( {
-        dataDownload() %>% filter(Gebiet == "Kanton Zürich")
-    })
-    output$ResultatelisteStZH2 <- DT::renderDataTable({
-        dataDownload() %>% filter(Gebiet == "Stadt Zürich")
-    })
-    output$ResultatelisteZHkr2 <- DT::renderDataTable( {
-        dataDownload() %>% filter(Gebiet == "Stadtkreise")
+    output$voteListZHkr <- DT::renderDataTable({
+        tableOutput1 <- filteredData() %>% filter(Gebiet == "Stadtkreise")
+        tableOutput1
     })
     
-    output$ResultatelisteStZH3 <- DT::renderDataTable({
-        dataDownload() %>% filter(Gebiet == "Stadt Zürich")
+    output$voteListKtZH2 <- renderReactable({
+        tableOutput1 <- reactable(filteredData() %>% filter(Gebiet == "Kanton Zürich"))
+        tableOutput1
     })
-    output$ResultatelisteZHkr3 <- DT::renderDataTable( {
-        dataDownload() %>% filter(Gebiet == "Stadtkreise")
+    output$voteListStZH2 <- renderReactable({
+        tableOutput1 <- reactable(filteredData() %>% filter(Gebiet == "Stadt Zürich"))
+        tableOutput1
+    })
+    output$voteListZHkr2 <- renderReactable({
+        tableOutput1 <- reactable(filteredData() %>% filter(Gebiet == "Stadtkreise"))
+        tableOutput1
+    })
+    
+    output$voteListStZH3 <- renderReactable({
+        tableOutput1 <- reactable(filteredData() %>% filter(Gebiet == "Stadt Zürich"))
+        tableOutput1
+    })
+    output$voteListZHkr3 <- renderReactable({
+        tableOutput1 <- reactable(filteredData() %>% filter(Gebiet == "Stadtkreise"))
+        tableOutput1
     })
  
           
