@@ -176,7 +176,11 @@ ui <- fluidPage(
             
             br(),
             reactableOutput("voteList"),
-            reactableOutput("selected")
+            br(),
+            br(),
+            htmlOutput("titleVote"),
+            br(),
+            reactableOutput("selectedVote")
                 
             # # Verschiedene Tabs für Gebiete
             # conditionalPanel(
@@ -368,13 +372,14 @@ server <- function(input, output, session) {
                                       
                                   ),
                                   columns = list(
-                                      # Datum = colDef(minWidth = 50),   # 12,5% width, 50px minimum
-                                      # `Politische Ebene` = colDef(minWidth = 100),   # 25% width, 100px minimum
-                                      # Abstimmungstext = colDef(minWidth = 250),  # 62,5% width, 250px minimum
-                                      Abstimmungstext = colDef(cell = function(value) {
-                                          htmltools::tags$a(href = value, target = "_blank", value)
-                                      })
+                                      Datum = colDef(minWidth = 50),   # 12,5% width, 50px minimum
+                                      `Politische Ebene` = colDef(minWidth = 100),   # 25% width, 100px minimum
+                                      Abstimmungstext = colDef(minWidth = 250)  # 62,5% width, 250px minimum
+                                      # Abstimmungstext = colDef(cell = function(value) {
+                                      #     htmltools::tags$a(href = value, target = "_blank", value)
+                                      # })
                                       ),
+                                  defaultPageSize = 5,
                                   selection = "single", onClick = "select"
                                   )
         tableOutput1
@@ -384,13 +389,29 @@ server <- function(input, output, session) {
         getReactableState("voteList", "selected")
     })
     
-    output$selected <- renderReactable({
+    nameVote <- reactive({
         req(rowNumber())
         
-        tableOutput2 <- reactable(filteredData() %>% 
-                                      filter(row_number() == rowNumber()))
+        vote <- filteredData() %>% 
+            filter(row_number() == rowNumber())
+        
+        print(vote$Abstimmungstext)
+    })
+    
+    output$titleVote <- renderText({
+        req(nameVote())
+        
+        paste("Resultate für: <br>", "<b>", nameVote(), "</b>")
+    })
+    
+    output$selectedVote <- renderReactable({
+        req(nameVote())
+
+        tableOutput2 <- reactable(filteredData() %>%
+                                      filter(Abstimmungstext == nameVote()) %>% 
+                                      select(Gebiet, `Stimmberechtigte`, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
+        )
         tableOutput2
- 
     })
 
     
