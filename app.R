@@ -175,38 +175,41 @@ ui <- fluidPage(
             
             
             br(),
+            reactableOutput("voteList"),
+            reactableOutput("selected")
                 
-            conditionalPanel(
-                condition = "input.buttonStart && input.selectPolLevel == 'Alle Vorlagen' | input.selectPolLevel == 'Eidgenössische Vorlagen'",
-                tabsetPanel(
-                    id= "ttabs",
-                    # Select geographic context
-                    tabPanel("Resultat für Schweiz", value = 1, DT::dataTableOutput("voteListCH")),
-                    tabPanel("Resultat für Kanton Zürich",value = 2, DT::dataTableOutput("voteListKtZH")),
-                    tabPanel("Resultat für Stadt Zürich", value = 3, DT::dataTableOutput("voteListStZH")),
-                    tabPanel("Resultat für Stadtkreise", value = 4, DT::dataTableOutput("voteListZHkr"))
-                )
-            ),
-            conditionalPanel(
-                condition = "input.buttonStart && input.selectPolLevel == 'Kantonale Vorlagen'",
-                tabsetPanel(
-                    id= "ttabs",
-                    # Select geographic context
-                    tabPanel("Resultat für Kanton Zürich", value = 5, reactableOutput("voteListKtZH2")),
-                    tabPanel("Resultat für Stadt Zürich", value = 6, reactableOutput("voteListStZH2")),
-                    tabPanel("Resultat für Stadtkreise", value = 7, reactableOutput("voteListZHkr2"))
-                )
-            ),
-            conditionalPanel(
-                condition = "input.buttonStart && input.selectPolLevel == 'Städtische Vorlagen'",
-                tabsetPanel(
-                    id= "ttabs",
-                    # Select geographic context
-                    tabPanel("Resultat für Stadt Zürich", value = 8,reactableOutput("voteListStZH3")),
-                    tabPanel("Resultat für Stadtkreise", value = 9, reactableOutput("voteListZHkr3"))
-                )
-                # https://stackoverflow.com/questions/38797646/hyperlink-from-one-datatable-to-another-in-shiny
-            )
+            # # Verschiedene Tabs für Gebiete
+            # conditionalPanel(
+            #     condition = "input.buttonStart && input.selectPolLevel == 'Alle Vorlagen' | input.selectPolLevel == 'Eidgenössische Vorlagen'",
+            #     tabsetPanel(
+            #         id= "ttabs",
+            #         # Select geographic context
+            #         tabPanel("Resultat für Schweiz", value = 1, DT::dataTableOutput("voteListCH")),
+            #         tabPanel("Resultat für Kanton Zürich",value = 2, DT::dataTableOutput("voteListKtZH")),
+            #         tabPanel("Resultat für Stadt Zürich", value = 3, DT::dataTableOutput("voteListStZH")),
+            #         tabPanel("Resultat für Stadtkreise", value = 4, DT::dataTableOutput("voteListZHkr"))
+            #     )
+            # ),
+            # conditionalPanel(
+            #     condition = "input.buttonStart && input.selectPolLevel == 'Kantonale Vorlagen'",
+            #     tabsetPanel(
+            #         id= "ttabs",
+            #         # Select geographic context
+            #         tabPanel("Resultat für Kanton Zürich", value = 5, reactableOutput("voteListKtZH2")),
+            #         tabPanel("Resultat für Stadt Zürich", value = 6, reactableOutput("voteListStZH2")),
+            #         tabPanel("Resultat für Stadtkreise", value = 7, reactableOutput("voteListZHkr2"))
+            #     )
+            # ),
+            # conditionalPanel(
+            #     condition = "input.buttonStart && input.selectPolLevel == 'Städtische Vorlagen'",
+            #     tabsetPanel(
+            #         id= "ttabs",
+            #         # Select geographic context
+            #         tabPanel("Resultat für Stadt Zürich", value = 8,reactableOutput("voteListStZH3")),
+            #         tabPanel("Resultat für Stadtkreise", value = 9, reactableOutput("voteListZHkr3"))
+            #     )
+            #     # https://stackoverflow.com/questions/38797646/hyperlink-from-one-datatable-to-another-in-shiny
+            # )
         )
     )
 )
@@ -347,46 +350,89 @@ server <- function(input, output, session) {
             xlsx::write.xlsx(filteredData(), file, row.names = FALSE, showNA = FALSE)
         }
     )
+  
     
-
-    output$voteListCH <- DT::renderDataTable({
-        tableOutput1 <- filteredData() %>% filter(Gebiet == "Eidgenossenschaft")
+    output$voteList <- renderReactable({
+        tableOutput1 <- reactable(filteredData() %>% 
+                                      select(Datum, `Politische Ebene`, Abstimmungstext) %>% 
+                                      unique(),
+                                  paginationType = "simple",
+                                  language = reactableLang(
+                                      noData = "Keine Einträge gefunden",
+                                      pageNumbers = "{page} von {pages}",
+                                      pageInfo = "{rowStart} bis {rowEnd} von {rows} Einträgen",
+                                      pagePrevious = "\u276e",
+                                      pageNext = "\u276f",
+                                      pagePreviousLabel = "Vorherige Seite",
+                                      pageNextLabel = "Nächste Seite"
+                                      
+                                  ),
+                                  columns = list(
+                                      # Datum = colDef(minWidth = 50),   # 12,5% width, 50px minimum
+                                      # `Politische Ebene` = colDef(minWidth = 100),   # 25% width, 100px minimum
+                                      # Abstimmungstext = colDef(minWidth = 250),  # 62,5% width, 250px minimum
+                                      Abstimmungstext = colDef(cell = function(value) {
+                                          htmltools::tags$a(href = value, target = "_blank", value)
+                                      })
+                                      ),
+                                  selection = "single", onClick = "select"
+                                  )
         tableOutput1
         })
-    output$voteListKtZH <- DT::renderDataTable({
-        tableOutput1 <- filteredData() %>% filter(Gebiet == "Kanton Zürich")
-        tableOutput1
-    })
-    output$voteListStZH <- DT::renderDataTable({
-        tableOutput1 <- filteredData() %>% filter(Gebiet == "Stadt Zürich")
-        tableOutput1
-    })
-    output$voteListZHkr <- DT::renderDataTable({
-        tableOutput1 <- filteredData() %>% filter(Gebiet == "Stadtkreise")
-        tableOutput1
+    
+    rowNumber <- reactive({
+        getReactableState("voteList", "selected")
     })
     
-    output$voteListKtZH2 <- renderReactable({
-        tableOutput1 <- reactable(filteredData() %>% filter(Gebiet == "Kanton Zürich"))
-        tableOutput1
+    output$selected <- renderReactable({
+        req(rowNumber())
+        
+        tableOutput2 <- reactable(filteredData() %>% 
+                                      filter(row_number() == rowNumber()))
+        tableOutput2
+ 
     })
-    output$voteListStZH2 <- renderReactable({
-        tableOutput1 <- reactable(filteredData() %>% filter(Gebiet == "Stadt Zürich"))
-        tableOutput1
-    })
-    output$voteListZHkr2 <- renderReactable({
-        tableOutput1 <- reactable(filteredData() %>% filter(Gebiet == "Stadtkreise"))
-        tableOutput1
-    })
+
     
-    output$voteListStZH3 <- renderReactable({
-        tableOutput1 <- reactable(filteredData() %>% filter(Gebiet == "Stadt Zürich"))
-        tableOutput1
-    })
-    output$voteListZHkr3 <- renderReactable({
-        tableOutput1 <- reactable(filteredData() %>% filter(Gebiet == "Stadtkreise"))
-        tableOutput1
-    })
+    # # Verschiedene Tabs für Gebiete
+    # output$voteListCH <- DT::renderDataTable({
+    #     tableOutput1 <- filteredData() %>% filter(Gebiet == "Eidgenossenschaft")
+    #     tableOutput1
+    #     })
+    # output$voteListKtZH <- DT::renderDataTable({
+    #     tableOutput1 <- filteredData() %>% filter(Gebiet == "Kanton Zürich")
+    #     tableOutput1
+    # })
+    # output$voteListStZH <- DT::renderDataTable({
+    #     tableOutput1 <- filteredData() %>% filter(Gebiet == "Stadt Zürich")
+    #     tableOutput1
+    # })
+    # output$voteListZHkr <- DT::renderDataTable({
+    #     tableOutput1 <- filteredData() %>% filter(Gebiet == "Stadtkreise")
+    #     tableOutput1
+    # })
+    # 
+    # output$voteListKtZH2 <- renderReactable({
+    #     tableOutput1 <- reactable(filteredData() %>% filter(Gebiet == "Kanton Zürich"))
+    #     tableOutput1
+    # })
+    # output$voteListStZH2 <- renderReactable({
+    #     tableOutput1 <- reactable(filteredData() %>% filter(Gebiet == "Stadt Zürich"))
+    #     tableOutput1
+    # })
+    # output$voteListZHkr2 <- renderReactable({
+    #     tableOutput1 <- reactable(filteredData() %>% filter(Gebiet == "Stadtkreise"))
+    #     tableOutput1
+    # })
+    # 
+    # output$voteListStZH3 <- renderReactable({
+    #     tableOutput1 <- reactable(filteredData() %>% filter(Gebiet == "Stadt Zürich"))
+    #     tableOutput1
+    # })
+    # output$voteListZHkr3 <- renderReactable({
+    #     tableOutput1 <- reactable(filteredData() %>% filter(Gebiet == "Stadtkreise"))
+    #     tableOutput1
+    # })
  
           
     ## Change Action Query Button when first selected
