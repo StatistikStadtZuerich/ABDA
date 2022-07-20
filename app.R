@@ -182,7 +182,6 @@ ui <- fluidPage(
             br(),
             reactableOutput("voteList"),
             br(),
-            htmlOutput("row"),
             br(),
             htmlOutput("titleVote"),
             br(),
@@ -394,38 +393,24 @@ server <- function(input, output, session) {
     rowNumber <- reactive( {
       getReactableState("voteList", "selected")
     })
-    
-    output$row <- renderText({
-      req(rowNumber())
-      rowNumber()
-      
-    })
+
     
     nameVote <- reactive({
         req(rowNumber())
         
         vote <- filteredData() %>% 
+          select(Datum, `Politische Ebene`, Abstimmungstext) %>% 
+          unique() %>% 
           mutate(ID = row_number()) %>% 
-          filter(ID == number)
+          filter(ID == rowNumber())
         
         print(vote$Abstimmungstext)
     })
     
     output$titleVote <- renderText({
       req(nameVote())
-      number <- nameVote()
       
-      vote <- filteredData() %>% 
-        mutate(ID = row_number()) %>% 
-        filter(ID == number) %>% 
-        select(Abstimmungstext)
-      
-      paste("Resultate für: <br>", "<b>", print(number), "</b>")
-      
-      
-        # req(nameVote())
-        # 
-        # paste("Resultate für: <br>", "<b>", nameVote(), "</b>")
+      paste("Resultate für: <br>", "<b>", print(nameVote()), "</b>")
     })
     
     output$selectedVote <- renderReactable({
@@ -443,7 +428,17 @@ server <- function(input, output, session) {
                                     pageNext = "\u276f",
                                     pagePreviousLabel = "Vorherige Seite",
                                     pageNextLabel = "Nächste Seite"
-                                  )
+                                  ),
+                                  columns = list(
+                                    Gebiet = colDef(minWidth = 50),   # 12,5% width, 50px minimum
+                                    `Stimmberechtigte` = colDef(minWidth = 30),   # 25% width, 100px minimum
+                                    `Ja-Stimmen` = colDef(minWidth = 30),  # 62,5% width, 250px minimum
+                                    `Nein-Stimmen` = colDef(minWidth = 30),  # 62,5% width, 250px minimum
+                                    `Stimmbeteiligung (in %)` = colDef(minWidth = 30),  # 62,5% width, 250px minimum
+                                    `Ja-Anteil (in %)` = colDef(minWidth = 30),  # 62,5% width, 250px minimum
+                                    `Nein-Anteil (in %)` = colDef(minWidth = 30)  # 62,5% width, 250px minimum
+                                  ),
+                                  defaultPageSize = 13,
         )
         tableOutput2
     })
