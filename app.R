@@ -41,6 +41,10 @@ data <- df %>%
         Name_Politische_Ebene == "Stadt Zürich" ~ "Städtische Vorlagen",
         Name_Politische_Ebene == "Kanton Zürich" ~ "Kantonale Vorlagen",
     )) %>% 
+    mutate(Name_Resultat_Gebiet = case_when(
+      Name_Resultat_Gebiet == "Stadtkreise" ~ Name_Wahlkreis_StZH,
+      TRUE ~ Name_Resultat_Gebiet
+    )) %>% 
     # Rename variables
     rename(Abstimmungstext = Abstimmungs_Text,
            Datum = Abstimmungs_Datum,
@@ -101,6 +105,7 @@ ui <- fluidPage(
             actionButton("buttonStart",
                          "Abfrage starten", 
                          icon = icon("database")),
+            
             br(),
             
             # Downloads
@@ -177,6 +182,7 @@ ui <- fluidPage(
             br(),
             reactableOutput("voteList"),
             br(),
+            htmlOutput("row"),
             br(),
             htmlOutput("titleVote"),
             br(),
@@ -385,23 +391,41 @@ server <- function(input, output, session) {
         tableOutput1
         })
     
-    rowNumber <- reactive({
-        getReactableState("voteList", "selected")
+    rowNumber <- reactive( {
+      getReactableState("voteList", "selected")
+    })
+    
+    output$row <- renderText({
+      req(rowNumber())
+      rowNumber()
+      
     })
     
     nameVote <- reactive({
         req(rowNumber())
         
         vote <- filteredData() %>% 
-            filter(row_number() == rowNumber())
+          mutate(ID = row_number()) %>% 
+          filter(ID == number)
         
         print(vote$Abstimmungstext)
     })
     
     output$titleVote <- renderText({
-        req(nameVote())
-        
-        paste("Resultate für: <br>", "<b>", nameVote(), "</b>")
+      req(nameVote())
+      number <- nameVote()
+      
+      vote <- filteredData() %>% 
+        mutate(ID = row_number()) %>% 
+        filter(ID == number) %>% 
+        select(Abstimmungstext)
+      
+      paste("Resultate für: <br>", "<b>", print(number), "</b>")
+      
+      
+        # req(nameVote())
+        # 
+        # paste("Resultate für: <br>", "<b>", nameVote(), "</b>")
     })
     
     output$selectedVote <- renderReactable({
@@ -409,7 +433,17 @@ server <- function(input, output, session) {
 
         tableOutput2 <- reactable(filteredData() %>%
                                       filter(Abstimmungstext == nameVote()) %>% 
-                                      select(Gebiet, `Stimmberechtigte`, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
+                                      select(Gebiet, `Stimmberechtigte`, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`),
+                                  paginationType = "simple",
+                                  language = reactableLang(
+                                    noData = "Keine Einträge gefunden",
+                                    pageNumbers = "{page} von {pages}",
+                                    pageInfo = "{rowStart} bis {rowEnd} von {rows} Einträgen",
+                                    pagePrevious = "\u276e",
+                                    pageNext = "\u276f",
+                                    pagePreviousLabel = "Vorherige Seite",
+                                    pageNextLabel = "Nächste Seite"
+                                  )
         )
         tableOutput2
     })
