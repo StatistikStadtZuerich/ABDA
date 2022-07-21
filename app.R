@@ -377,9 +377,9 @@ server <- function(input, output, session) {
                                       
                                   ),
                                   columns = list(
-                                      Datum = colDef(minWidth = 50),   # 12,5% width, 50px minimum
+                                      Datum = colDef(minWidth = 75, cell = function(value) strftime(value, "%d.%m.%Y")),   # 12,5% width, 50px minimum
                                       `Politische Ebene` = colDef(minWidth = 100),   # 25% width, 100px minimum
-                                      Abstimmungstext = colDef(minWidth = 250)  # 62,5% width, 250px minimum
+                                      Abstimmungstext = colDef(minWidth = 225)  # 62,5% width, 250px minimum
                                       # Abstimmungstext = colDef(cell = function(value) {
                                       #     htmltools::tags$a(href = value, target = "_blank", value)
                                       # })
