@@ -45,6 +45,12 @@ data <- df %>%
       Name_Resultat_Gebiet == "Stadtkreise" ~ Name_Wahlkreis_StZH,
       TRUE ~ Name_Resultat_Gebiet
     )) %>% 
+    # ToDo:
+    # Annäherung am Stimmbeteiligte dort wo sie fehlen?! Oder besser rausnehmen?
+    mutate(Stimmberechtigt = case_when(
+      is.na(Stimmberechtigt) ~ round((Ja + Nein)*(100/Stimmbeteiligung....), 0),
+      TRUE ~ Stimmberechtigt
+    )) %>%
     # Rename variables
     rename(Abstimmungstext = Abstimmungs_Text,
            Datum = Abstimmungs_Datum,
@@ -313,99 +319,105 @@ server <- function(input, output, session) {
     })
     
     
+    output$voteList <- renderReactable({
+      tableOutput1 <- reactable(filteredData() %>% 
+                                  select(Datum, `Politische Ebene`, Abstimmungstext) %>% 
+                                  unique(),
+                                paginationType = "simple",
+                                language = reactableLang(
+                                  noData = "Keine Einträge gefunden",
+                                  pageNumbers = "{page} von {pages}",
+                                  pageInfo = "{rowStart} bis {rowEnd} von {rows} Einträgen",
+                                  pagePrevious = "\u276e",
+                                  pageNext = "\u276f",
+                                  pagePreviousLabel = "Vorherige Seite",
+                                  pageNextLabel = "Nächste Seite"
+                                  
+                                ),
+                                columns = list(
+                                  Datum = colDef(minWidth = 75, cell = function(value) strftime(value, "%d.%m.%Y")),   # 12,5% width, 50px minimum
+                                  `Politische Ebene` = colDef(minWidth = 100),   # 25% width, 100px minimum
+                                  Abstimmungstext = colDef(minWidth = 225)  # 62,5% width, 250px minimum
+                                  # Abstimmungstext = colDef(cell = function(value) {
+                                  #     htmltools::tags$a(href = value, target = "_blank", value)
+                                  # })
+                                ),
+                                defaultPageSize = 5,
+                                selection = "single", onClick = "select"
+      )
+      tableOutput1
+    })
+    
+    rowNumber <- reactive( {
+      getReactableState("voteList", "selected")
+    })
+    
+    
+    nameVote <- reactive({
+      req(rowNumber())
+      
+      vote <- filteredData() %>% 
+        select(Datum, `Politische Ebene`, Abstimmungstext) %>% 
+        unique() %>% 
+        mutate(ID = row_number()) %>% 
+        filter(ID == rowNumber())
+      
+      print(vote$Abstimmungstext)
+    })
+    
+    
+    dateVote <- reactive({
+      req(rowNumber())
+      
+      vote <- filteredData() %>% 
+        select(Datum, `Politische Ebene`, Abstimmungstext) %>% 
+        unique() %>% 
+        mutate(ID = row_number()) %>% 
+        filter(ID == rowNumber())
+      
+      print(vote$Datum)
+    })
+    
+    voteData <- reactive({
+      req(nameVote())
+      
+      vote <- filteredData() %>%
+        filter(Abstimmungstext == nameVote()) %>% 
+        select(Gebiet, `Stimmberechtigte`, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
+    })
+    
+    
+    
+    
     ## Write Download Table
     # CSV
     output$downloadDataCSV <- downloadHandler(
-        filename = function(price) {
-            textSearch <- input$textSearch
-            if(textSearch == "") {
-                textSearch <- gsub(" ", "-", "Alle Abstimmungen", fixed = TRUE)
-                level <- gsub(" ", "-", input$selectPolLevel, fixed = TRUE)
-                time1 <- gsub(" ", "-", input$selectDateRange[1], fixed = TRUE)
-                time2 <- gsub(" ", "-", input$selectDateRange[2], fixed = TRUE)
-                paste0("Abstimmungsresultate_", textSearch, "_", level, "_", time1, "_bis_", time2, ".csv")
-            } else {
-                textSearch <- gsub(" ", "-", input$price, fixed = TRUE)
-                level <- gsub(" ", "-", input$selectPolLevel, fixed = TRUE)
-                time1 <- gsub(" ", "-", input$selectDateRange[1], fixed = TRUE)
-                time2 <- gsub(" ", "-", input$selectDateRange[2], fixed = TRUE)
-                paste0("Abstimmungsresultate_", textSearch, "_", level, "_", time1, "_bis_", time2, ".csv")
-            }
+        filename = function(vote) {
+
+            textSearch <- gsub(" ", "-", nameVote(), fixed = TRUE)
+            time <- gsub(" ", "-", dateVote(), fixed = TRUE)
+            paste0("Abstimmungsresultate_", textSearch, "_", time, ".csv")
+            
         },
         content = function(file) {
-            write.csv(filteredData(), file, row.names = FALSE, na = " ")
+            write.csv(voteData(), file, row.names = FALSE, na = " ")
         }
     )
     
     # Excel
     output$downloadDataEXCEL <- downloadHandler(
-        filename = function(price) {
-            textSearch <- input$textSearch
-            if(textSearch == "") {
-                textSearch <- gsub(" ", "-", "Alle Abstimmungen", fixed = TRUE)
-                level <- gsub(" ", "-", input$selectPolLevel, fixed = TRUE)
-                time1 <- gsub(" ", "-", input$selectDateRange[1], fixed = TRUE)
-                time2 <- gsub(" ", "-", input$selectDateRange[2], fixed = TRUE)
-                paste0("Abstimmungsresultate_", textSearch, "_", level, "_", time1, "_bis_", time2, ".xlsx")
-            } else {
-                textSearch <- gsub(" ", "-", input$price, fixed = TRUE)
-                level <- gsub(" ", "-", input$selectPolLevel, fixed = TRUE)
-                time1 <- gsub(" ", "-", input$selectDateRange[1], fixed = TRUE)
-                time2 <- gsub(" ", "-", input$selectDateRange[2], fixed = TRUE)
-                paste0("Abstimmungsresultate_", textSearch, "_", level, "_", time1, "_bis_", time2, ".xlsx")
-            }
-        },
+      filename = function(vote) {
+        
+        textSearch <- gsub(" ", "-", nameVote(), fixed = TRUE)
+        time <- gsub(" ", "-", dateVote(), fixed = TRUE)
+        paste0("Abstimmungsresultate_", textSearch, "_", time, ".xlsx")
+        
+      },
         content = function(file) {
-            xlsx::write.xlsx(filteredData(), file, row.names = FALSE, showNA = FALSE)
+            xlsx::write.xlsx(voteData(), file, row.names = FALSE, showNA = FALSE)
         }
     )
   
-    
-    output$voteList <- renderReactable({
-        tableOutput1 <- reactable(filteredData() %>% 
-                                      select(Datum, `Politische Ebene`, Abstimmungstext) %>% 
-                                      unique(),
-                                  paginationType = "simple",
-                                  language = reactableLang(
-                                      noData = "Keine Einträge gefunden",
-                                      pageNumbers = "{page} von {pages}",
-                                      pageInfo = "{rowStart} bis {rowEnd} von {rows} Einträgen",
-                                      pagePrevious = "\u276e",
-                                      pageNext = "\u276f",
-                                      pagePreviousLabel = "Vorherige Seite",
-                                      pageNextLabel = "Nächste Seite"
-                                      
-                                  ),
-                                  columns = list(
-                                      Datum = colDef(minWidth = 75, cell = function(value) strftime(value, "%d.%m.%Y")),   # 12,5% width, 50px minimum
-                                      `Politische Ebene` = colDef(minWidth = 100),   # 25% width, 100px minimum
-                                      Abstimmungstext = colDef(minWidth = 225)  # 62,5% width, 250px minimum
-                                      # Abstimmungstext = colDef(cell = function(value) {
-                                      #     htmltools::tags$a(href = value, target = "_blank", value)
-                                      # })
-                                      ),
-                                  defaultPageSize = 5,
-                                  selection = "single", onClick = "select"
-                                  )
-        tableOutput1
-        })
-    
-    rowNumber <- reactive( {
-      getReactableState("voteList", "selected")
-    })
-
-    
-    nameVote <- reactive({
-        req(rowNumber())
-        
-        vote <- filteredData() %>% 
-          select(Datum, `Politische Ebene`, Abstimmungstext) %>% 
-          unique() %>% 
-          mutate(ID = row_number()) %>% 
-          filter(ID == rowNumber())
-        
-        print(vote$Abstimmungstext)
-    })
     
     output$titleVote <- renderText({
       req(nameVote())
