@@ -322,7 +322,10 @@ server <- function(input, output, session) {
     output$voteList <- renderReactable({
       tableOutput1 <- reactable(filteredData() %>% 
                                   select(Datum, `Politische Ebene`, Abstimmungstext) %>% 
-                                  unique(),
+                                  unique() 
+                                # %>% 
+                                #   mutate(details = "")
+                                ,
                                 paginationType = "simple",
                                 language = reactableLang(
                                   noData = "Keine Einträge gefunden",
@@ -335,13 +338,31 @@ server <- function(input, output, session) {
                                   
                                 ),
                                 columns = list(
-                                  Datum = colDef(minWidth = 75, cell = function(value) strftime(value, "%d.%m.%Y")),   # 12,5% width, 50px minimum
+                                  Datum = colDef(minWidth = 80, cell = function(value) strftime(value, "%d.%m.%Y")),   # 12,5% width, 50px minimum
                                   `Politische Ebene` = colDef(minWidth = 100),   # 25% width, 100px minimum
-                                  Abstimmungstext = colDef(minWidth = 225)  # 62,5% width, 250px minimum
-                                  # Abstimmungstext = colDef(cell = function(value) {
-                                  #     htmltools::tags$a(href = value, target = "_blank", value)
-                                  # })
+                                  Abstimmungstext = colDef(minWidth = 225) # 62,5% width, 250px minimum
+                                  # details = colDef(
+                                  #   name = "",
+                                  #   cell = function() htmltools::tags$button("Details")
+                                  # )
                                 ),
+                                # onClick = "select",
+                                # onClick = JS("function(rowInfo, column) {
+                                #   // Only handle click events on the 'details' column
+                                #   if (column.id !== 'details') {
+                                #     return
+                                #   }
+                                # 
+                                #   // Display an alert dialog with details for the row
+                                #   window.alert('Details for row ' + rowInfo.index + ':\\n' + JSON.stringify(rowInfo.values, null, 2))
+                                # 
+                                #   // Send the click event to Shiny, which will be available in input$show_details
+                                #   // Note that the row index starts at 0 in JavaScript, so we add 1
+                                #   if (window.Shiny) {
+                                #     Shiny.setInputValue('show_details', { index: rowInfo.index + 1 }, { priority: 'event' })
+                                #   }
+                                # }"),
+                                highlight = TRUE,
                                 defaultPageSize = 5,
                                 selection = "single", onClick = "select"
       )
@@ -504,7 +525,7 @@ server <- function(input, output, session) {
                            label = "Erneute Abfrage",
                            icon = icon("refresh"))
     })
-    
+
     }
     
     # Run the application 
