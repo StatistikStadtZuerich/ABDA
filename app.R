@@ -232,13 +232,24 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
     
+    # First button click to activate search, after not necessary anymore
+    global <- reactiveValues(activeButton = FALSE)
+    
+    observeEvent(input$buttonStart, {
+      req(input$buttonStart)
+      global$activeButton <- TRUE
+    })  
+  
+  
     ## Test with Date
-    dataRange <- eventReactive(input$buttonStart, {
+    dataRange <- reactive({
+      req(global$activeButton == TRUE)
         dateRange <- input$selectDateRange
         dateRange
     })
     
-    dataDate <- eventReactive(input$buttonStart, {
+    dataDate <- reactive({
+      req(global$activeButton == TRUE)
         datum <- data %>%
             dplyr::filter(
                 `Politische Ebene` %in% input$selectPolLevel,
@@ -250,8 +261,8 @@ server <- function(input, output, session) {
     })
         
     ## Get Data for Download
-    filteredData <- eventReactive(input$buttonStart, {
-        
+    filteredData <- reactive({ 
+      req(global$activeButton == TRUE)
         # Filter: No Search
         if(input$textSearch == "") {
             filtered <- data %>%
@@ -291,7 +302,8 @@ server <- function(input, output, session) {
     
     # Captions
     # Reactive Title
-    titleReactive <- eventReactive(input$buttonStart, {
+    titleReactive <- reactive({
+      req(global$activeButton == TRUE)
         if(input$textSearch == ""){
             title <- "Ohne Suchtext"
         } else {
@@ -303,7 +315,8 @@ server <- function(input, output, session) {
     })
     
     # Reactive Subtitle
-    subtitleReactive <- eventReactive(input$buttonStart, {
+    subtitleReactive <- reactive({
+      req(global$activeButton == TRUE)
         subtitle <- input$selectPolLevel
     })
     output$subtitle <- renderText({
@@ -311,7 +324,8 @@ server <- function(input, output, session) {
     })
     
     # Reactive Sub-Subtitle
-    subSubtitleReactive <- eventReactive(input$buttonStart, {
+    subSubtitleReactive <- reactive({
+      req(global$activeButton == TRUE)
         subSubtitle <- paste0("Zeitraum: ", input$selectDateRange[1], " bis ", input$selectDateRange[2])
     })
     output$subSubtitle <- renderText({
@@ -519,12 +533,23 @@ server <- function(input, output, session) {
  
           
     ## Change Action Query Button when first selected
-    observe({
-        req(input$buttonStart)
-        updateActionButton(session, "buttonStart",
-                           label = "Erneute Abfrage",
-                           icon = icon("refresh"))
-    })
+    # observe({
+    #     req(input$buttonStart)
+    #     updateActionButton(session, "buttonStart",
+    #                        label = "Erneute Abfrage",
+    #                        icon = icon("refresh"))
+    # })
+    # 
+    # observe({
+    #   if(input$buttonStart == 0) return()
+    #   shinyjs::disable("buttonStart")
+    #   
+    #   tryCatch(
+    #     foo(),          
+    #     error = function(e) return(),
+    #     finally = shinyjs::enable("buttonStart")
+    #   )
+    # })
 
     }
     
