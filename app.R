@@ -71,13 +71,15 @@ library(shiny)
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
-    # CSS
-    includeCSS("sszTheme.css"),
-    
-    br(),
-    
+
     # Application title
     titlePanel("Abstimmungsresultate App"),
+    
+    # Horizontal Ruler
+    tags$hr(),
+    
+    # CSS
+    includeCSS("sszTheme.css"),
     
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
@@ -86,76 +88,101 @@ ui <- fluidPage(
         sidebarPanel(
             
             # Text input to facilitate search
-            textInput("textSearch",
+            textInput("suchfeld",
                       "Suchtext:"),
             
             # Select Date Range
-            dateRangeInput("selectDateRange",
-                           "Datum (z.B. 25.01.2004):",
+            dateRangeInput("DateRange",
+                           "Datum:",
                            start = "1993-01-01",
                            end = Sys.Date(),
                            format = "dd.mm.yyyy",
-                           startview = "month",
-                           weekstart = 0,
                            language = "de",
-                           separator = " bis "),
+                           separator = icon("calendar")),
             
             # Select level of vote/referendum
-            radioButtons("selectPolLevel",
-                         "Politische Ebene der Abstimmung:",
-                         choices = c("Alle Vorlagen", "Eidgenössische Vorlagen", "Kantonale Vorlagen", "Städtische Vorlagen"),
-                         selected = "Alle Vorlagen"),
-            
-            
-            # Action Button
-            actionButton("buttonStart",
-                         "Abfrage starten", 
-                         icon = icon("database")),
+            tags$div(
+              class = "radioDiv",
+              radioButtons("ButtonGroupLabel",
+                           "Politische Ebene der Abstimmung:",
+                           choices = c("Alle Vorlagen", 
+                                       "Eidgenössische Vorlagen", 
+                                       "Kantonale Vorlagen", 
+                                       "Städtische Vorlagen"),
+                           selected = "Alle Vorlagen")
+            ),
             
             br(),
             
+            # Action Button
+            actionButton("ActionButtonId",
+                         "Abfrage starten"),
+            
+            br(),
+            br(),
+            
             # Downloads
+            
             conditionalPanel(
                 condition = 'output.selectedVote',
-                h5("Daten herunterladen"),
+                h4("Daten herunterladen"),
+                
+                # Download Panel
                 tags$div(
-                    id = "downloadLinkCSV",
-                    class = "downloadLink",
-                    icon("file-csv"),
-                    tags$div(
-                        id = "downloadLinkCSVText",
-                        class = "downloadLinkIcon",
-                        downloadLink("downloadDataCSV", " .csv herunterladen")
-                    )
-                ),
-                tags$div(
-                    id = "downloadLinkEXCEL",
-                    class = "downloadLink",
-                    icon("file-excel"),
-                    tags$div(
-                        id = "downloadLinkEXCELText",
-                        class = "downloadLinkIcon",
-                        downloadLink("downloadDataEXCEL", " .xlsx herunterladen")
-                    )
-                ),
-                tags$div(
-                    id = "linkOGD",
-                    class = "downloadLink",
-                    icon("database"),
-                    tags$div(
-                        id = "downloadLinkOGDText",
-                        class = "downloadLinkIcon",
-                        tags$a(
-                            class = "downloadLinkOGD",
-                            href = "https://data.stadt-zuerich.ch/dataset/politik_abstimmungen_seit1933",
-                            target="_blank",
-                            " im OGD-Portal herunterladen"
-                        )
-                    )
+                  id = "downloadWrapperId",
+                  class = "downloadWrapperDiv",
+                  
+                  actionButton(inputId = "csvDown",
+                               label = "csv"
+                  ),
+                  actionButton(inputId = "excelDown",
+                               label = "xlsx"
+                  ),
+                  actionButton(inputId = "ogdDown",
+                               label = "OGD",
+                               onclick ="window.open('https://data.stadt-zuerich.ch/dataset/politik_abstimmungen_seit1933', '_blank')"
+                  )
                 )
-            )
-        ),
-        
+              )
+            ),
+        #         tags$div(
+        #             id = "downloadLinkCSV",
+        #             class = "downloadLink",
+        #             icon("file-csv"),
+        #             tags$div(
+        #                 id = "downloadLinkCSVText",
+        #                 class = "downloadLinkIcon",
+        #                 downloadLink("downloadDataCSV", " .csv herunterladen")
+        #             )
+        #         ),
+        #         tags$div(
+        #             id = "downloadLinkEXCEL",
+        #             class = "downloadLink",
+        #             icon("file-excel"),
+        #             tags$div(
+        #                 id = "downloadLinkEXCELText",
+        #                 class = "downloadLinkIcon",
+        #                 downloadLink("downloadDataEXCEL", " .xlsx herunterladen")
+        #             )
+        #         ),
+        #         tags$div(
+        #             id = "linkOGD",
+        #             class = "downloadLink",
+        #             icon("database"),
+        #             tags$div(
+        #                 id = "downloadLinkOGDText",
+        #                 class = "downloadLinkIcon",
+        #                 tags$a(
+        #                     class = "downloadLinkOGD",
+        #                     href = "https://data.stadt-zuerich.ch/dataset/politik_abstimmungen_seit1933",
+        #                     target="_blank",
+        #                     " im OGD-Portal herunterladen"
+        #                 )
+        #             )
+        #         )
+        #     )
+        # ),
+        # 
         
         # Show a plot of the generated distribution
         mainPanel(
@@ -195,7 +222,7 @@ ui <- fluidPage(
                 
             # # Verschiedene Tabs für Gebiete
             # conditionalPanel(
-            #     condition = "input.buttonStart && input.selectPolLevel == 'Alle Vorlagen' | input.selectPolLevel == 'Eidgenössische Vorlagen'",
+            #     condition = "input.ActionButtonId && input.ButtonGroupLabel == 'Alle Vorlagen' | input.ButtonGroupLabel == 'Eidgenössische Vorlagen'",
             #     tabsetPanel(
             #         id= "ttabs",
             #         # Select geographic context
@@ -206,7 +233,7 @@ ui <- fluidPage(
             #     )
             # ),
             # conditionalPanel(
-            #     condition = "input.buttonStart && input.selectPolLevel == 'Kantonale Vorlagen'",
+            #     condition = "input.ActionButtonId && input.ButtonGroupLabel == 'Kantonale Vorlagen'",
             #     tabsetPanel(
             #         id= "ttabs",
             #         # Select geographic context
@@ -216,7 +243,7 @@ ui <- fluidPage(
             #     )
             # ),
             # conditionalPanel(
-            #     condition = "input.buttonStart && input.selectPolLevel == 'Städtische Vorlagen'",
+            #     condition = "input.ActionButtonId && input.ButtonGroupLabel == 'Städtische Vorlagen'",
             #     tabsetPanel(
             #         id= "ttabs",
             #         # Select geographic context
@@ -235,8 +262,8 @@ server <- function(input, output, session) {
     # First button click to activate search, after not necessary anymore
     global <- reactiveValues(activeButton = FALSE)
     
-    observeEvent(input$buttonStart, {
-      req(input$buttonStart)
+    observeEvent(input$ActionButtonId, {
+      req(input$ActionButtonId)
       global$activeButton <- TRUE
     })  
   
@@ -244,7 +271,7 @@ server <- function(input, output, session) {
     ## Test with Date
     dataRange <- reactive({
       req(global$activeButton == TRUE)
-        dateRange <- input$selectDateRange
+        dateRange <- input$DateRange
         dateRange
     })
     
@@ -252,9 +279,9 @@ server <- function(input, output, session) {
       req(global$activeButton == TRUE)
         datum <- data %>%
             dplyr::filter(
-                `Politische Ebene` %in% input$selectPolLevel,
-                Datum >= input$selectDateRange[1],
-                Datum <= input$selectDateRange[2]) %>% 
+                `Politische Ebene` %in% input$ButtonGroupLabel,
+                Datum >= input$DateRange[1],
+                Datum <= input$DateRange[2]) %>% 
             pull(Datum) %>% 
             unique()
         datum
@@ -264,37 +291,37 @@ server <- function(input, output, session) {
     filteredData <- reactive({ 
       req(global$activeButton == TRUE)
         # Filter: No Search
-        if(input$textSearch == "") {
+        if(input$suchfeld == "") {
             filtered <- data %>%
-                dplyr::filter(Datum >= input$selectDateRange[1] & Datum <= input$selectDateRange[2]) %>% 
+                dplyr::filter(Datum >= input$DateRange[1] & Datum <= input$DateRange[2]) %>% 
                 mutate(Datum = as.character(as.Date(Datum, "%d.%m.%Y")),
                        Stimmberechtigte = as.integer(Stimmberechtigte))  %>% 
                 select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
             
             # Filter the level of vote
-            if(input$selectPolLevel == "Alle Vorlagen"){
+            if(input$ButtonGroupLabel == "Alle Vorlagen"){
                 filtered
             }else{
               filtered <- filtered %>% 
-                  filter(`Politische Ebene` %in% input$selectPolLevel)
+                  filter(`Politische Ebene` %in% input$ButtonGroupLabel)
               filtered
             }
             
         # Filter: With Search   
         } else {
             filtered <- data %>%
-                filter(grepl(input$textSearch, Abstimmungstext, ignore.case=TRUE)) %>%
-                dplyr::filter(Datum >= input$selectDateRange[1] & Datum <= input$selectDateRange[2]) %>% 
+                filter(grepl(input$suchfeld, Abstimmungstext, ignore.case=TRUE)) %>%
+                dplyr::filter(Datum >= input$DateRange[1] & Datum <= input$DateRange[2]) %>% 
                 mutate(Datum = as.character(as.Date(Datum, "%d.%m.%Y")),
                        Stimmberechtigte = as.integer(Stimmberechtigte))  %>% 
                 select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
             
             # Filter the level of vote
-            if(input$selectPolLevel == "Alle Vorlagen"){
+            if(input$ButtonGroupLabel == "Alle Vorlagen"){
                 filtered
             }else{
                 filtered <- filtered %>% 
-                    filter(`Politische Ebene` %in% input$selectPolLevel)
+                    filter(`Politische Ebene` %in% input$ButtonGroupLabel)
                 filtered
             }
         }
@@ -304,10 +331,10 @@ server <- function(input, output, session) {
     # Reactive Title
     titleReactive <- reactive({
       req(global$activeButton == TRUE)
-        if(input$textSearch == ""){
+        if(input$suchfeld == ""){
             title <- "Ohne Suchtext"
         } else {
-            title <- paste0("Suche: ", input$textSearch)
+            title <- paste0("Suche: ", input$suchfeld)
         }
     })
     output$title <- renderText({
@@ -317,7 +344,7 @@ server <- function(input, output, session) {
     # Reactive Subtitle
     subtitleReactive <- reactive({
       req(global$activeButton == TRUE)
-        subtitle <- input$selectPolLevel
+        subtitle <- input$ButtonGroupLabel
     })
     output$subtitle <- renderText({
         subtitleReactive()
@@ -326,7 +353,7 @@ server <- function(input, output, session) {
     # Reactive Sub-Subtitle
     subSubtitleReactive <- reactive({
       req(global$activeButton == TRUE)
-        subSubtitle <- paste0("Zeitraum: ", input$selectDateRange[1], " bis ", input$selectDateRange[2])
+        subSubtitle <- paste0("Zeitraum: ", input$DateRange[1], " bis ", input$DateRange[2])
     })
     output$subSubtitle <- renderText({
         subSubtitleReactive()
@@ -426,12 +453,12 @@ server <- function(input, output, session) {
     
     ## Write Download Table
     # CSV
-    output$downloadDataCSV <- downloadHandler(
+    output$csvDown <- downloadHandler(
         filename = function(vote) {
 
-            textSearch <- gsub(" ", "-", nameVote(), fixed = TRUE)
+            suchfeld <- gsub(" ", "-", nameVote(), fixed = TRUE)
             time <- gsub(" ", "-", dateVote(), fixed = TRUE)
-            paste0("Abstimmungsresultate_", textSearch, "_", time, ".csv")
+            paste0("Abstimmungsresultate_", suchfeld, "_", time, ".csv")
             
         },
         content = function(file) {
@@ -440,12 +467,12 @@ server <- function(input, output, session) {
     )
     
     # Excel
-    output$downloadDataEXCEL <- downloadHandler(
+    output$excelDown <- downloadHandler(
       filename = function(vote) {
         
-        textSearch <- gsub(" ", "-", nameVote(), fixed = TRUE)
+        suchfeld <- gsub(" ", "-", nameVote(), fixed = TRUE)
         time <- gsub(" ", "-", dateVote(), fixed = TRUE)
-        paste0("Abstimmungsresultate_", textSearch, "_", time, ".xlsx")
+        paste0("Abstimmungsresultate_", suchfeld, "_", time, ".xlsx")
         
       },
         content = function(file) {
@@ -534,20 +561,20 @@ server <- function(input, output, session) {
           
     ## Change Action Query Button when first selected
     # observe({
-    #     req(input$buttonStart)
-    #     updateActionButton(session, "buttonStart",
+    #     req(input$ActionButtonId)
+    #     updateActionButton(session, "ActionButtonId",
     #                        label = "Erneute Abfrage",
     #                        icon = icon("refresh"))
     # })
     # 
     # observe({
-    #   if(input$buttonStart == 0) return()
-    #   shinyjs::disable("buttonStart")
+    #   if(input$ActionButtonId == 0) return()
+    #   shinyjs::disable("ActionButtonId")
     #   
     #   tryCatch(
     #     foo(),          
     #     error = function(e) return(),
-    #     finally = shinyjs::enable("buttonStart")
+    #     finally = shinyjs::enable("ActionButtonId")
     #   )
     # })
 
