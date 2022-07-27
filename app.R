@@ -116,7 +116,7 @@ ui <- fluidPage(
             
             # Downloads
             conditionalPanel(
-                condition = 'input.buttonStart',
+                condition = 'output.selectedVote',
                 h5("Daten herunterladen"),
                 tags$div(
                     id = "downloadLinkCSV",
