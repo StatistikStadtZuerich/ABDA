@@ -1,73 +1,16 @@
 ### Required packages
 library(tidyverse)
-library(httr)
-library(parallel)
-library(data.table)
-library(knitr)
-library(kableExtra)
-library(ggplot2)
 library(xlsx)
-library(lubridate)
-library(DT)
 library(shinydashboard)
 library(reactable)
 
 
-# Source Donwload Function
+# Source Download Function
 source("sszDownload.R", local = TRUE)
 
-### Load Data
-## URLS
-URLs <- c("https://data.stadt-zuerich.ch/dataset/politik_abstimmungen_seit1933/download/abstimmungen_seit1933.csv")
+# Source Prepared Data
+source("prepareData.R", local = TRUE, encoding = "UTF-8")
 
-## Download function
-dataDownload <- function(link) {
-    data <- data.table::fread(link,
-                              encoding = "UTF-8")
-}
-
-## Download & Prepare Data
-cl <- makeCluster(detectCores())
-clusterExport(cl, "URLs")
-data <- parLapply(cl, URLs, dataDownload)
-
-df <- data.frame(Reduce(rbind, data))
-
-data <- df %>%  
-    mutate(Abstimmungs_Datum = as.Date(Abstimmungs_Datum, "%d.%m.%Y")) %>% 
-    mutate(Name_Resultat_Gebiet = case_when(
-        Name_Resultat_Gebiet == "Stadt Zürich" & !is.na(Nr_Wahlkreis_StZH) ~ "Stadtkreise",
-        TRUE ~ Name_Resultat_Gebiet
-    )) %>% 
-    mutate(Name_Politische_Ebene = case_when(
-        Name_Politische_Ebene == "Eidgenossenschaft" ~ "Eidgenössische Vorlagen",
-        Name_Politische_Ebene == "Stadt Zürich" ~ "Städtische Vorlagen",
-        Name_Politische_Ebene == "Kanton Zürich" ~ "Kantonale Vorlagen",
-    )) %>% 
-    mutate(Name_Resultat_Gebiet = case_when(
-      Name_Resultat_Gebiet == "Stadtkreise" ~ Name_Wahlkreis_StZH,
-      TRUE ~ Name_Resultat_Gebiet
-    )) %>% 
-    # ToDo:
-    # Annäherung am Stimmbeteiligte dort wo sie fehlen?! Oder besser rausnehmen?
-    mutate(Stimmberechtigt = case_when(
-      is.na(Stimmberechtigt) ~ round((Ja + Nein)*(100/Stimmbeteiligung....), 0),
-      TRUE ~ Stimmberechtigt
-    )) %>%
-    # Rename variables
-    rename(Abstimmungstext = Abstimmungs_Text,
-           Datum = Abstimmungs_Datum,
-           'Politische Ebene' = Name_Politische_Ebene,
-           'Wahlkreis' = Name_Wahlkreis_StZH,
-           'Gebiet' = Name_Resultat_Gebiet,
-           'Stimmberechtigte' = Stimmberechtigt,
-           'Ja-Stimmen' = Ja,
-           'Nein-Stimmen' = Nein,
-           'Stimmbeteiligung (in %)' = Stimmbeteiligung....,
-           'Ja-Anteil (in %)' = Ja....,
-           'Nein-Anteil (in %)' = Nein....,
-           'Stände Ja' = StaendeJa,
-           'Stände Nein' = StaendeNein)
 
 # Shiny App
 library(shiny)
@@ -89,131 +32,93 @@ ui <- fluidPage(
         
         # Sidebar Layout
         sidebarPanel(
+          
+          # Define subtitle
+          h2("Abfrage definieren:"),
             
-            # Text input to facilitate search
-            textInput("suchfeld",
-                      "Suchtext:"),
+          # Text input to facilitate search
+          textInput("suchfeld",
+                    "Suchtext:"),
+          
+          # Select Date Range
+          dateRangeInput("DateRange",
+                         "Datum:",
+                         start = "1993-01-01",
+                         end = Sys.Date(),
+                         format = "dd.mm.yyyy",
+                         language = "de",
+                         separator = icon("calendar")),
+          
+          # Select level of vote/referendum
+          tags$div(
+            class = "radioDiv",
+            radioButtons("ButtonGroupLabel",
+                         "Politische Ebene der Abstimmung:",
+                         choices = c("Alle Vorlagen", 
+                                     "Eidgenössische Vorlagen", 
+                                     "Kantonale Vorlagen", 
+                                     "Städtische Vorlagen"),
+                         selected = "Alle Vorlagen")
+          ),
+          
+          
+          # Action Button
+          conditionalPanel(
+            condition = 'input.ActionButtonId==0',
             
-            # Select Date Range
-            dateRangeInput("DateRange",
-                           "Datum:",
-                           start = "1993-01-01",
-                           end = Sys.Date(),
-                           format = "dd.mm.yyyy",
-                           language = "de",
-                           separator = icon("calendar")),
-            
-            # Select level of vote/referendum
-            tags$div(
-              class = "radioDiv",
-              radioButtons("ButtonGroupLabel",
-                           "Politische Ebene der Abstimmung:",
-                           choices = c("Alle Vorlagen", 
-                                       "Eidgenössische Vorlagen", 
-                                       "Kantonale Vorlagen", 
-                                       "Städtische Vorlagen"),
-                           selected = "Alle Vorlagen")
-            ),
-            
-            br(),
-            
-            # Action Button
             actionButton("ActionButtonId",
-                         "Abfrage starten"),
-            
-            br(),
-            br(),
-            
-            # Downloads
-            
-            conditionalPanel(
-                condition = 'output.selectedVote',
-                h3("Daten herunterladen"),
+                         "Abfrage starten")
+          ),
+          conditionalPanel(
+            condition = 'input.ActionButtonId>0',
+         
+          ),
+          
+          br(),
+          
+          # Downloads
+          conditionalPanel(
+              condition = 'output.selectedVote',
+              h3("Daten herunterladen"),
+              
+              # Download Panel
+              tags$div(
+                id = "downloadWrapperId",
+                class = "downloadWrapperDiv",
                 
-                # Download Panel
-                tags$div(
-                  id = "downloadWrapperId",
-                  class = "downloadWrapperDiv",
-                  
-                  sszDownload("csvDownload",
-                              label = "csv"
-                  ),
-                  sszDownload("excelDownload",
-                              label = "xlsx"
-                  ),
-                  actionButton(inputId = "ogdDown",
-                               label = "OGD",
-                               onclick ="window.open('https://data.stadt-zuerich.ch/dataset/politik_abstimmungen_seit1933', '_blank')"
-                  )
+                sszDownload("csvDownload",
+                            label = "csv"
+                ),
+                sszDownload("excelDownload",
+                            label = "xlsx"
+                ),
+                actionButton(inputId = "ogdDown",
+                             label = "OGD",
+                             onclick ="window.open('https://data.stadt-zuerich.ch/dataset/politik_abstimmungen_seit1933', '_blank')"
                 )
               )
-            ),
+            )
+          ),
         
         # Show a plot of the generated distribution
         mainPanel(
+          
+          conditionalPanel(
+            condition = 'output.voteList',
             
-            #Table Title (prices)
-            tags$div(
-                id = "title_id",
-                class = "title_div",
-                textOutput("title")
-            ),
-            
-            # Table Subtitle (prices)
-            tags$div(
-                id = "subtitle_id",
-                class = "subtitle_div",
-                textOutput("subtitle")
-            ),
-            
-            # Table Subsubtitle (prices)
-            tags$div(
-                id = "subSubtitle_id",
-                class = "subSubtitle_div",
-                textOutput("subSubtitle")
-            ),
-            
-            
-            br(),
-            reactableOutput("voteList"),
-            br(),
-            br(),
-            htmlOutput("titleVote"),
-            br(),
-            reactableOutput("selectedVote")
-                
-            # # Verschiedene Tabs für Gebiete
-            # conditionalPanel(
-            #     condition = "input.ActionButtonId && input.ButtonGroupLabel == 'Alle Vorlagen' | input.ButtonGroupLabel == 'Eidgenössische Vorlagen'",
-            #     tabsetPanel(
-            #         id= "ttabs",
-            #         # Select geographic context
-            #         tabPanel("Resultat für Schweiz", value = 1, DT::dataTableOutput("voteListCH")),
-            #         tabPanel("Resultat für Kanton Zürich",value = 2, DT::dataTableOutput("voteListKtZH")),
-            #         tabPanel("Resultat für Stadt Zürich", value = 3, DT::dataTableOutput("voteListStZH")),
-            #         tabPanel("Resultat für Stadtkreise", value = 4, DT::dataTableOutput("voteListZHkr"))
-            #     )
-            # ),
-            # conditionalPanel(
-            #     condition = "input.ActionButtonId && input.ButtonGroupLabel == 'Kantonale Vorlagen'",
-            #     tabsetPanel(
-            #         id= "ttabs",
-            #         # Select geographic context
-            #         tabPanel("Resultat für Kanton Zürich", value = 5, reactableOutput("voteListKtZH2")),
-            #         tabPanel("Resultat für Stadt Zürich", value = 6, reactableOutput("voteListStZH2")),
-            #         tabPanel("Resultat für Stadtkreise", value = 7, reactableOutput("voteListZHkr2"))
-            #     )
-            # ),
-            # conditionalPanel(
-            #     condition = "input.ActionButtonId && input.ButtonGroupLabel == 'Städtische Vorlagen'",
-            #     tabsetPanel(
-            #         id= "ttabs",
-            #         # Select geographic context
-            #         tabPanel("Resultat für Stadt Zürich", value = 8,reactableOutput("voteListStZH3")),
-            #         tabPanel("Resultat für Stadtkreise", value = 9, reactableOutput("voteListZHkr3"))
-            #     )
-            #     # https://stackoverflow.com/questions/38797646/hyperlink-from-one-datatable-to-another-in-shiny
-            # )
+            # Define subtitle
+            h2("Folgende Abstimmungen entsprechen Ihren Suchergebnissen:")
+          ),
+   
+          # Table Output to select vote
+          reactableOutput("voteList"),
+          
+          # Name of selected vote
+          htmlOutput("titleVote"),
+          
+          # Details about selected vote
+          reactableOutput("selectedVote")
+
         )
     )
 )
@@ -326,8 +231,6 @@ server <- function(input, output, session) {
       tableOutput1 <- reactable(filteredData() %>% 
                                   select(Datum, `Politische Ebene`, Abstimmungstext) %>% 
                                   unique() 
-                                # %>% 
-                                #   mutate(details = "")
                                 ,
                                 paginationType = "simple",
                                 language = reactableLang(
@@ -344,27 +247,7 @@ server <- function(input, output, session) {
                                   Datum = colDef(minWidth = 80, cell = function(value) strftime(value, "%d.%m.%Y")),   # 12,5% width, 50px minimum
                                   `Politische Ebene` = colDef(minWidth = 100),   # 25% width, 100px minimum
                                   Abstimmungstext = colDef(minWidth = 225) # 62,5% width, 250px minimum
-                                  # details = colDef(
-                                  #   name = "",
-                                  #   cell = function() htmltools::tags$button("Details")
-                                  # )
                                 ),
-                                # onClick = "select",
-                                # onClick = JS("function(rowInfo, column) {
-                                #   // Only handle click events on the 'details' column
-                                #   if (column.id !== 'details') {
-                                #     return
-                                #   }
-                                # 
-                                #   // Display an alert dialog with details for the row
-                                #   window.alert('Details for row ' + rowInfo.index + ':\\n' + JSON.stringify(rowInfo.values, null, 2))
-                                # 
-                                #   // Send the click event to Shiny, which will be available in input$show_details
-                                #   // Note that the row index starts at 0 in JavaScript, so we add 1
-                                #   if (window.Shiny) {
-                                #     Shiny.setInputValue('show_details', { index: rowInfo.index + 1 }, { priority: 'event' })
-                                #   }
-                                # }"),
                                 highlight = TRUE,
                                 defaultPageSize = 5,
                                 selection = "single", onClick = "select"
@@ -446,7 +329,7 @@ server <- function(input, output, session) {
     output$titleVote <- renderText({
       req(nameVote())
       
-      paste("Resultate für: <br>", "<b>", print(nameVote()), "</b>")
+      paste("<h2>", print(nameVote()), "</h2>")
     })
     
     output$selectedVote <- renderReactable({
@@ -465,80 +348,31 @@ server <- function(input, output, session) {
                                     pagePreviousLabel = "Vorherige Seite",
                                     pageNextLabel = "Nächste Seite"
                                   ),
+                                  defaultColDef = reactable::colDef(
+                                    cell = function(value) {
+                                      
+                                      # Format only numeric columns with thousands separators
+                                      if (is.numeric(value)) {
+                                        format(value, big.mark = " ")
+                                      } else
+                                      {
+                                        return(value)
+                                      }
+                                    }
+                                  ),
                                   columns = list(
-                                    Gebiet = colDef(minWidth = 50),   # 12,5% width, 50px minimum
-                                    `Stimmberechtigte` = colDef(minWidth = 30),   # 25% width, 100px minimum
-                                    `Ja-Stimmen` = colDef(minWidth = 30),  # 62,5% width, 250px minimum
-                                    `Nein-Stimmen` = colDef(minWidth = 30),  # 62,5% width, 250px minimum
-                                    `Stimmbeteiligung (in %)` = colDef(minWidth = 30),  # 62,5% width, 250px minimum
-                                    `Ja-Anteil (in %)` = colDef(minWidth = 30),  # 62,5% width, 250px minimum
-                                    `Nein-Anteil (in %)` = colDef(minWidth = 30)  # 62,5% width, 250px minimum
+                                    Gebiet =  colDef(minWidth = 50),
+                                    Stimmberechtigte =  colDef(minWidth = 30),
+                                    `Ja-Stimmen` =  colDef(minWidth = 30),
+                                    `Nein-Stimmen` =  colDef(minWidth = 30),
+                                    `Stimmbeteiligung (in %)` = colDef(minWidth = 30),
+                                    `Ja-Anteil (in %)` = colDef(minWidth = 30),
+                                    `Nein-Anteil (in %)` = colDef(minWidth = 30)
                                   ),
                                   defaultPageSize = 13,
         )
         tableOutput2
     })
-
-    
-    # # Verschiedene Tabs für Gebiete
-    # output$voteListCH <- DT::renderDataTable({
-    #     tableOutput1 <- filteredData() %>% filter(Gebiet == "Eidgenossenschaft")
-    #     tableOutput1
-    #     })
-    # output$voteListKtZH <- DT::renderDataTable({
-    #     tableOutput1 <- filteredData() %>% filter(Gebiet == "Kanton Zürich")
-    #     tableOutput1
-    # })
-    # output$voteListStZH <- DT::renderDataTable({
-    #     tableOutput1 <- filteredData() %>% filter(Gebiet == "Stadt Zürich")
-    #     tableOutput1
-    # })
-    # output$voteListZHkr <- DT::renderDataTable({
-    #     tableOutput1 <- filteredData() %>% filter(Gebiet == "Stadtkreise")
-    #     tableOutput1
-    # })
-    # 
-    # output$voteListKtZH2 <- renderReactable({
-    #     tableOutput1 <- reactable(filteredData() %>% filter(Gebiet == "Kanton Zürich"))
-    #     tableOutput1
-    # })
-    # output$voteListStZH2 <- renderReactable({
-    #     tableOutput1 <- reactable(filteredData() %>% filter(Gebiet == "Stadt Zürich"))
-    #     tableOutput1
-    # })
-    # output$voteListZHkr2 <- renderReactable({
-    #     tableOutput1 <- reactable(filteredData() %>% filter(Gebiet == "Stadtkreise"))
-    #     tableOutput1
-    # })
-    # 
-    # output$voteListStZH3 <- renderReactable({
-    #     tableOutput1 <- reactable(filteredData() %>% filter(Gebiet == "Stadt Zürich"))
-    #     tableOutput1
-    # })
-    # output$voteListZHkr3 <- renderReactable({
-    #     tableOutput1 <- reactable(filteredData() %>% filter(Gebiet == "Stadtkreise"))
-    #     tableOutput1
-    # })
- 
-          
-    ## Change Action Query Button when first selected
-    # observe({
-    #     req(input$ActionButtonId)
-    #     updateActionButton(session, "ActionButtonId",
-    #                        label = "Erneute Abfrage",
-    #                        icon = icon("refresh"))
-    # })
-    # 
-    # observe({
-    #   if(input$ActionButtonId == 0) return()
-    #   shinyjs::disable("ActionButtonId")
-    #   
-    #   tryCatch(
-    #     foo(),          
-    #     error = function(e) return(),
-    #     finally = shinyjs::enable("ActionButtonId")
-    #   )
-    # })
 
     }
     
