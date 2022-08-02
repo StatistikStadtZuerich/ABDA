@@ -250,7 +250,9 @@ server <- function(input, output, session) {
                                 ),
                                 highlight = TRUE,
                                 defaultPageSize = 5,
-                                selection = "single", onClick = "select"
+                                selection = "single", onClick = "select",
+                                rowClass = JS("function(rowInfo) {return rowInfo.selected ? 'selected' : ''}"),
+                                rowStyle = JS("function(rowInfo) {if (rowInfo.selected) { return { backgroundColor: '#DEDEDE'}}}"),
       )
       tableOutput1
     })
