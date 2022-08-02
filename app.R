@@ -13,6 +13,9 @@ library(shinydashboard)
 library(reactable)
 
 
+# Source Donwload Function
+source("sszDownload.R", local = TRUE)
+
 ### Load Data
 ## URLS
 URLs <- c("https://data.stadt-zuerich.ch/dataset/politik_abstimmungen_seit1933/download/abstimmungen_seit1933.csv")
@@ -79,7 +82,7 @@ ui <- fluidPage(
     tags$hr(),
     
     # CSS
-    includeCSS("sszTheme.css"),
+    includeCSS("stylesSSZ.css"),
     
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
@@ -125,18 +128,18 @@ ui <- fluidPage(
             
             conditionalPanel(
                 condition = 'output.selectedVote',
-                h4("Daten herunterladen"),
+                h3("Daten herunterladen"),
                 
                 # Download Panel
                 tags$div(
                   id = "downloadWrapperId",
                   class = "downloadWrapperDiv",
                   
-                  actionButton(inputId = "csvDown",
-                               label = "csv"
+                  sszDownload("csvDownload",
+                              label = "csv"
                   ),
-                  actionButton(inputId = "excelDown",
-                               label = "xlsx"
+                  sszDownload("excelDownload",
+                              label = "xlsx"
                   ),
                   actionButton(inputId = "ogdDown",
                                label = "OGD",
@@ -145,44 +148,6 @@ ui <- fluidPage(
                 )
               )
             ),
-        #         tags$div(
-        #             id = "downloadLinkCSV",
-        #             class = "downloadLink",
-        #             icon("file-csv"),
-        #             tags$div(
-        #                 id = "downloadLinkCSVText",
-        #                 class = "downloadLinkIcon",
-        #                 downloadLink("downloadDataCSV", " .csv herunterladen")
-        #             )
-        #         ),
-        #         tags$div(
-        #             id = "downloadLinkEXCEL",
-        #             class = "downloadLink",
-        #             icon("file-excel"),
-        #             tags$div(
-        #                 id = "downloadLinkEXCELText",
-        #                 class = "downloadLinkIcon",
-        #                 downloadLink("downloadDataEXCEL", " .xlsx herunterladen")
-        #             )
-        #         ),
-        #         tags$div(
-        #             id = "linkOGD",
-        #             class = "downloadLink",
-        #             icon("database"),
-        #             tags$div(
-        #                 id = "downloadLinkOGDText",
-        #                 class = "downloadLinkIcon",
-        #                 tags$a(
-        #                     class = "downloadLinkOGD",
-        #                     href = "https://data.stadt-zuerich.ch/dataset/politik_abstimmungen_seit1933",
-        #                     target="_blank",
-        #                     " im OGD-Portal herunterladen"
-        #                 )
-        #             )
-        #         )
-        #     )
-        # ),
-        # 
         
         # Show a plot of the generated distribution
         mainPanel(
@@ -207,9 +172,6 @@ ui <- fluidPage(
                 class = "subSubtitle_div",
                 textOutput("subSubtitle")
             ),
-            
-            # Table for BZO 99 (prices)
-            # htmlOutput("resultsPrice99")
             
             
             br(),
@@ -453,7 +415,7 @@ server <- function(input, output, session) {
     
     ## Write Download Table
     # CSV
-    output$csvDown <- downloadHandler(
+    output$csvDownload <- downloadHandler(
         filename = function(vote) {
 
             suchfeld <- gsub(" ", "-", nameVote(), fixed = TRUE)
@@ -467,7 +429,7 @@ server <- function(input, output, session) {
     )
     
     # Excel
-    output$excelDown <- downloadHandler(
+    output$excelDownload <- downloadHandler(
       filename = function(vote) {
         
         suchfeld <- gsub(" ", "-", nameVote(), fixed = TRUE)
