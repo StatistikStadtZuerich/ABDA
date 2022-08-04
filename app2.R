@@ -252,11 +252,13 @@ server <- function(input, output, session) {
                                   `Politische Ebene` = colDef(minWidth = 100),   # 25% width, 100px minimum
                                   Abstimmungstext = colDef(minWidth = 225) # 62,5% width, 250px minimum
                                 ),
-                                highlight = TRUE,
+                                outlined = TRUE,
+                                highlight = FALSE,
                                 defaultPageSize = 5,
-                                selection = "single", onClick = "select",
+                                onClick = "select",
+                                selection = "single",
                                 rowClass = JS("function(rowInfo) {return rowInfo.selected ? 'selected' : ''}"),
-                                rowStyle = JS("function(rowInfo) {if (rowInfo.selected) { return { backgroundColor: '#DEDEDE'}}}"),
+                                rowStyle = JS("function(rowInfo) {if (rowInfo.selected) { return { backgroundColor: '#F2F2F2'}}}")
       )
       tableOutput1
     })

@@ -497,12 +497,6 @@ button:active {
     cursor: pointer;
 }
 
-/* Delete row select */
-.rt-td-select {
-  display: none;
-}
-
-
  /*******************************
  * Date Range
  *******************************/
