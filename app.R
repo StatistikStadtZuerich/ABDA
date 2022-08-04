@@ -3,7 +3,9 @@ library(tidyverse)
 library(xlsx)
 library(shinydashboard)
 library(reactable)
-
+library(icons)
+library(htmltools)
+# library(ggcharts)
 
 # Source Download Function
 source("sszDownload.R", local = TRUE)
@@ -109,7 +111,7 @@ ui <- fluidPage(
             condition = 'output.voteList',
             
             # Define subtitle
-            h2("Folgende Abstimmungen entsprechen Ihren Suchergebnissen:")
+            h3("Folgende Abstimmungen entsprechen Ihren Suchergebnissen:")
           ),
    
           # Table Output to select vote
@@ -333,15 +335,41 @@ server <- function(input, output, session) {
     output$titleVote <- renderText({
       req(nameVote())
       
-      paste("<h2>Resultat für:</h2>", "<h3>", print(nameVote()), "</h3>")
+      paste("<h3>Resultat für:</h3>", "<h2>", print(nameVote()), "</h2>")
     })
     
     output$selectedVote <- renderReactable({
         req(nameVote())
+      
+
+      
+        # Render a bar chart in the background of the cell
+        bar_style <- function(width = 1, fill = "#e6e6e6", height = "75%",
+                              align = c("left", "right"), color = NULL) {
+          align <- match.arg(align)
+          if (align == "left") {
+            position <- paste0(width * 100, "%")
+            image <- sprintf("linear-gradient(90deg, %1$s %2$s, transparent %2$s)", fill, position)
+          } else {
+            position <- paste0(100 - width * 100, "%")
+            image <- sprintf("linear-gradient(90deg, transparent %1$s, %2$s %1$s)", position, fill)
+          }
+          list(
+            backgroundImage = image,
+            backgroundSize = paste("100%", height),
+            backgroundRepeat = "no-repeat",
+            backgroundPosition = "center",
+            color = color
+          )
+        }
+      
+      
 
         tableOutput2 <- reactable(filteredData() %>%
                                       filter(Abstimmungstext == nameVote()) %>% 
-                                      select(Gebiet, `Stimmberechtigte`, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`),
+                                      select(Gebiet, 
+                                             # `Stimmberechtigte`, `Ja-Stimmen`, `Nein-Stimmen`, 
+                                             `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`),
                                   paginationType = "simple",
                                   language = reactableLang(
                                     noData = "Keine Einträge gefunden",
@@ -365,19 +393,29 @@ server <- function(input, output, session) {
                                     }
                                   ),
                                   columns = list(
-                                    Gebiet =  colDef(minWidth = 50),
-                                    Stimmberechtigte =  colDef(minWidth = 30),
-                                    `Ja-Stimmen` =  colDef(minWidth = 30),
-                                    `Nein-Stimmen` =  colDef(minWidth = 30),
-                                    `Stimmbeteiligung (in %)` = colDef(minWidth = 30),
-                                    `Ja-Anteil (in %)` = colDef(minWidth = 30),
-                                    `Nein-Anteil (in %)` = colDef(minWidth = 30)
+                                    # Stimmberechtigte =  colDef(minWidth = 30),
+                                    # `Ja-Stimmen` =  colDef(minWidth = 30),
+                                    # `Nein-Stimmen` =  colDef(minWidth = 30),
+                                    # `Stimmbeteiligung (in %)` = colDef(minWidth = 30),
+                                    # `Ja-Anteil (in %)` = colDef(minWidth = 30),
+                                    # `Nein-Anteil (in %)` = colDef(minWidth = 30)
+                                    `Ja-Anteil (in %)` = colDef(
+                                      style = function(value) {
+                                        # width <- paste0(value, "%")
+                                        bar_style(width = value / 100, height = "60%", align = "right", fill = "#D2DFDE")
+                                      }
+                                    ) ,
+                                    `Nein-Anteil (in %)` = colDef(align = "left",
+                                      style = function(value) {
+                                        # width <- paste0(value, "%")
+                                        bar_style(width = value / 100, height = "60%", align = "left", fill = "#E9CFD3")
+                                      }
+                                    ) 
                                   ),
-                                  defaultPageSize = 13,
+                                  defaultPageSize = 13
         )
         tableOutput2
     })
-
     }
     
     # Run the application 
