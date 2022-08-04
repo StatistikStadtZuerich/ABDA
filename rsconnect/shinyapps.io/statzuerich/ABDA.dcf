@@ -1,0 +1,13 @@
+name: ABDA
+title: ABDA
+username:
+account: statzuerich
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 6737802
+bundleId: 6164916
+url: https://statzuerich.shinyapps.io/ABDA/
+when: 1659603458.12824
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .RData|README.md|Archiv/ReactiveTabs.R|Archiv/sszTheme.css|Archiv/stylesSSZ.css

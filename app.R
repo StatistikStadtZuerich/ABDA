@@ -343,30 +343,41 @@ server <- function(input, output, session) {
       
 
       
-        # Render a bar chart in the background of the cell
-        bar_style <- function(width = 1, fill = "#e6e6e6", height = "75%",
-                              align = c("left", "right"), color = NULL) {
-          align <- match.arg(align)
-          if (align == "left") {
-            position <- paste0(width * 100, "%")
-            image <- sprintf("linear-gradient(90deg, %1$s %2$s, transparent %2$s)", fill, position)
-          } else {
-            position <- paste0(100 - width * 100, "%")
-            image <- sprintf("linear-gradient(90deg, transparent %1$s, %2$s %1$s)", position, fill)
-          }
-          list(
-            backgroundImage = image,
-            backgroundSize = paste("100%", height),
-            backgroundRepeat = "no-repeat",
-            backgroundPosition = "center",
-            color = color
-          )
+        # # Render a bar chart in the background of the cell
+        # bar_style <- function(width = 1, fill = "#e6e6e6", height = "75%",
+        #                       align = c("left", "right"), color = NULL) {
+        #   align <- match.arg(align)
+        #   if (align == "left") {
+        #     position <- paste0(width * 100, "%")
+        #     image <- sprintf("linear-gradient(90deg, %1$s %2$s, transparent %2$s)", fill, position)
+        #   } else {
+        #     position <- paste0(100 - width * 100, "%")
+        #     image <- sprintf("linear-gradient(90deg, transparent %1$s, %2$s %1$s)", position, fill)
+        #   }
+        #   list(
+        #     backgroundImage = image,
+        #     backgroundSize = paste("100%", height),
+        #     backgroundRepeat = "no-repeat",
+        #     backgroundPosition = "center",
+        #     color = color
+        #   )
+        # }
+        # 
+        # Render a bar chart with a label on the left
+        bar_chart <- function(label, width = "100%", height = "2rem", fill = "#00bfc4", background = NULL) {
+          bar <- div(style = list(background = fill, width = width, height = height))
+          chart <- div(style = list(flexGrow = 1, marginLeft = "1.5rem", background = background), bar)
+          div(style = list(display = "flex", alignItems = "center"), label, chart)
         }
       
       
+        specify_decimal <- function(x, k) trimws(format(round(x, k), nsmall=k))
 
         tableOutput2 <- reactable(filteredData() %>%
                                       filter(Abstimmungstext == nameVote()) %>% 
+                                      mutate(`Stimmbeteiligung (in %)` = specify_decimal(`Stimmbeteiligung (in %)`, 1),
+                                             `Ja-Anteil (in %)` = specify_decimal(`Ja-Anteil (in %)`, 1),
+                                             `Nein-Anteil (in %)` = specify_decimal(`Nein-Anteil (in %)`, 1)) %>% 
                                       select(Gebiet, 
                                              # `Stimmberechtigte`, `Ja-Stimmen`, `Nein-Stimmen`, 
                                              `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`),
@@ -393,24 +404,25 @@ server <- function(input, output, session) {
                                     }
                                   ),
                                   columns = list(
-                                    # Stimmberechtigte =  colDef(minWidth = 30),
+                                    Gebiet =  colDef(minWidth = 30),
+                                    `Stimmbeteiligung (in %)` = colDef(minWidth = 30),
                                     # `Ja-Stimmen` =  colDef(minWidth = 30),
                                     # `Nein-Stimmen` =  colDef(minWidth = 30),
                                     # `Stimmbeteiligung (in %)` = colDef(minWidth = 30),
                                     # `Ja-Anteil (in %)` = colDef(minWidth = 30),
                                     # `Nein-Anteil (in %)` = colDef(minWidth = 30)
                                     `Ja-Anteil (in %)` = colDef(
-                                      style = function(value) {
-                                        # width <- paste0(value, "%")
-                                        bar_style(width = value / 100, height = "60%", align = "right", fill = "#D2DFDE")
-                                      }
-                                    ) ,
-                                    `Nein-Anteil (in %)` = colDef(align = "left",
-                                      style = function(value) {
-                                        # width <- paste0(value, "%")
-                                        bar_style(width = value / 100, height = "60%", align = "left", fill = "#E9CFD3")
-                                      }
-                                    ) 
+                                      minWidth = 50,
+                                      name = "Abstimmungsergebnis (in %)",
+                                      align = "left", 
+                                      cell = function(value) {
+                                      width <- paste0(value, "%")
+                                      bar_chart(value, width = width, fill = "#A5C0BE", background = "#E0AAB2")
+                                    }),
+                                    `Nein-Anteil (in %)` = colDef(
+                                      minWidth = 15,
+                                      name = "", 
+                                      align = "left") 
                                   ),
                                   defaultPageSize = 13
         )
