@@ -341,28 +341,6 @@ server <- function(input, output, session) {
     output$selectedVote <- renderReactable({
         req(nameVote())
       
-
-      
-        # # Render a bar chart in the background of the cell
-        # bar_style <- function(width = 1, fill = "#e6e6e6", height = "75%",
-        #                       align = c("left", "right"), color = NULL) {
-        #   align <- match.arg(align)
-        #   if (align == "left") {
-        #     position <- paste0(width * 100, "%")
-        #     image <- sprintf("linear-gradient(90deg, %1$s %2$s, transparent %2$s)", fill, position)
-        #   } else {
-        #     position <- paste0(100 - width * 100, "%")
-        #     image <- sprintf("linear-gradient(90deg, transparent %1$s, %2$s %1$s)", position, fill)
-        #   }
-        #   list(
-        #     backgroundImage = image,
-        #     backgroundSize = paste("100%", height),
-        #     backgroundRepeat = "no-repeat",
-        #     backgroundPosition = "center",
-        #     color = color
-        #   )
-        # }
-        # 
         # Render a bar chart with a label on the left
         bar_chart <- function(label, width = "100%", height = "2rem", fill = "#00bfc4", background = NULL) {
           bar <- div(style = list(background = fill, width = width, height = height))
@@ -370,7 +348,7 @@ server <- function(input, output, session) {
           div(style = list(display = "flex", alignItems = "center"), label, chart)
         }
       
-      
+        # always have one decimal
         specify_decimal <- function(x, k) trimws(format(round(x, k), nsmall=k))
 
         tableOutput2 <- reactable(filteredData() %>%
@@ -378,9 +356,7 @@ server <- function(input, output, session) {
                                       mutate(`Stimmbeteiligung (in %)` = specify_decimal(`Stimmbeteiligung (in %)`, 1),
                                              `Ja-Anteil (in %)` = specify_decimal(`Ja-Anteil (in %)`, 1),
                                              `Nein-Anteil (in %)` = specify_decimal(`Nein-Anteil (in %)`, 1)) %>% 
-                                      select(Gebiet, 
-                                             # `Stimmberechtigte`, `Ja-Stimmen`, `Nein-Stimmen`, 
-                                             `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`),
+                                      select(Gebiet, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`),
                                   paginationType = "simple",
                                   language = reactableLang(
                                     noData = "Keine Einträge gefunden",
@@ -406,11 +382,6 @@ server <- function(input, output, session) {
                                   columns = list(
                                     Gebiet =  colDef(minWidth = 30),
                                     `Stimmbeteiligung (in %)` = colDef(minWidth = 30),
-                                    # `Ja-Stimmen` =  colDef(minWidth = 30),
-                                    # `Nein-Stimmen` =  colDef(minWidth = 30),
-                                    # `Stimmbeteiligung (in %)` = colDef(minWidth = 30),
-                                    # `Ja-Anteil (in %)` = colDef(minWidth = 30),
-                                    # `Nein-Anteil (in %)` = colDef(minWidth = 30)
                                     `Ja-Anteil (in %)` = colDef(
                                       minWidth = 50,
                                       name = "Abstimmungsergebnis (in %)",
