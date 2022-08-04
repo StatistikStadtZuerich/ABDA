@@ -11,6 +11,8 @@ source("sszDownload.R", local = TRUE)
 # Source Prepared Data
 source("prepareData.R", local = TRUE, encoding = "UTF-8")
 
+# Set the Icon path
+icon <- icon_set("icons/")
 
 # Shiny App
 library(shiny)
@@ -25,7 +27,7 @@ ui <- fluidPage(
     tags$hr(),
     
     # CSS
-    includeCSS("stylesSSZ.css"),
+    includeCSS("sszTheme.css"),
     
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
@@ -34,7 +36,7 @@ ui <- fluidPage(
         sidebarPanel(
           
           # Define subtitle
-          h2("Abfrage definieren:"),
+          # h2("Abfrage definieren:"),
             
           # Text input to facilitate search
           textInput("suchfeld",
@@ -331,7 +333,7 @@ server <- function(input, output, session) {
     output$titleVote <- renderText({
       req(nameVote())
       
-      paste("<h2>", print(nameVote()), "</h2>")
+      paste("<h2>Resultat für:</h2>", "<h3>", print(nameVote()), "</h3>")
     })
     
     output$selectedVote <- renderReactable({
