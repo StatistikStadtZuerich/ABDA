@@ -113,6 +113,12 @@ a:hover {
   margin-top: 12px;
   margin-bottom: 16px;
   }
+  .innerTable .rt-tr-group {
+  font-size: 10px;
+}
+.rt-tr-group{
+  font-size: 10px;
+}
 }
 
 @media screen and (max-width: 600px) {
@@ -140,6 +146,12 @@ a:hover {
   margin-top: 12px;
   margin-bottom: 16px;
   }
+  .innerTable .rt-tr-group{
+  font-size: 10px;
+}
+.rt-tr-group{
+  font-size: 10px;
+}
 }
 
 
@@ -335,8 +347,9 @@ a:hover {
   outline-offset: max(2px, 0.15em);
 }
 
-.rt-select {
-  visibility:hidden;
+/* Hide first Column */
+.rt-td.css-1wb42dm.rt-td-select.rt-align-left, .rt-td-select.rt-align-left.css-1wb42dm.rt-th {
+    display: none;
 }
 
 
@@ -445,6 +458,7 @@ button:active {
  /* Table */
 .rt-table {
    font-size: 12px;
+   font-family: HelveticaNeueLTW01_55Roman;
    color: #646464;
    border: 0px;
  }
@@ -493,9 +507,30 @@ button:active {
 
 /* Activate Background-color and pointer on hover */
 .ReactTable .rt-tr:hover .rt-td {
-    background: #F2F2F2;
     cursor: pointer;
 }
+
+/* Second Detail Table */
+.Details {
+  padding-left: 45px;
+  border-top: 1px solid #DEDEDE;
+}
+
+/* Inner Table*/
+
+/* Inner Table no header */
+.innerTable .rt-thead {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  /*margin: -1px;*/
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+#DEDEDE"
 
  /*******************************
  * Date Range

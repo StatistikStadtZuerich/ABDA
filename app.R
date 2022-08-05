@@ -1,11 +1,10 @@
 ### Required packages
 library(tidyverse)
 library(xlsx)
-library(shinydashboard)
 library(reactable)
 library(icons)
+library(shiny)
 library(htmltools)
-# library(ggcharts)
 
 # Source Download Function
 source("sszDownload.R", local = TRUE)
@@ -15,9 +14,6 @@ source("prepareData.R", local = TRUE, encoding = "UTF-8")
 
 # Set the Icon path
 icon <- icon_set("icons/")
-
-# Shiny App
-library(shiny)
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -111,7 +107,8 @@ ui <- fluidPage(
             condition = 'output.voteList',
             
             # Define subtitle
-            h3("Folgende Abstimmungen entsprechen Ihren Suchergebnissen:")
+            p("Die untenstehenden Abstimmungen entsprechen Ihren Suchkriterien. Für Detailinformationen wählen Sie eine Abstimmung aus."),
+            hr(),
           ),
    
           # Table Output to select vote
@@ -132,72 +129,72 @@ server <- function(input, output, session) {
     
     # First button click to activate search, after not necessary anymore
     global <- reactiveValues(activeButton = FALSE)
-    
+
     observeEvent(input$ActionButtonId, {
       req(input$ActionButtonId)
       global$activeButton <- TRUE
-    })  
-  
-  
+    })
+
+
     ## Test with Date
     dataRange <- reactive({
       req(global$activeButton == TRUE)
         dateRange <- input$DateRange
         dateRange
     })
-    
+
     dataDate <- reactive({
       req(global$activeButton == TRUE)
         datum <- data %>%
             dplyr::filter(
                 `Politische Ebene` %in% input$ButtonGroupLabel,
                 Datum >= input$DateRange[1],
-                Datum <= input$DateRange[2]) %>% 
-            pull(Datum) %>% 
+                Datum <= input$DateRange[2]) %>%
+            pull(Datum) %>%
             unique()
         datum
     })
-        
+
     ## Get Data for Download
-    filteredData <- reactive({ 
+    filteredData <- reactive({
       req(global$activeButton == TRUE)
         # Filter: No Search
         if(input$suchfeld == "") {
             filtered <- data %>%
-                dplyr::filter(Datum >= input$DateRange[1] & Datum <= input$DateRange[2]) %>% 
+                dplyr::filter(Datum >= input$DateRange[1] & Datum <= input$DateRange[2]) %>%
                 mutate(Datum = as.character(as.Date(Datum, "%d.%m.%Y")),
-                       Stimmberechtigte = as.integer(Stimmberechtigte))  %>% 
+                       Stimmberechtigte = as.integer(Stimmberechtigte))  %>%
                 select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
-            
+
             # Filter the level of vote
             if(input$ButtonGroupLabel == "Alle Vorlagen"){
                 filtered
             }else{
-              filtered <- filtered %>% 
+              filtered <- filtered %>%
                   filter(`Politische Ebene` %in% input$ButtonGroupLabel)
               filtered
             }
-            
-        # Filter: With Search   
+
+        # Filter: With Search
         } else {
             filtered <- data %>%
                 filter(grepl(input$suchfeld, Abstimmungstext, ignore.case=TRUE)) %>%
-                dplyr::filter(Datum >= input$DateRange[1] & Datum <= input$DateRange[2]) %>% 
+                dplyr::filter(Datum >= input$DateRange[1] & Datum <= input$DateRange[2]) %>%
                 mutate(Datum = as.character(as.Date(Datum, "%d.%m.%Y")),
-                       Stimmberechtigte = as.integer(Stimmberechtigte))  %>% 
+                       Stimmberechtigte = as.integer(Stimmberechtigte))  %>%
                 select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
-            
+
             # Filter the level of vote
             if(input$ButtonGroupLabel == "Alle Vorlagen"){
                 filtered
             }else{
-                filtered <- filtered %>% 
+                filtered <- filtered %>%
                     filter(`Politische Ebene` %in% input$ButtonGroupLabel)
                 filtered
             }
         }
     })
-    
+
     # Captions
     # Reactive Title
     titleReactive <- reactive({
@@ -211,7 +208,7 @@ server <- function(input, output, session) {
     output$title <- renderText({
         titleReactive()
     })
-    
+
     # Reactive Subtitle
     subtitleReactive <- reactive({
       req(global$activeButton == TRUE)
@@ -220,7 +217,7 @@ server <- function(input, output, session) {
     output$subtitle <- renderText({
         subtitleReactive()
     })
-    
+
     # Reactive Sub-Subtitle
     subSubtitleReactive <- reactive({
       req(global$activeButton == TRUE)
@@ -229,12 +226,12 @@ server <- function(input, output, session) {
     output$subSubtitle <- renderText({
         subSubtitleReactive()
     })
-    
-    
+
+
     output$voteList <- renderReactable({
-      tableOutput1 <- reactable(filteredData() %>% 
-                                  select(Datum, `Politische Ebene`, Abstimmungstext) %>% 
-                                  unique() 
+      tableOutput1 <- reactable(filteredData() %>%
+                                  select(Datum, `Politische Ebene`, Abstimmungstext) %>%
+                                  unique()
                                 ,
                                 paginationType = "simple",
                                 language = reactableLang(
@@ -245,63 +242,68 @@ server <- function(input, output, session) {
                                   pageNext = "\u276f",
                                   pagePreviousLabel = "Vorherige Seite",
                                   pageNextLabel = "Nächste Seite"
-                                  
+
+                                ),
+                                theme = reactableTheme(
+                                  borderColor = "#DEDEDE"
                                 ),
                                 columns = list(
                                   Datum = colDef(minWidth = 80, cell = function(value) strftime(value, "%d.%m.%Y")),   # 12,5% width, 50px minimum
                                   `Politische Ebene` = colDef(minWidth = 100),   # 25% width, 100px minimum
                                   Abstimmungstext = colDef(minWidth = 225) # 62,5% width, 250px minimum
                                 ),
+                                outlined = TRUE,
                                 highlight = TRUE,
                                 defaultPageSize = 5,
-                                selection = "single", onClick = "select",
+                                onClick = "select",
+                                selection = "single",
                                 rowClass = JS("function(rowInfo) {return rowInfo.selected ? 'selected' : ''}"),
-                                rowStyle = JS("function(rowInfo) {if (rowInfo.selected) { return { backgroundColor: '#DEDEDE'}}}"),
+                                rowStyle = JS("function(rowInfo) {if (rowInfo.selected) { return { backgroundColor: '#F2F2F2'}}}")
       )
       tableOutput1
     })
-    
+
     rowNumber <- reactive( {
       getReactableState("voteList", "selected")
     })
-    
-    
+
+
     nameVote <- reactive({
       req(rowNumber())
-      
-      vote <- filteredData() %>% 
-        select(Datum, `Politische Ebene`, Abstimmungstext) %>% 
-        unique() %>% 
-        mutate(ID = row_number()) %>% 
+
+      vote <- filteredData() %>%
+        select(Datum, `Politische Ebene`, Abstimmungstext) %>%
+        unique() %>%
+        mutate(ID = row_number()) %>%
         filter(ID == rowNumber())
-      
+
       print(vote$Abstimmungstext)
     })
-    
-    
+
+
     dateVote <- reactive({
       req(rowNumber())
-      
-      vote <- filteredData() %>% 
-        select(Datum, `Politische Ebene`, Abstimmungstext) %>% 
-        unique() %>% 
-        mutate(ID = row_number()) %>% 
+
+      vote <- filteredData() %>%
+        select(Datum, `Politische Ebene`, Abstimmungstext) %>%
+        unique() %>%
+        mutate(ID = row_number()) %>%
         filter(ID == rowNumber())
-      
+
       print(vote$Datum)
     })
-    
+
     voteData <- reactive({
       req(nameVote())
-      
+
       vote <- filteredData() %>%
-        filter(Abstimmungstext == nameVote()) %>% 
+        filter(Abstimmungstext == nameVote()) %>%
         select(Gebiet, `Stimmberechtigte`, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
     })
-    
-    
-    
-    
+
+
+
+
     ## Write Download Table
     # CSV
     output$csvDownload <- downloadHandler(
@@ -310,53 +312,63 @@ server <- function(input, output, session) {
             suchfeld <- gsub(" ", "-", nameVote(), fixed = TRUE)
             time <- gsub(" ", "-", dateVote(), fixed = TRUE)
             paste0("Abstimmungsresultate_", suchfeld, "_", time, ".csv")
-            
+
         },
         content = function(file) {
             write.csv(voteData(), file, row.names = FALSE, na = " ")
         }
     )
-    
+
     # Excel
     output$excelDownload <- downloadHandler(
       filename = function(vote) {
-        
+
         suchfeld <- gsub(" ", "-", nameVote(), fixed = TRUE)
         time <- gsub(" ", "-", dateVote(), fixed = TRUE)
         paste0("Abstimmungsresultate_", suchfeld, "_", time, ".xlsx")
-        
+
       },
         content = function(file) {
             xlsx::write.xlsx(voteData(), file, row.names = FALSE, showNA = FALSE)
         }
     )
-  
-    
+
+
     output$titleVote <- renderText({
       req(nameVote())
-      
-      paste("<h3>Resultat für:</h3>", "<h2>", print(nameVote()), "</h2>")
+
+      paste("<h3>", print(nameVote()), "</h3>")
     })
-    
+
     output$selectedVote <- renderReactable({
         req(nameVote())
-      
+
         # Render a bar chart with a label on the left
         bar_chart <- function(label, width = "100%", height = "2rem", fill = "#00bfc4", background = NULL) {
           bar <- div(style = list(background = fill, width = width, height = height))
           chart <- div(style = list(flexGrow = 1, marginLeft = "1.5rem", background = background), bar)
-          div(style = list(display = "flex", alignItems = "center"), label, chart)
+          div(style = list(display = "flex"), label, chart)
         }
-      
+
         # always have one decimal
         specify_decimal <- function(x, k) trimws(format(round(x, k), nsmall=k))
 
-        tableOutput2 <- reactable(filteredData() %>%
-                                      filter(Abstimmungstext == nameVote()) %>% 
-                                      mutate(`Stimmbeteiligung (in %)` = specify_decimal(`Stimmbeteiligung (in %)`, 1),
-                                             `Ja-Anteil (in %)` = specify_decimal(`Ja-Anteil (in %)`, 1),
-                                             `Nein-Anteil (in %)` = specify_decimal(`Nein-Anteil (in %)`, 1)) %>% 
-                                      select(Gebiet, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`),
+        # Prepare dfs
+        data_vote <- filteredData() %>%
+          filter(Abstimmungstext == nameVote()) %>%
+          mutate(`Stimmbeteiligung (in %)` = specify_decimal(`Stimmbeteiligung (in %)`, 1),
+                 `Ja-Anteil (in %)` = specify_decimal(`Ja-Anteil (in %)`, 1),
+                 `Nein-Anteil (in %)` = specify_decimal(`Nein-Anteil (in %)`, 1)) %>%
+          select(Gebiet, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
+
+        data_detail <-filteredData() %>%
+          filter(Abstimmungstext == nameVote()) %>%
+          select(Gebiet, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`) %>% 
+          pivot_longer(!Gebiet) %>% 
+          mutate(Test1 = " ",
+                 Test2 = " ")
+
+        tableOutput2 <- reactable(data_vote,
                                   paginationType = "simple",
                                   language = reactableLang(
                                     noData = "Keine Einträge gefunden",
@@ -367,40 +379,105 @@ server <- function(input, output, session) {
                                     pagePreviousLabel = "Vorherige Seite",
                                     pageNextLabel = "Nächste Seite"
                                   ),
-                                  defaultColDef = reactable::colDef(
-                                    cell = function(value) {
-                                      
-                                      # Format only numeric columns with thousands separators
-                                      if (is.numeric(value)) {
-                                        format(value, big.mark = " ")
-                                      } else
-                                      {
-                                        return(value)
-                                      }
-                                    }
+                                  theme = reactableTheme(
+                                    borderColor = "#DEDEDE"
                                   ),
+                                  outlined = TRUE,
+                                  highlight = TRUE,
                                   columns = list(
                                     Gebiet =  colDef(minWidth = 30),
-                                    `Stimmbeteiligung (in %)` = colDef(minWidth = 30),
+                                    `Stimmbeteiligung (in %)` = colDef(minWidth = 30,
+                                                                       align = "right"),
                                     `Ja-Anteil (in %)` = colDef(
                                       minWidth = 50,
                                       name = "Abstimmungsergebnis (in %)",
-                                      align = "left", 
+                                      align = "center",
                                       cell = function(value) {
                                       width <- paste0(value, "%")
-                                      bar_chart(value, width = width, fill = "#A5C0BE", background = "#E0AAB2")
+                                      bar_chart(value, width = width, fill = "#6995C3", background = "#D68692")
                                     }),
                                     `Nein-Anteil (in %)` = colDef(
                                       minWidth = 15,
-                                      name = "", 
-                                      align = "left") 
+                                      name = "",
+                                      align = "left")
                                   ),
+                                  details = function(index) {
+                                    det <- filter(data_detail, Gebiet == data_vote$Gebiet[index]) %>% select(-Gebiet)
+                                    htmltools::div(
+                                      class = "Details",
+                                      reactable(det, 
+                                                class = "innerTable",
+                                                outlined = TRUE,
+                                                fullWidth = TRUE,
+                                                borderless = TRUE,
+                                                theme = reactableTheme(
+                                                  borderColor = "#DEDEDE"
+                                                ),
+                                                columns = list(
+                                                  name = colDef(
+                                                    name = " ",
+                                                    minWidth = 30
+                                                  ),
+                                                  value = colDef(
+                                                    name = " ",
+                                                    minWidth = 30,
+                                                    align = "right",
+                                                    cell = function(value) {
+                                                      if (is.numeric(value)) {
+                                                        format(value, big.mark = " ")
+                                                      } else
+                                                      {
+                                                        return(value)
+                                                      }
+                                                    }
+                                                  ),
+                                                   Test1 = colDef(
+                                                     minWidth = 50,
+                                                     name = " ",
+                                                    align = "center",
+                                                   ),
+                                                   Test2 = colDef(
+                                                     minWidth = 15,
+                                                     name = " ",
+                                                     align = "center",
+                                                   )
+                                                )
+                                              )
+                                      )
+                                    # paste("Details for:", index)
+                                    # det <- filter(data_detail, Gebiet == data_vote$Gebiet[index]) %>% select(-Gebiet)
+                                    # tbl <- reactable(det,
+                                    #                  outlined = TRUE,
+                                    #                  fullWidth = TRUE,
+                                    #                  borderless = TRUE,
+                                    #                  columns = list(
+                                    #                    name = colDef(
+                                    #                      class = "name",
+                                    #                      name = " ",
+                                    #                      align = "left"
+                                    #                    ),
+                                    #                    value = colDef(
+                                    #                      class = "value",
+                                    #                      name = " ",
+                                    #                      cell = function(value) {
+                                    #                        if (is.numeric(value)) {
+                                    #                          format(value, big.mark = " ")
+                                    #                        } else {
+                                    #                          return(value)
+                                    #                        }
+                                    #                      }
+                                    #                      )
+                                    #                    )
+                                    #                  )
+                                    # htmltools::div(tbl)
+                                  },
+                                  onClick = "expand",
                                   defaultPageSize = 13
         )
         tableOutput2
     })
     }
     
-    # Run the application 
-    shinyApp(ui = ui, server = server)
+# Run the application 
+shinyApp(ui = ui, server = server)
     
