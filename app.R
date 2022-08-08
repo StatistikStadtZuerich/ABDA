@@ -19,10 +19,10 @@ icon <- icon_set("icons/")
 ui <- fluidPage(
 
     # Application title
-    titlePanel("Abstimmungsresultate App"),
+    # titlePanel("Abstimmungsresultate App"),
     
     # Horizontal Ruler
-    tags$hr(),
+    # tags$hr(),
     
     # CSS
     includeCSS("sszTheme.css"),
@@ -107,7 +107,10 @@ ui <- fluidPage(
             condition = 'output.voteList',
             
             # Define subtitle
-            p("Die untenstehenden Abstimmungen entsprechen Ihren Suchkriterien. Für Detailinformationen wählen Sie eine Abstimmung aus."),
+            tags$div(
+              class = "infoDiv",
+              p("Die untenstehenden Abstimmungen entsprechen Ihren Suchkriterien. Für Detailinformationen wählen Sie eine Abstimmung aus.")
+            ),
             hr(),
           ),
    
@@ -385,7 +388,10 @@ server <- function(input, output, session) {
                                   outlined = TRUE,
                                   highlight = TRUE,
                                   columns = list(
-                                    Gebiet =  colDef(minWidth = 30),
+                                    Gebiet =  colDef(minWidth = 30,
+                                                     style = list(
+                                                       fontFamily = "HelveticaNeueLTW05_85Heavy")
+                                                     ),
                                     `Stimmbeteiligung (in %)` = colDef(minWidth = 30,
                                                                        align = "right"),
                                     `Ja-Anteil (in %)` = colDef(
@@ -444,32 +450,6 @@ server <- function(input, output, session) {
                                                 )
                                               )
                                       )
-                                    # paste("Details for:", index)
-                                    # det <- filter(data_detail, Gebiet == data_vote$Gebiet[index]) %>% select(-Gebiet)
-                                    # tbl <- reactable(det,
-                                    #                  outlined = TRUE,
-                                    #                  fullWidth = TRUE,
-                                    #                  borderless = TRUE,
-                                    #                  columns = list(
-                                    #                    name = colDef(
-                                    #                      class = "name",
-                                    #                      name = " ",
-                                    #                      align = "left"
-                                    #                    ),
-                                    #                    value = colDef(
-                                    #                      class = "value",
-                                    #                      name = " ",
-                                    #                      cell = function(value) {
-                                    #                        if (is.numeric(value)) {
-                                    #                          format(value, big.mark = " ")
-                                    #                        } else {
-                                    #                          return(value)
-                                    #                        }
-                                    #                      }
-                                    #                      )
-                                    #                    )
-                                    #                  )
-                                    # htmltools::div(tbl)
                                   },
                                   onClick = "expand",
                                   defaultPageSize = 13
