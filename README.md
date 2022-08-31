@@ -12,7 +12,7 @@ flowchart LR;
   output1 --> results1[Resultat Vorlagen]
   results1 --> f4[F4 selectVote]
   f4 --> output2[output1 + F4]
-  output2 --> results2[Resultat Vorlagen (voteResult)]
+  output2 --> results2["Resultat Vorlagen (voteResult)"]
   output2 --> downloads[Downloads]
   classDef filter fill:#e0db41,stroke:#e0db41;
   classDef data fill:#edade6,stroke:#edade6;
