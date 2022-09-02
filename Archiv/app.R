@@ -29,7 +29,7 @@ ui <- fluidPage(
     tags$hr(),
     
     # CSS
-    includeCSS("sszTheme.css"),
+    includeCSS("stylesSSZ.css"),
     
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
@@ -252,13 +252,11 @@ server <- function(input, output, session) {
                                   `Politische Ebene` = colDef(minWidth = 100),   # 25% width, 100px minimum
                                   Abstimmungstext = colDef(minWidth = 225) # 62,5% width, 250px minimum
                                 ),
-                                outlined = TRUE,
-                                highlight = FALSE,
+                                highlight = TRUE,
                                 defaultPageSize = 5,
-                                onClick = "select",
-                                selection = "single",
+                                selection = "single", onClick = "select",
                                 rowClass = JS("function(rowInfo) {return rowInfo.selected ? 'selected' : ''}"),
-                                rowStyle = JS("function(rowInfo) {if (rowInfo.selected) { return { backgroundColor: '#F2F2F2'}}}")
+                                rowStyle = JS("function(rowInfo) {if (rowInfo.selected) { return { backgroundColor: '#DEDEDE'}}}"),
       )
       tableOutput1
     })
@@ -352,20 +350,13 @@ server <- function(input, output, session) {
       
         # always have one decimal
         specify_decimal <- function(x, k) trimws(format(round(x, k), nsmall=k))
-        
-        # Prepare dfs
-        data_vote <- filteredData() %>%
-          filter(Abstimmungstext == nameVote()) %>% 
-          mutate(`Stimmbeteiligung (in %)` = specify_decimal(`Stimmbeteiligung (in %)`, 1),
-                 `Ja-Anteil (in %)` = specify_decimal(`Ja-Anteil (in %)`, 1),
-                 `Nein-Anteil (in %)` = specify_decimal(`Nein-Anteil (in %)`, 1)) %>% 
-          select(Gebiet, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
-        
-        data_detail <-filteredData() %>%
-          filter(Abstimmungstext == nameVote()) %>% 
-          select(Gebiet, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`)
 
-        tableOutput2 <- reactable(data_vote,
+        tableOutput2 <- reactable(filteredData() %>%
+                                      filter(Abstimmungstext == nameVote()) %>% 
+                                      mutate(`Stimmbeteiligung (in %)` = specify_decimal(`Stimmbeteiligung (in %)`, 1),
+                                             `Ja-Anteil (in %)` = specify_decimal(`Ja-Anteil (in %)`, 1),
+                                             `Nein-Anteil (in %)` = specify_decimal(`Nein-Anteil (in %)`, 1)) %>% 
+                                      select(Gebiet, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`),
                                   paginationType = "simple",
                                   language = reactableLang(
                                     noData = "Keine Einträge gefunden",
@@ -375,6 +366,18 @@ server <- function(input, output, session) {
                                     pageNext = "\u276f",
                                     pagePreviousLabel = "Vorherige Seite",
                                     pageNextLabel = "Nächste Seite"
+                                  ),
+                                  defaultColDef = reactable::colDef(
+                                    cell = function(value) {
+                                      
+                                      # Format only numeric columns with thousands separators
+                                      if (is.numeric(value)) {
+                                        format(value, big.mark = " ")
+                                      } else
+                                      {
+                                        return(value)
+                                      }
+                                    }
                                   ),
                                   columns = list(
                                     Gebiet =  colDef(minWidth = 30),
@@ -392,27 +395,6 @@ server <- function(input, output, session) {
                                       name = "", 
                                       align = "left") 
                                   ),
-                                  details = function(index) {
-                                    det <- filter(data_detail, Gebiet == data_vote$Gebiet[index]) %>% select(-Gebiet)
-                                    tbl <- reactable(det, 
-                                                     outlined = TRUE,
-                                                     fullWidth = FALSE, 
-                                                     defaultColDef = reactable::colDef(
-                                                       minWidth = 150,
-                                                       cell = function(value) {
-                                        
-                                                          # Format only numeric columns with thousands separators
-                                                          if (is.numeric(value)) {
-                                                            format(value, big.mark = " ")
-                                                          } else
-                                                          {
-                                                            return(value)
-                                                          }
-                                                        }
-                                                      ))
-                                    htmltools::div(tbl)
-                                  },
-                                  onClick = "expand",
                                   defaultPageSize = 13
         )
         tableOutput2

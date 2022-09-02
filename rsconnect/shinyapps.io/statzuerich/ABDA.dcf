@@ -4,10 +4,10 @@ username:
 account: statzuerich
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
-appId: 6737802
-bundleId: 6164916
+appId: 6738297
+bundleId: 6178573
 url: https://statzuerich.shinyapps.io/ABDA/
-when: 1659603458.12824
+when: 1659944151.49754
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: .RData|README.md|Archiv/ReactiveTabs.R|Archiv/sszTheme.css|Archiv/stylesSSZ.css
+ignoredFiles: README.md|Archiv/app.R|Archiv/app2.R|Archiv/ReactiveTabs.R|Archiv/sszTheme.css|Archiv/stylesSSZ.css

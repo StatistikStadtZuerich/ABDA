@@ -52,6 +52,8 @@ p {
   line-height: 23px;
   font-family: HelveticaNeueLTW01_55Roman;
   color: #646464;
+  word-break: break-word;
+  hyphens: auto;
 }
 
 .infoDiv {
@@ -465,12 +467,16 @@ button:active {
    font-family: HelveticaNeueLTW01_55Roman;
    color: #646464;
    border: 0px;
+   word-break: break-word;
+   hyphens: auto;
  }
  
  /* Table Header */
 .rt-thead.-header {
    color: #0F05A0;
    font-family: HelveticaNeueLTW05_85Heavy;
+   word-break: break-word;
+   hyphens: auto;
  }
  
  /* Table Pagination */
