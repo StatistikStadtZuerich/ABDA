@@ -50,15 +50,18 @@ data <- df %>%
     Name_Resultat_Gebiet == "Eidgenossenschaft" ~ "Gesamte Schweiz",
     TRUE ~ Name_Resultat_Gebiet
   )) %>% 
+  dplyr::mutate(NrGebiet = case_when(
+    !is.na(Nr_Wahlkreis_StZH) ~ as.numeric(Nr_Wahlkreis_StZH*10),
+    TRUE ~ as.numeric(Nr_Resultat_Gebiet)
+  )) %>% 
   
-  # ToDo:
   # Annäherung am Stimmbeteiligte dort wo sie fehlen?! Oder besser rausnehmen?
   # dplyr::mutate(Stimmberechtigt = case_when(
   #   is.na(Stimmberechtigt) ~ round((Ja + Nein)*(100/Stimmbeteiligung....), 0),
   #   TRUE ~ Stimmberechtigt
   # )) %>%
   
-  # Da Auslandschweizer/-innen nur von ZH streichen, um keine Verwirrung zu schaffen
+  # Auslandschweizer/-innen streichen
   filter(Name_Resultat_Gebiet != "Auslandschweizer/-innen") %>% 
   
   # Rename variables
@@ -78,3 +81,5 @@ data <- df %>%
 
 rm(df)
 rm(cl)
+
+

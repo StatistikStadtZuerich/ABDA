@@ -7,10 +7,10 @@ library(shiny)
 library(htmltools)
 
 # Source Download Function
-source("sszDownload.R", local = TRUE)
+source("sszDownload.R", encoding = "UTF-8")
 
 # Source Prepared Data
-source("prepareData.R", local = TRUE, encoding = "UTF-8")
+source("prepareData.R", encoding = "UTF-8")
 
 # Source Export Excel
 source("exportExcel.R", encoding = "UTF-8")
@@ -171,7 +171,7 @@ server <- function(input, output, session) {
                 dplyr::filter(Datum >= input$DateRange[1] & Datum <= input$DateRange[2]) %>%
                 mutate(Datum = as.character(as.Date(Datum, "%d.%m.%Y")),
                        Stimmberechtigte = as.integer(Stimmberechtigte))  %>%
-                select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
+                select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, NrGebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
 
             # Filter the level of vote
             if(input$ButtonGroupLabel == "Alle Vorlagen"){
@@ -189,7 +189,7 @@ server <- function(input, output, session) {
                 dplyr::filter(Datum >= input$DateRange[1] & Datum <= input$DateRange[2]) %>%
                 mutate(Datum = as.character(as.Date(Datum, "%d.%m.%Y")),
                        Stimmberechtigte = as.integer(Stimmberechtigte))  %>%
-                select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
+                select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, NrGebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
 
             # Filter the level of vote
             if(input$ButtonGroupLabel == "Alle Vorlagen"){
@@ -255,9 +255,9 @@ server <- function(input, output, session) {
                                   borderColor = "#DEDEDE"
                                 ),
                                 columns = list(
-                                  Datum = colDef(minWidth = 80, cell = function(value) strftime(value, "%d.%m.%Y")),   # 12,5% width, 50px minimum
-                                  `Politische Ebene` = colDef(minWidth = 100),   # 25% width, 100px minimum
-                                  Abstimmungstext = colDef(minWidth = 225) # 62,5% width, 250px minimum
+                                  Datum = colDef(minWidth = 80, align = "left", cell = function(value) strftime(value, "%d.%m.%Y")),   # 12,5% width, 50px minimum
+                                  `Politische Ebene` = colDef(minWidth = 100, align = "left"),   # 25% width, 100px minimum
+                                  Abstimmungstext = colDef(minWidth = 225, align = "left") # 62,5% width, 250px minimum
                                 ),
                                 outlined = TRUE,
                                 highlight = TRUE,
@@ -366,12 +366,15 @@ server <- function(input, output, session) {
           mutate(`Stimmbeteiligung (in %)` = specify_decimal(`Stimmbeteiligung (in %)`, 1),
                  `Ja-Anteil (in %)` = specify_decimal(`Ja-Anteil (in %)`, 1),
                  `Nein-Anteil (in %)` = specify_decimal(`Nein-Anteil (in %)`, 1)) %>%
+          arrange(NrGebiet) %>% 
           select(Gebiet, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
 
         data_detail <-filteredData() %>%
           filter(Abstimmungstext == nameVote()) %>%
           select(Gebiet, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`) %>% 
           pivot_longer(!Gebiet) %>% 
+          # When row is empty or 0 (maily Stimmberechtigt is empty or 0 for old data) then delete
+          filter(!is.na(value) & value != 0) %>% 
           mutate(Test1 = " ",
                  Test2 = " ")
 
