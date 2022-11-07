@@ -360,7 +360,7 @@ server <- function(input, output, session) {
         bar_chart <- function(label, width = "100%", height = "2rem", fill = "#00bfc4", background = NULL) {
           bar <- div(style = list(background = fill, width = width, height = height))
           chart <- div(style = list(flexGrow = 1, marginLeft = "1.5rem", background = background), bar)
-          div(style = list(display = "flex"), label, chart)
+          div(style = list(display = "flex"), chart)
         }
 
         # always have one decimal
@@ -369,11 +369,12 @@ server <- function(input, output, session) {
         # Prepare dfs
         data_vote <- filteredData() %>%
           filter(Abstimmungstext == nameVote()) %>%
-          mutate(`Stimmbeteiligung (in %)` = specify_decimal(`Stimmbeteiligung (in %)`, 1),
+          mutate(Chart_Anteil = specify_decimal(`Ja-Anteil (in %)`, 1),
+                 `Stimmbeteiligung (in %)` = specify_decimal(`Stimmbeteiligung (in %)`, 1),
                  `Ja-Anteil (in %)` = specify_decimal(`Ja-Anteil (in %)`, 1),
                  `Nein-Anteil (in %)` = specify_decimal(`Nein-Anteil (in %)`, 1)) %>%
           arrange(NrGebiet) %>% 
-          select(Gebiet, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
+          select(Gebiet, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, Chart_Anteil,`Nein-Anteil (in %)`)
 
         data_detail <-filteredData() %>%
           filter(Abstimmungstext == nameVote()) %>%
@@ -382,7 +383,8 @@ server <- function(input, output, session) {
           # When row is empty or 0 (maily Stimmberechtigt is empty or 0 for old data) then delete
           filter(!is.na(value) & value != 0) %>% 
           mutate(Test1 = " ",
-                 Test2 = " ")
+                 Test2 = " ", 
+                 Test3 = " ")
 
         tableOutput2 <- reactable(data_vote,
                                   paginationType = "simple",
@@ -401,24 +403,31 @@ server <- function(input, output, session) {
                                   outlined = TRUE,
                                   highlight = TRUE,
                                   columns = list(
-                                    Gebiet =  colDef(minWidth = 30,
-                                                     style = list(
-                                                       fontFamily = "HelveticaNeueLTW05_85Heavy")
-                                                     ),
-                                    `Stimmbeteiligung (in %)` = colDef(minWidth = 30,
-                                                                       align = "right"),
+                                    Gebiet =  colDef(minWidth = 50,
+                                                     sortable = FALSE),
+                                    `Stimmbeteiligung (in %)` = colDef(name = "Stimmbeteiligung \n(in %)",
+                                                                       minWidth = 40,
+                                                                       align = "left"),
                                     `Ja-Anteil (in %)` = colDef(
+                                      minWidth = 20,
+                                      name = "Ja-Anteil",
+                                      align = "right",
+                                      headerClass = "barHeader2"),
+                                    Chart_Anteil = colDef(
                                       minWidth = 50,
-                                      name = "Abstimmungsergebnis (in %)",
-                                      align = "center",
+                                      name = "Abstimmungsergebnis \n(in %)",
+                                      align = "left",
                                       cell = function(value) {
-                                      width <- paste0(value, "%")
-                                      bar_chart(value, width = width, fill = "#6995C3", background = "#D68692")
-                                    }),
+                                        width <- paste0(value, "%")
+                                        bar_chart(value, width = width, fill = "#6995C3", background = "#D68692")
+                                    },
+                                    class = "bar",
+                                    headerClass = "barHeader"),
                                     `Nein-Anteil (in %)` = colDef(
-                                      minWidth = 15,
-                                      name = "",
-                                      align = "left")
+                                      minWidth = 20,
+                                      name = "Nein-Anteil",
+                                      align = "left",
+                                      headerClass = "barHeader2")
                                   ),
                                   details = function(index) {
                                     det <- filter(data_detail, Gebiet == data_vote$Gebiet[index]) %>% select(-Gebiet)
@@ -435,12 +444,15 @@ server <- function(input, output, session) {
                                                 columns = list(
                                                   name = colDef(
                                                     name = " ",
-                                                    minWidth = 30
+                                                    align = "left",
+                                                    minWidth = 50,
+                                                    sortable = FALSE
                                                   ),
                                                   value = colDef(
                                                     name = " ",
-                                                    minWidth = 30,
-                                                    align = "right",
+                                                    align = "left",
+                                                    minWidth = 50,
+                                                    sortable = FALSE,
                                                     cell = function(value) {
                                                       if (is.numeric(value)) {
                                                         format(value, big.mark = " ")
@@ -451,15 +463,24 @@ server <- function(input, output, session) {
                                                     }
                                                   ),
                                                    Test1 = colDef(
-                                                     minWidth = 50,
+                                                     minWidth = 20,
                                                      name = " ",
                                                     align = "center",
+                                                    sortable = FALSE
                                                    ),
                                                    Test2 = colDef(
-                                                     minWidth = 15,
-                                                     name = " ",
-                                                     align = "center",
-                                                   )
+                                                     name = "",
+                                                     align = "left",
+                                                     minWidth = 50,
+                                                     sortable = FALSE,
+                                                     class = "spacer",
+                                                     headerClass = "spacerHeader"),
+                                                  Test3 = colDef(
+                                                    minWidth = 20,
+                                                    name = " ",
+                                                    align = "center",
+                                                    sortable = FALSE
+                                                  )
                                                 )
                                               )
                                       )
