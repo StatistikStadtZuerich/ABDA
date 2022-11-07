@@ -108,16 +108,22 @@ ui <- fluidPage(
         mainPanel(
           
           conditionalPanel(
-            condition = 'output.voteList',
+            condition = 'input.ActionButtonId>0',
             
+            # Title for table
+            h1("Die untenstehenden Vorlagen entsprechen Ihren Suchkriterien"),
+            hr(),
             # Define subtitle
             tags$div(
               class = "infoDiv",
-              p("Die untenstehenden Abstimmungen entsprechen Ihren Suchkriterien. Für Detailinformationen wählen Sie eine Abstimmung aus.")
-            ),
-            hr(),
+              p("Für Detailinformationen zur Beteiligung und Ergebnis einer Abstimmung wählen Sie eine Zeile aus.")
+            )
           ),
-   
+          conditionalPanel(
+            condition = 'input.ActionButtonId==0',
+            
+          ),
+          
           # Table Output to select vote
           reactableOutput("voteList"),
           
@@ -344,7 +350,7 @@ server <- function(input, output, session) {
     output$titleVote <- renderText({
       req(nameVote())
 
-      paste("<h3>", print(nameVote()), "</h3>")
+      paste("<br><h4><b>", print(nameVote()), "</b></h4>")
     })
 
     output$selectedVote <- renderReactable({
