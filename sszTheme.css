@@ -119,8 +119,8 @@ a:hover {
     margin-bottom: 16px;
   }
   
-  .barHeader2 {
-   visibility: collapse;
+  .barHeadershares {
+   color: transparent;
  }
 }
 @media screen and (max-width: 767px) {
@@ -154,8 +154,8 @@ a:hover {
     margin-bottom: 16px;
   }
   
-  .barHeader2 {
-   visibility: collapse;
+  .barHeadershares {
+   color: transparent;
  }
 }
 
@@ -196,6 +196,10 @@ a:hover {
  
  .barHeader {
    display: none;
+ }
+ 
+ .barHeadershares {
+   color: #0F05A0;
  }
  
  .spacer {

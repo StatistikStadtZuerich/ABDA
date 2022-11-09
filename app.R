@@ -403,19 +403,22 @@ server <- function(input, output, session) {
                                   outlined = TRUE,
                                   highlight = TRUE,
                                   columns = list(
-                                    Gebiet =  colDef(minWidth = 50,
+                                    Gebiet =  colDef(minWidth = 60,
                                                      sortable = FALSE),
-                                    `Stimmbeteiligung (in %)` = colDef(name = "Stimmbeteiligung \n(in %)",
+                                    `Stimmbeteiligung (in %)` = colDef(html = TRUE,
+                                                                       name = "Beteiligung<br>(in %)",
                                                                        minWidth = 40,
                                                                        align = "left"),
                                     `Ja-Anteil (in %)` = colDef(
-                                      minWidth = 20,
-                                      name = "Ja-Anteil",
+                                      minWidth = 30,
+                                      html = TRUE,
+                                      name = "Ja-Anteil<br>(in %)",
                                       align = "right",
-                                      headerClass = "barHeader2"),
+                                      headerClass = "barHeadershares"),
                                     Chart_Anteil = colDef(
-                                      minWidth = 50,
-                                      name = "Abstimmungsergebnis \n(in %)",
+                                      minWidth = 40,
+                                      html = TRUE,
+                                      name = "Ergebnis Abstimmung<br>(in %)",
                                       align = "left",
                                       cell = function(value) {
                                         width <- paste0(value, "%")
@@ -425,9 +428,10 @@ server <- function(input, output, session) {
                                     headerClass = "barHeader"),
                                     `Nein-Anteil (in %)` = colDef(
                                       minWidth = 20,
-                                      name = "Nein-Anteil",
+                                      name = " ",
                                       align = "left",
-                                      headerClass = "barHeader2")
+                                      class = "bar",
+                                      headerClass = "barHeader")
                                   ),
                                   details = function(index) {
                                     det <- filter(data_detail, Gebiet == data_vote$Gebiet[index]) %>% select(-Gebiet)
@@ -445,12 +449,12 @@ server <- function(input, output, session) {
                                                   name = colDef(
                                                     name = " ",
                                                     align = "left",
-                                                    minWidth = 50,
+                                                    minWidth = 60,
                                                     sortable = FALSE
                                                   ),
                                                   value = colDef(
                                                     name = " ",
-                                                    align = "left",
+                                                    align = "right",
                                                     minWidth = 50,
                                                     sortable = FALSE,
                                                     cell = function(value) {
@@ -463,7 +467,7 @@ server <- function(input, output, session) {
                                                     }
                                                   ),
                                                    Test1 = colDef(
-                                                     minWidth = 20,
+                                                     minWidth = 30,
                                                      name = " ",
                                                     align = "center",
                                                     sortable = FALSE
@@ -471,7 +475,7 @@ server <- function(input, output, session) {
                                                    Test2 = colDef(
                                                      name = "",
                                                      align = "left",
-                                                     minWidth = 50,
+                                                     minWidth = 40,
                                                      sortable = FALSE,
                                                      class = "spacer",
                                                      headerClass = "spacerHeader"),
