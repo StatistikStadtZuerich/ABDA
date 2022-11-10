@@ -1,6 +1,7 @@
 ### Required packages
 library(tidyverse)
-library(xlsx)
+library(openxlsx)
+library(readxl)
 library(reactable)
 library(icons)
 library(shiny)
@@ -332,7 +333,11 @@ if(is.null(data)) {
     
           vote <- filteredData() %>%
             filter(Abstimmungstext == nameVote()) %>%
-            select(Gebiet, `Stimmberechtigte`, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
+            rename(`Beteiligung (in %)` = `Stimmbeteiligung (in %)`,
+                   `Stimm-berechtigte` = `Stimmberechtigte`) %>% 
+            arrange(NrGebiet) %>% 
+            select(Gebiet, `Stimm-berechtigte`, `Ja-Stimmen`, `Nein-Stimmen`, `Beteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
+          vote
         })
     
     
@@ -352,20 +357,34 @@ if(is.null(data)) {
                 write.csv(voteData(), file, row.names = FALSE, na = " ")
             }
         )
-    
+        
         # Excel
         output$excelDownload <- downloadHandler(
           filename = function(vote) {
-    
+            
             suchfeld <- gsub(" ", "-", nameVote(), fixed = TRUE)
             time <- gsub(" ", "-", dateVote(), fixed = TRUE)
             paste0("Abstimmungsresultate_", suchfeld, "_", time, ".xlsx")
-    
+            
           },
-            content = function(file) {
-                xlsx::write.xlsx(voteData(), file, row.names = FALSE, showNA = FALSE)
-            }
+          content = function(file) {
+            sszDownloadExcel(voteData(), file, nameVote())
+          }
         )
+    
+        # # Excel
+        # output$excelDownload <- downloadHandler(
+        #   filename = function(vote) {
+        # 
+        #     suchfeld <- gsub(" ", "-", nameVote(), fixed = TRUE)
+        #     time <- gsub(" ", "-", dateVote(), fixed = TRUE)
+        #     paste0("Abstimmungsresultate_", suchfeld, "_", time, ".xlsx")
+        # 
+        #   },
+        #     content = function(file) {
+        #         xlsx::write.xlsx(voteData(), file, row.names = FALSE, showNA = FALSE)
+        #     }
+        # )
     
     
         output$titleVote <- renderText({

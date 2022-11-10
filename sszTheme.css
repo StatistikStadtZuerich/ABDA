@@ -88,7 +88,7 @@ a:hover {
 }
 
 /* Media Queries */
-@media screen and (max-width: 1000px) {
+@media screen and (max-width: 3000px) {
    p {
     font-size: 14px;
     line-height: 23px;
@@ -532,22 +532,25 @@ button:active {
 .rt-thead {
   color: #0F05A0;
   font-family: HelveticaNeueLTW05_85Heavy;
+  position: relative;
+  min-width: 0px !important;
+  flex: 0;
 }
-
+/*
 .rt-th.rt { 
     position: relative;
     min-width: 0px !important;
     flex: 0;
 }
-/*
-element.style {
-    /* position: relative; */
-    /* flex: 0 0 auto; */
-    /* min-width: 45px; */
-    /* width: 45px; */
-    /* max-width: 45px; */
-}
 */
+#rt-th  {
+    position: relative;
+    flex: 0 0 auto;
+    min-width: 45px;
+    width: 45px;
+    max-width: 45px;
+}
+
 
 /* Table Pagination */
 .rt-pagination {
