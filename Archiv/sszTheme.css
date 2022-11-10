@@ -6,38 +6,37 @@
  * General Settings
  *******************************/
  
- /* Font Family*/
-* {
-  font-family: HelveticaNeueLTW01_41488878;
-}
 
 /* Ruler */
 hr {
   height: 1px;
   background-color: #DEDEDE;
   border: none;
+  margin-top: 16px;
+  margin-bottom: 20px;
 }
 
-/* Headings */
-h2 {
-  font-family: HelveticaNeueLTW05_85Heavy;
-  color: #0F05A0;
-  font-size: 32px;
-  line-height: 42px;
-  font-weight: 750;
-}
-
-/* h3 Font */
-h3 {
+/* h1 */
+h1 {
   font-family: HelveticaNeueLTW05_85Heavy;
   color: #0F05A0;
   font-size: 22px;
   line-height: 31px;
   font-weight: 750;
+  margin-top: 28px;
 }
 
-/* h4 Font */
-h4 {
+/* h2 Font */
+h2 {
+  font-family: HelveticaNeueLTW05_85Heavy;
+  color: #0F05A0;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 750;
+}
+
+/* h3 Font */
+h3 {
   font-family: HelveticaNeueLTW05_85Heavy;
   color: #4D4D4D;
   font-size: 18px;
@@ -49,51 +48,116 @@ h4 {
 p {
   font-style: normal;
   font-weight: 400;
-  font-size: 18px;
-  line-height: 29px;
+  font-size: 14px;
+  line-height: 23px;
   font-family: HelveticaNeueLTW01_55Roman;
   color: #646464;
-  margin-top: 32px;
-  margin-bottom: 24px;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.infoDiv {
+  margin-top: 9px;
+}
+
+/* Lists */
+ol {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 23px;
+  font-family: HelveticaNeueLTW01_55Roman;
+  color: #646464;
+}
+
+li::marker {
+  font-size: 14px;
+  line-height: 23px;
+  font-family: HelveticaNeueLTW01_55Roman;
+  color: #646464;
+}
+
+/* Code */
+code {
+  background-color: #F2F2F2;
+  color: #0F05A0;
+}
+
+/* Links */
+a {
+  text-decoration: underline;
+  color: #0F05A0;
+}
+
+a:hover {
+  color: #070250;
 }
 
 /* Media Queries */
 @media screen and (max-width: 799px) {
   p {
-    font-size: 16px;
-    line-height: 26px;
+    font-size: 14px;
+    line-height: 23px;
+  }
+  ol {
+    font-size: 14px;
+    line-height: 23px;
+  }
+  h1 {
+    font-size: 20px;
+    line-height: 28px;
   }
   h2 {
-    font-size: 28px;
-    line-height: 36px;
-  }
-  h3 {
-    font-size: 22px;
-    line-height: 31px;
-  }
-  h4 {
     font-size: 18px;
     line-height: 25px;
   }
+  h3 {
+    font-size: 14px;
+    line-height: 23px;
+  }
+  hr {
+  margin-top: 12px;
+  margin-bottom: 16px;
+  }
+  .innerTable .rt-tr-group {
+  font-size: 10px;
+}
+.rt-tr-group{
+  font-size: 10px;
+}
 }
 
 @media screen and (max-width: 600px) {
   p {
-    font-size: 18px;
-    line-height: 29px;
+    font-size: 14px;
+    line-height: 23px;
   }
-  h2 {
-    font-size: 20px;
-    line-height: 28px;
+  ol {
+    font-size: 14px;
+    line-height: 23px;
   }
-  h3 {
+  h1 {
     font-size: 18px;
     line-height: 25px;
   }
-  h4 {
+  h2 {
     font-size: 16px;
     line-height: 22px;
   }
+  h3 {
+    font-size: 14px;
+    line-height: 23px;
+  }
+  hr {
+  margin-top: 12px;
+  margin-bottom: 16px;
+  }
+  .innerTable .rt-tr-group{
+  font-size: 10px;
+}
+.rt-tr-group{
+  font-size: 10px;
+}
 }
 
 
@@ -103,7 +167,7 @@ p {
 
 /* Control Label Font (Radio Button Title) */
 #ButtonGroupLabel-label {
-  font-family: HelveticaNeueLTW01_41488878;
+  font-family: HelveticaNeueLTW01_55Roman;
   color: #646464;
   font-weight: 400;
   font-size: 12px;
@@ -115,7 +179,7 @@ p {
 /* Control Label (Text Input) */
 #suchfeld-label.control-label {
     top: 14px;
-    font-family: 'HelveticaNeueLTW01_41488878';
+    font-family: 'HelveticaNeueLTW01_55Roman';
     font-weight: 400;
     color: #646464;
     font-size: 12px;
@@ -133,7 +197,7 @@ p {
 /* Control Label (Date Range) */
 #DateRange-label.control-label {
     top: 14px;
-    font-family: 'HelveticaNeueLTW01_41488878';
+    font-family: 'HelveticaNeueLTW01_55Roman';
     font-weight: 400;
     font-size: 12px;
     color: #646464;
@@ -151,7 +215,7 @@ p {
 /* Control Label (Select Input) */
 #select-label.control-label {
     top: 14px;
-    font-family: 'HelveticaNeueLTW01_41488878';
+    font-family: 'HelveticaNeueLTW01_55Roman';
     font-weight: 400;
     color: #646464;
     font-size: 12px;
@@ -173,8 +237,7 @@ p {
 
 /* Radio Buttons Label */
 .radioDiv {
-  margin-top: 16px;
-  margin-bottom: -10px;
+  margin-top: 18px;
 }
 
 #ButtonGroupLabel {
@@ -185,6 +248,7 @@ p {
 .radio span {
   padding-left: 0.7em;
   display: inline-block;
+  font-family: HelveticaNeueLTW01_55Roman;
 }
 
 .radio label {
@@ -214,27 +278,17 @@ p {
     position: relative;
     z-index: 0;
     padding: 0;
+    /*margin-top: 20px;*/
 }
 
 
  /*******************************
  * Form Control (Input)
  *******************************/
- 
-.form-control {
-    border-color: #646464;
-    outline: 0;
-    border-radius: 2px;
-    height: 40px;
-    box-shadow: none;
-    font-family: HelveticaNeueLTW01_55Roman;
-    font-size: 14px;
-    line-height: 26px;
-    padding: 6px 16px 6px 16px;
-}
 
 .form-group {
   margin-bottom: 0px;
+  margin-top: -10px;
 }
 
 
@@ -243,11 +297,11 @@ p {
  *******************************/
 
 /* Radio Buttons Input */
-input[type="radio"]:hover {
+.radio input[type="radio"]:hover {
   border: 0.05em solid #030033;
 }
 
-input[type="radio"]:focus {
+.radio input[type="radio"]:focus {
   border: 0.05em solid #080490;
 }
 
@@ -258,14 +312,14 @@ input[type="radio"]:focus {
   margin-bottom: 1.15em;
 }
 
-input[type=radio] {
+.radio input[type=radio] {
     margin: 0px 0 0 ;
     display: inline-grid;
     margin-left: -1.25em;
     margin-top: 2px;
 }
 
-input[type="radio"] {
+.radio input[type="radio"] {
   -webkit-appearance: none;
   appearance: none;
   background-color: white;
@@ -279,7 +333,7 @@ input[type="radio"] {
   place-content: center;
 }
 
-input[type="radio"]::before {
+.radio input[type="radio"]::before {
   content: "";
   width: 0.25em;
   height: 0.25em;
@@ -288,15 +342,20 @@ input[type="radio"]::before {
   background-color: #646464;
 }
 
-input[type="radio"]:checked::before {
+.radio input[type="radio"]:checked::before {
   transform: scale(1);
   background-color: #080490;
   border: 0.03em solid #080490;
 }
 
-input[type="radio"]:focus {
+.radio input[type="radio"]:focus {
   outline: max(2px, 0.15em) solid transparent;
   outline-offset: max(2px, 0.15em);
+}
+
+/* Hide first Column */
+.rt-td.css-1wb42dm.rt-td-select.rt-align-left, .rt-td-select.rt-align-left.css-1wb42dm.rt-th {
+    display: none;
 }
 
 
@@ -337,10 +396,6 @@ input[type="radio"]:focus {
  /*******************************
  * Action Buttons
  *******************************/
- 
-/*.btn, .btn-default, .action-button {
-  margin-top: 20px;
-}*/
 
 .btn {
     background-color: #0F05A0;
@@ -352,8 +407,7 @@ input[type="radio"]:focus {
     font-family: HelveticaNeueLTW01_55Roman;
     font-size: 14px;
     line-height: 22px;
-    stroke: #333;
-    stroke-width:4px;
+    margin-top: 32px;
 }
 
 .btn:hover {
@@ -377,6 +431,114 @@ input[type="radio"]:focus {
   transition: 0.7s;
 }
 
+button {
+    background-color: #F2F2F2;
+    padding: 4px 12px 4px 12px;
+    border-radius: 30px;
+    border: 0 solid;
+    color: #0F05A0;
+    font-family: HelveticaNeueLTW01_55Roman;
+    font-size: 12px;
+    line-height: 22px;
+}
+
+button:hover {
+    background-color: rgba(15, 5, 160, 0.08);
+    color: #070250;
+    transition: 0.7s;
+}
+
+button:active {
+    background-color: #0F05A0;
+    color: white;
+    outline-color: transparent;
+    outline-style: solid;
+    transition: 0.7s;
+}
+
+
+/*******************************
+ * Reactablee
+*******************************/
+ 
+ /* Table */
+.rt-table {
+   font-size: 12px;
+   font-family: HelveticaNeueLTW01_55Roman;
+   color: #646464;
+   border: 0px;
+   word-break: break-word;
+   hyphens: auto;
+ }
+ 
+ /* Table Header */
+.rt-thead.-header {
+   color: #0F05A0;
+   font-family: HelveticaNeueLTW05_85Heavy;
+   word-break: break-word;
+   hyphens: auto;
+ }
+ 
+ /* Table Pagination */
+.rt-pagination {
+  font-size: 12px;
+  color: #646464
+}
+
+.rt-page-button {
+    padding: 6px 12px;
+    background-color: transparent;
+    border: none;
+    outline-width: 0;
+    outline-style: solid;
+    cursor: pointer;
+    color: #646464;
+    border-radius: 50px;
+}
+
+.rt-page-button:hover {
+    background-color: rgba(15, 5, 160, 0.08);
+    color: #070250;
+    transition: 0.7s;
+}
+
+.rt-page-button:active {
+    background-color: #0F05A0;
+    color: white;
+    outline-color: transparent;
+    outline-style: solid;
+    transition: 0.7s;
+}
+
+.rt-page-button:disabled {
+    opacity: 0;
+    cursor: default;
+}
+
+/* Activate Background-color and pointer on hover */
+.ReactTable .rt-tr:hover .rt-td {
+    cursor: pointer;
+}
+
+/* Second Detail Table */
+.Details {
+  padding-left: 45px;
+  border-top: 1px solid #DEDEDE;
+}
+
+/* Inner Table*/
+
+/* Inner Table no header */
+.innerTable .rt-thead {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  /*margin: -1px;*/
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
 
  /*******************************
  * Date Range
@@ -545,7 +707,7 @@ input[type="radio"]:focus {
     color: #BFBFBF;
 }
 
-/* Day */
+/* Days */
 .day {
   color: #646464;
 }
@@ -572,7 +734,9 @@ input[type="radio"]:focus {
 }
 
 .selectize-dropdown {
-  z-index:100;
+  z-index: 100;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.24);
+  border-radius: 3px;
 } 
 
 .selectize-dropdown-content {
@@ -624,37 +788,41 @@ input[type="radio"]:focus {
  *******************************/
  
  /* Donwload Container */
- .downloadWrapperDiv {
+.downloadWrapperDiv {
     margin-top: 16px;
  }
  
-#csvDown {
+#csvDownload {
+    text-decoration: none;
     border-radius: 50px;
     background-color: #F2F2F2;
     padding: 0;
     height: 24px;
-    font-size: 12px;
     width: 50px;
+    font-size: 12px;
     margin-right: 16px;
     color: #0F05A0;
- }
- 
-#csvDown:hover {
-    background-color: rgba(15, 5, 160, 0.08);
-    color: #070250;
-    transition: 0.7s;
- }
- 
-#csvDown:active {
-    background-color: #0F05A0;
-    color: white;
-    outline-color: transparent;
-    outline-style: solid;
-    transition: 0.7s;
- }
- 
+    margin-top: 0;
+}
 
-#excelDown {
+#csvDownload:hover {
+    text-decoration: none;
+    background-color: rgba(15, 5, 160, 0.08);
+    color: #070250;
+    transition: 0.7s;
+ }
+ 
+#csvDownload:active {
+    text-decoration: none;
+    background-color: #0F05A0;
+    color: white;
+    outline-color: transparent;
+    outline-style: solid;
+    transition: 0.7s;
+ }
+
+#excelDownload {
+    text-decoration: none;
     border-radius: 50px;
     background-color: #F2F2F2;
     padding: 0;
@@ -663,22 +831,24 @@ input[type="radio"]:focus {
     width: 50px;
     margin-right: 16px;
     color: #0F05A0;
+    margin-top: 0;
  }
  
-#excelDown:hover {
+#excelDownload:hover {
+    text-decoration: none;
     background-color: rgba(15, 5, 160, 0.08);
     color: #070250;
     transition: 0.7s;
  }
  
-#excelDown:active {
-    background-color: #0F05A0;
+#excelDownload:active {
+     text-decoration: none;
+     background-color: #0F05A0;
     color: white;
     outline-color: transparent;
     outline-style: solid;
     transition: 0.7s;
  }
- 
  
 #ogdDown {
    border-radius: 50px;
@@ -689,6 +859,7 @@ input[type="radio"]:focus {
     width: 50px;
     margin-right: 16px;
     color: #0F05A0;
+    margin-top: 0;
  }
  
 #ogdDown:hover {
@@ -705,57 +876,6 @@ input[type="radio"]:focus {
     transition: 0.7s;
  }
  
- 
- /*******************************
- *  Media Queries
- *******************************/
- 
-@media screen and (max-width: 799px) {
-  p {
-    font-size: 16px;
-    line-height: 26px;
-  }
-  h2 {
-    font-size: 28px;
-    line-height: 36px;
-  }
-  h3 {
-    font-size: 22px;
-    line-height: 31px;
-  }
-  h4 {
-    font-size: 18px;
-    line-height: 25px;
-  }
-  .downloadWrapperDiv {
-    display: flex;
-    justify-content: space-between;
-  }
-}
-
-@media screen and (max-width: 600px) {
-  p {
-    font-size: 18px;
-    line-height: 29px;
-  }
-  h2 {
-    font-size: 20px;
-    line-height: 28px;
-  }
-  h3 {
-    font-size: 18px;
-    line-height: 25px;
-  }
-  h4 {
-    font-size: 16px;
-    line-height: 22px;
-  }
-  .downloadWrapperDiv {
-    display: flex;
-    justify-content: space-between;
-  }
-}
-
 
  /*******************************
  * SSZ Fonts

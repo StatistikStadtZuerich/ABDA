@@ -1,463 +1,541 @@
 ### Required packages
 library(tidyverse)
-library(xlsx)
+library(openxlsx)
+library(readxl)
 library(reactable)
 library(icons)
 library(shiny)
 library(htmltools)
 
 # Source Download Function
-source("sszDownload.R", local = TRUE)
+source("sszDownload.R", encoding = "UTF-8")
 
 # Source Prepared Data
-source("prepareData.R", local = TRUE, encoding = "UTF-8")
+source("prepareData.R", encoding = "UTF-8")
+
+# Source Export Excel
+source("exportExcel.R", encoding = "UTF-8")
+
 
 # Set the Icon path
 icon <- icon_set("icons/")
 
-# Define UI for application that draws a histogram
-ui <- fluidPage(
-
-    # Application title
-    # titlePanel("Abstimmungsresultate App"),
+# if data load didn't work shzow message
+if(is.null(data)) {
+  
+  # Define UI
+  ui <- fluidPage(
     
-    # Horizontal Ruler
-    # tags$hr(),
-    
-    # CSS
+    # Include CSS
     includeCSS("sszTheme.css"),
     
-    # Sidebar with a slider input for number of bins 
-    sidebarLayout(
-        
-        # Sidebar Layout
-        sidebarPanel(
-          
-          # Define subtitle
-          # h2("Abfrage definieren:"),
-            
-          # Text input to facilitate search
-          textInput("suchfeld",
-                    "Suchtext:"),
-          
-          # Select Date Range
-          dateRangeInput("DateRange",
-                         "Datum:",
-                         start = "1993-01-01",
-                         end = Sys.Date(),
-                         format = "dd.mm.yyyy",
-                         language = "de",
-                         separator = icon("calendar")),
-          
-          # Select level of vote/referendum
-          tags$div(
-            class = "radioDiv",
-            radioButtons("ButtonGroupLabel",
-                         "Politische Ebene der Abstimmung:",
-                         choices = c("Alle Vorlagen", 
-                                     "Eidgenössische Vorlagen", 
-                                     "Kantonale Vorlagen", 
-                                     "Städtische Vorlagen"),
-                         selected = "Alle Vorlagen")
-          ),
-          
-          
-          # Action Button
-          conditionalPanel(
-            condition = 'input.ActionButtonId==0',
-            
-            actionButton("ActionButtonId",
-                         "Abfrage starten")
-          ),
-          conditionalPanel(
-            condition = 'input.ActionButtonId>0',
-         
-          ),
-          
-          br(),
-          
-          # Downloads
-          conditionalPanel(
-              condition = 'output.selectedVote',
-              h3("Daten herunterladen"),
-              
-              # Download Panel
-              tags$div(
-                id = "downloadWrapperId",
-                class = "downloadWrapperDiv",
-                
-                sszDownload("csvDownload",
-                            label = "csv"
-                ),
-                sszDownload("excelDownload",
-                            label = "xlsx"
-                ),
-                actionButton(inputId = "ogdDown",
-                             label = "OGD",
-                             onclick ="window.open('https://data.stadt-zuerich.ch/dataset/politik_abstimmungen_seit1933', '_blank')"
-                )
-              )
-            )
-          ),
-        
-        # Show a plot of the generated distribution
-        mainPanel(
-          
-          conditionalPanel(
-            condition = 'output.voteList',
-            
-            # Define subtitle
-            tags$div(
-              class = "infoDiv",
-              p("Die untenstehenden Abstimmungen entsprechen Ihren Suchkriterien. Für Detailinformationen wählen Sie eine Abstimmung aus.")
-            ),
-            hr(),
-          ),
-   
-          # Table Output to select vote
-          reactableOutput("voteList"),
-          
-          # Name of selected vote
-          htmlOutput("titleVote"),
-          
-          # Details about selected vote
-          reactableOutput("selectedVote")
+    h1("Fehler"),
+    p("Aufgrund momentaner Wartungsarbeiten ist die Applikation zur Zeit nicht verfügbar.")
+  )
+  
+  # Server function
+  server <- function(input, output) {}
+  
+  # Run the application 
+  shinyApp(ui = ui, server = server)
+  
+}else{
 
+      # Define UI for application that draws a histogram
+    ui <- fluidPage(
+    
+        # Application title
+        # titlePanel("Abstimmungsresultate App"),
+        
+        # Horizontal Ruler
+        # tags$hr(),
+        
+        # CSS
+        includeCSS("sszTheme.css"),
+        
+        # Sidebar with a slider input for number of bins 
+        sidebarLayout(
+            
+            # Sidebar Layout
+            sidebarPanel(
+              
+              # Define subtitle
+              # h2("Abfrage definieren:"),
+                
+              # Text input to facilitate search
+              textInput("suchfeld",
+                        "Suchtext:"),
+              
+              # Select Date Range
+              dateRangeInput("DateRange",
+                             "Datum:",
+                             start = "1993-01-01",
+                             end = Sys.Date(),
+                             format = "dd.mm.yyyy",
+                             language = "de",
+                             separator = icon("calendar")),
+              
+              # Select level of vote/referendum
+              tags$div(
+                class = "radioDiv",
+                radioButtons("ButtonGroupLabel",
+                             "Politische Ebene der Abstimmung:",
+                             choices = c("Alle Vorlagen", 
+                                         "Eidgenössische Vorlagen", 
+                                         "Kantonale Vorlagen", 
+                                         "Städtische Vorlagen"),
+                             selected = "Alle Vorlagen")
+              ),
+              
+              
+              # Action Button
+              conditionalPanel(
+                condition = 'input.ActionButtonId==0',
+                
+                actionButton("ActionButtonId",
+                             "Abfrage starten")
+              ),
+              conditionalPanel(
+                condition = 'input.ActionButtonId>0',
+             
+              ),
+              
+              br(),
+              
+              # Downloads
+              conditionalPanel(
+                  condition = 'output.selectedVote',
+                  h3("Daten herunterladen"),
+                  
+                  # Download Panel
+                  tags$div(
+                    id = "downloadWrapperId",
+                    class = "downloadWrapperDiv",
+                    
+                    sszDownload("csvDownload",
+                                label = "csv"
+                    ),
+                    sszDownload("excelDownload",
+                                label = "xlsx"
+                    ),
+                    actionButton(inputId = "ogdDown",
+                                 label = "OGD",
+                                 onclick ="window.open('https://data.stadt-zuerich.ch/dataset/politik_abstimmungen_seit1933', '_blank')"
+                    )
+                  )
+                )
+              ),
+            
+            # Show a plot of the generated distribution
+            mainPanel(
+              
+              conditionalPanel(
+                condition = 'input.ActionButtonId>0',
+                
+                # Title for table
+                h1("Die untenstehenden Vorlagen entsprechen Ihren Suchkriterien"),
+                hr(),
+                # Define subtitle
+                tags$div(
+                  class = "infoDiv",
+                  p("Für Detailinformationen zur Beteiligung und Ergebnis einer Abstimmung wählen Sie eine Zeile aus.")
+                )
+              ),
+              conditionalPanel(
+                condition = 'input.ActionButtonId==0',
+                
+              ),
+              
+              # Table Output to select vote
+              reactableOutput("voteList"),
+              
+              # Name of selected vote
+              htmlOutput("titleVote"),
+              
+              # Details about selected vote
+              reactableOutput("selectedVote")
+    
+            )
         )
     )
-)
-
-# Define server logic required to draw a histogram
-server <- function(input, output, session) {
     
-    # First button click to activate search, after not necessary anymore
-    global <- reactiveValues(activeButton = FALSE)
-
-    observeEvent(input$ActionButtonId, {
-      req(input$ActionButtonId)
-      global$activeButton <- TRUE
-    })
-
-
-    ## Test with Date
-    dataRange <- reactive({
-      req(global$activeButton == TRUE)
-        dateRange <- input$DateRange
-        dateRange
-    })
-
-    dataDate <- reactive({
-      req(global$activeButton == TRUE)
-        datum <- data %>%
-            dplyr::filter(
-                `Politische Ebene` %in% input$ButtonGroupLabel,
-                Datum >= input$DateRange[1],
-                Datum <= input$DateRange[2]) %>%
-            pull(Datum) %>%
-            unique()
-        datum
-    })
-
-    ## Get Data for Download
-    filteredData <- reactive({
-      req(global$activeButton == TRUE)
-        # Filter: No Search
-        if(input$suchfeld == "") {
-            filtered <- data %>%
-                dplyr::filter(Datum >= input$DateRange[1] & Datum <= input$DateRange[2]) %>%
-                mutate(Datum = as.character(as.Date(Datum, "%d.%m.%Y")),
-                       Stimmberechtigte = as.integer(Stimmberechtigte))  %>%
-                select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
-
-            # Filter the level of vote
-            if(input$ButtonGroupLabel == "Alle Vorlagen"){
-                filtered
-            }else{
-              filtered <- filtered %>%
-                  filter(`Politische Ebene` %in% input$ButtonGroupLabel)
-              filtered
+    # Define server logic required to draw a histogram
+    server <- function(input, output, session) {
+        
+        # First button click to activate search, after not necessary anymore
+        global <- reactiveValues(activeButton = FALSE)
+    
+        observeEvent(input$ActionButtonId, {
+          req(input$ActionButtonId)
+          global$activeButton <- TRUE
+        })
+    
+    
+        ## Test with Date
+        dataRange <- reactive({
+          req(global$activeButton == TRUE)
+            dateRange <- input$DateRange
+            dateRange
+        })
+    
+        dataDate <- reactive({
+          req(global$activeButton == TRUE)
+            datum <- data %>%
+                dplyr::filter(
+                    `Politische Ebene` %in% input$ButtonGroupLabel,
+                    Datum >= input$DateRange[1],
+                    Datum <= input$DateRange[2]) %>%
+                pull(Datum) %>%
+                unique()
+            datum
+        })
+    
+        ## Get Data for Download
+        filteredData <- reactive({
+          req(global$activeButton == TRUE)
+            # Filter: No Search
+            if(input$suchfeld == "") {
+                filtered <- data %>%
+                    dplyr::filter(Datum >= input$DateRange[1] & Datum <= input$DateRange[2]) %>%
+                    mutate(Datum = as.character(as.Date(Datum, "%d.%m.%Y")),
+                           Stimmberechtigte = as.integer(Stimmberechtigte))  %>%
+                    select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, NrGebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
+    
+                # Filter the level of vote
+                if(input$ButtonGroupLabel == "Alle Vorlagen"){
+                    filtered
+                }else{
+                  filtered <- filtered %>%
+                      filter(`Politische Ebene` %in% input$ButtonGroupLabel)
+                  filtered
+                }
+    
+            # Filter: With Search
+            } else {
+                filtered <- data %>%
+                    filter(grepl(input$suchfeld, Abstimmungstext, ignore.case=TRUE)) %>%
+                    dplyr::filter(Datum >= input$DateRange[1] & Datum <= input$DateRange[2]) %>%
+                    mutate(Datum = as.character(as.Date(Datum, "%d.%m.%Y")),
+                           Stimmberechtigte = as.integer(Stimmberechtigte))  %>%
+                    select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, NrGebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
+    
+                # Filter the level of vote
+                if(input$ButtonGroupLabel == "Alle Vorlagen"){
+                    filtered
+                }else{
+                    filtered <- filtered %>%
+                        filter(`Politische Ebene` %in% input$ButtonGroupLabel)
+                    filtered
+                }
             }
-
-        # Filter: With Search
-        } else {
-            filtered <- data %>%
-                filter(grepl(input$suchfeld, Abstimmungstext, ignore.case=TRUE)) %>%
-                dplyr::filter(Datum >= input$DateRange[1] & Datum <= input$DateRange[2]) %>%
-                mutate(Datum = as.character(as.Date(Datum, "%d.%m.%Y")),
-                       Stimmberechtigte = as.integer(Stimmberechtigte))  %>%
-                select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
-
-            # Filter the level of vote
-            if(input$ButtonGroupLabel == "Alle Vorlagen"){
-                filtered
-            }else{
-                filtered <- filtered %>%
-                    filter(`Politische Ebene` %in% input$ButtonGroupLabel)
-                filtered
+        })
+    
+        # Captions
+        # Reactive Title
+        titleReactive <- reactive({
+          req(global$activeButton == TRUE)
+            if(input$suchfeld == ""){
+                title <- "Ohne Suchtext"
+            } else {
+                title <- paste0("Suche: ", input$suchfeld)
             }
-        }
-    })
-
-    # Captions
-    # Reactive Title
-    titleReactive <- reactive({
-      req(global$activeButton == TRUE)
-        if(input$suchfeld == ""){
-            title <- "Ohne Suchtext"
-        } else {
-            title <- paste0("Suche: ", input$suchfeld)
-        }
-    })
-    output$title <- renderText({
-        titleReactive()
-    })
-
-    # Reactive Subtitle
-    subtitleReactive <- reactive({
-      req(global$activeButton == TRUE)
-        subtitle <- input$ButtonGroupLabel
-    })
-    output$subtitle <- renderText({
-        subtitleReactive()
-    })
-
-    # Reactive Sub-Subtitle
-    subSubtitleReactive <- reactive({
-      req(global$activeButton == TRUE)
-        subSubtitle <- paste0("Zeitraum: ", input$DateRange[1], " bis ", input$DateRange[2])
-    })
-    output$subSubtitle <- renderText({
-        subSubtitleReactive()
-    })
-
-
-    output$voteList <- renderReactable({
-      tableOutput1 <- reactable(filteredData() %>%
-                                  select(Datum, `Politische Ebene`, Abstimmungstext) %>%
-                                  unique()
-                                ,
-                                paginationType = "simple",
-                                language = reactableLang(
-                                  noData = "Keine Einträge gefunden",
-                                  pageNumbers = "{page} von {pages}",
-                                  pageInfo = "{rowStart} bis {rowEnd} von {rows} Einträgen",
-                                  pagePrevious = "\u276e",
-                                  pageNext = "\u276f",
-                                  pagePreviousLabel = "Vorherige Seite",
-                                  pageNextLabel = "Nächste Seite"
-
-                                ),
-                                theme = reactableTheme(
-                                  borderColor = "#DEDEDE"
-                                ),
-                                columns = list(
-                                  Datum = colDef(minWidth = 80, cell = function(value) strftime(value, "%d.%m.%Y")),   # 12,5% width, 50px minimum
-                                  `Politische Ebene` = colDef(minWidth = 100),   # 25% width, 100px minimum
-                                  Abstimmungstext = colDef(minWidth = 225) # 62,5% width, 250px minimum
-                                ),
-                                outlined = TRUE,
-                                highlight = TRUE,
-                                defaultPageSize = 5,
-                                onClick = "select",
-                                selection = "single",
-                                rowClass = JS("function(rowInfo) {return rowInfo.selected ? 'selected' : ''}"),
-                                rowStyle = JS("function(rowInfo) {if (rowInfo.selected) { return { backgroundColor: '#F2F2F2'}}}")
-      )
-      tableOutput1
-    })
-
-    rowNumber <- reactive( {
-      getReactableState("voteList", "selected")
-    })
-
-
-    nameVote <- reactive({
-      req(rowNumber())
-
-      vote <- filteredData() %>%
-        select(Datum, `Politische Ebene`, Abstimmungstext) %>%
-        unique() %>%
-        mutate(ID = row_number()) %>%
-        filter(ID == rowNumber())
-
-      print(vote$Abstimmungstext)
-    })
-
-
-    dateVote <- reactive({
-      req(rowNumber())
-
-      vote <- filteredData() %>%
-        select(Datum, `Politische Ebene`, Abstimmungstext) %>%
-        unique() %>%
-        mutate(ID = row_number()) %>%
-        filter(ID == rowNumber())
-
-      print(vote$Datum)
-    })
-
-    voteData <- reactive({
-      req(nameVote())
-
-      vote <- filteredData() %>%
-        filter(Abstimmungstext == nameVote()) %>%
-        select(Gebiet, `Stimmberechtigte`, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
-    })
-
-
-
-
-    ## Write Download Table
-    # CSV
-    output$csvDownload <- downloadHandler(
-        filename = function(vote) {
-
+        })
+        output$title <- renderText({
+            titleReactive()
+        })
+    
+        # Reactive Subtitle
+        subtitleReactive <- reactive({
+          req(global$activeButton == TRUE)
+            subtitle <- input$ButtonGroupLabel
+        })
+        output$subtitle <- renderText({
+            subtitleReactive()
+        })
+    
+        # Reactive Sub-Subtitle
+        subSubtitleReactive <- reactive({
+          req(global$activeButton == TRUE)
+            subSubtitle <- paste0("Zeitraum: ", input$DateRange[1], " bis ", input$DateRange[2])
+        })
+        output$subSubtitle <- renderText({
+            subSubtitleReactive()
+        })
+    
+    
+        output$voteList <- renderReactable({
+          tableOutput1 <- reactable(filteredData() %>%
+                                      select(Datum, `Politische Ebene`, Abstimmungstext) %>%
+                                      unique()
+                                    ,
+                                    paginationType = "simple",
+                                    language = reactableLang(
+                                      noData = "Keine Einträge gefunden",
+                                      pageNumbers = "{page} von {pages}",
+                                      pageInfo = "{rowStart} bis {rowEnd} von {rows} Einträgen",
+                                      pagePrevious = "\u276e",
+                                      pageNext = "\u276f",
+                                      pagePreviousLabel = "Vorherige Seite",
+                                      pageNextLabel = "Nächste Seite"
+    
+                                    ),
+                                    theme = reactableTheme(
+                                      borderColor = "#DEDEDE"
+                                    ),
+                                    columns = list(
+                                      Datum = colDef(minWidth = 80, align = "left", cell = function(value) strftime(value, "%d.%m.%Y")),   # 12,5% width, 50px minimum
+                                      `Politische Ebene` = colDef(minWidth = 100, align = "left"),   # 25% width, 100px minimum
+                                      Abstimmungstext = colDef(minWidth = 225, align = "left") # 62,5% width, 250px minimum
+                                    ),
+                                    outlined = TRUE,
+                                    highlight = TRUE,
+                                    defaultPageSize = 5,
+                                    onClick = "select",
+                                    selection = "single",
+                                    rowClass = JS("function(rowInfo) {return rowInfo.selected ? 'selected' : ''}"),
+                                    rowStyle = JS("function(rowInfo) {if (rowInfo.selected) { return { backgroundColor: '#F2F2F2'}}}")
+          )
+          tableOutput1
+        })
+    
+        rowNumber <- reactive( {
+          getReactableState("voteList", "selected")
+        })
+    
+    
+        nameVote <- reactive({
+          req(rowNumber())
+    
+          vote <- filteredData() %>%
+            select(Datum, `Politische Ebene`, Abstimmungstext) %>%
+            unique() %>%
+            mutate(ID = row_number()) %>%
+            filter(ID == rowNumber())
+    
+          print(vote$Abstimmungstext)
+        })
+    
+    
+        dateVote <- reactive({
+          req(rowNumber())
+    
+          vote <- filteredData() %>%
+            select(Datum, `Politische Ebene`, Abstimmungstext) %>%
+            unique() %>%
+            mutate(ID = row_number()) %>%
+            filter(ID == rowNumber())
+    
+          print(vote$Datum)
+        })
+    
+        voteData <- reactive({
+          req(nameVote())
+    
+          vote <- filteredData() %>%
+            filter(Abstimmungstext == nameVote()) %>%
+            rename(`Beteiligung (in %)` = `Stimmbeteiligung (in %)`,
+                   `Stimm-berechtigte` = `Stimmberechtigte`) %>% 
+            arrange(NrGebiet) %>% 
+            select(Gebiet, `Stimm-berechtigte`, `Ja-Stimmen`, `Nein-Stimmen`, `Beteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
+          vote
+        })
+    
+    
+    
+    
+        ## Write Download Table
+        # CSV
+        output$csvDownload <- downloadHandler(
+            filename = function(vote) {
+    
+                suchfeld <- gsub(" ", "-", nameVote(), fixed = TRUE)
+                time <- gsub(" ", "-", dateVote(), fixed = TRUE)
+                paste0("Abstimmungsresultate_", suchfeld, "_", time, ".csv")
+    
+            },
+            content = function(file) {
+                write.csv(voteData(), file, row.names = FALSE, na = " ")
+            }
+        )
+        
+        # Excel
+        output$excelDownload <- downloadHandler(
+          filename = function(vote) {
+            
             suchfeld <- gsub(" ", "-", nameVote(), fixed = TRUE)
             time <- gsub(" ", "-", dateVote(), fixed = TRUE)
-            paste0("Abstimmungsresultate_", suchfeld, "_", time, ".csv")
-
-        },
-        content = function(file) {
-            write.csv(voteData(), file, row.names = FALSE, na = " ")
-        }
-    )
-
-    # Excel
-    output$excelDownload <- downloadHandler(
-      filename = function(vote) {
-
-        suchfeld <- gsub(" ", "-", nameVote(), fixed = TRUE)
-        time <- gsub(" ", "-", dateVote(), fixed = TRUE)
-        paste0("Abstimmungsresultate_", suchfeld, "_", time, ".xlsx")
-
-      },
-        content = function(file) {
-            xlsx::write.xlsx(voteData(), file, row.names = FALSE, showNA = FALSE)
-        }
-    )
-
-
-    output$titleVote <- renderText({
-      req(nameVote())
-
-      paste("<h3>", print(nameVote()), "</h3>")
-    })
-
-    output$selectedVote <- renderReactable({
-        req(nameVote())
-
-        # Render a bar chart with a label on the left
-        bar_chart <- function(label, width = "100%", height = "2rem", fill = "#00bfc4", background = NULL) {
-          bar <- div(style = list(background = fill, width = width, height = height))
-          chart <- div(style = list(flexGrow = 1, marginLeft = "1.5rem", background = background), bar)
-          div(style = list(display = "flex"), label, chart)
-        }
-
-        # always have one decimal
-        specify_decimal <- function(x, k) trimws(format(round(x, k), nsmall=k))
-
-        # Prepare dfs
-        data_vote <- filteredData() %>%
-          filter(Abstimmungstext == nameVote()) %>%
-          mutate(`Stimmbeteiligung (in %)` = specify_decimal(`Stimmbeteiligung (in %)`, 1),
-                 `Ja-Anteil (in %)` = specify_decimal(`Ja-Anteil (in %)`, 1),
-                 `Nein-Anteil (in %)` = specify_decimal(`Nein-Anteil (in %)`, 1)) %>%
-          select(Gebiet, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
-
-        data_detail <-filteredData() %>%
-          filter(Abstimmungstext == nameVote()) %>%
-          select(Gebiet, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`) %>% 
-          pivot_longer(!Gebiet) %>% 
-          mutate(Test1 = " ",
-                 Test2 = " ")
-
-        tableOutput2 <- reactable(data_vote,
-                                  paginationType = "simple",
-                                  language = reactableLang(
-                                    noData = "Keine Einträge gefunden",
-                                    pageNumbers = "{page} von {pages}",
-                                    pageInfo = "{rowStart} bis {rowEnd} von {rows} Einträgen",
-                                    pagePrevious = "\u276e",
-                                    pageNext = "\u276f",
-                                    pagePreviousLabel = "Vorherige Seite",
-                                    pageNextLabel = "Nächste Seite"
-                                  ),
-                                  theme = reactableTheme(
-                                    borderColor = "#DEDEDE"
-                                  ),
-                                  outlined = TRUE,
-                                  highlight = TRUE,
-                                  columns = list(
-                                    Gebiet =  colDef(minWidth = 30,
-                                                     style = list(
-                                                       fontFamily = "HelveticaNeueLTW05_85Heavy")
-                                                     ),
-                                    `Stimmbeteiligung (in %)` = colDef(minWidth = 30,
-                                                                       align = "right"),
-                                    `Ja-Anteil (in %)` = colDef(
-                                      minWidth = 50,
-                                      name = "Abstimmungsergebnis (in %)",
-                                      align = "center",
-                                      cell = function(value) {
-                                      width <- paste0(value, "%")
-                                      bar_chart(value, width = width, fill = "#6995C3", background = "#D68692")
-                                    }),
-                                    `Nein-Anteil (in %)` = colDef(
-                                      minWidth = 15,
-                                      name = "",
-                                      align = "left")
-                                  ),
-                                  details = function(index) {
-                                    det <- filter(data_detail, Gebiet == data_vote$Gebiet[index]) %>% select(-Gebiet)
-                                    htmltools::div(
-                                      class = "Details",
-                                      reactable(det, 
-                                                class = "innerTable",
-                                                outlined = TRUE,
-                                                fullWidth = TRUE,
-                                                borderless = TRUE,
-                                                theme = reactableTheme(
-                                                  borderColor = "#DEDEDE"
-                                                ),
-                                                columns = list(
-                                                  name = colDef(
-                                                    name = " ",
-                                                    minWidth = 30
-                                                  ),
-                                                  value = colDef(
-                                                    name = " ",
-                                                    minWidth = 30,
-                                                    align = "right",
-                                                    cell = function(value) {
-                                                      if (is.numeric(value)) {
-                                                        format(value, big.mark = " ")
-                                                      } else
-                                                      {
-                                                        return(value)
-                                                      }
-                                                    }
-                                                  ),
-                                                   Test1 = colDef(
-                                                     minWidth = 50,
-                                                     name = " ",
-                                                    align = "center",
-                                                   ),
-                                                   Test2 = colDef(
-                                                     minWidth = 15,
-                                                     name = " ",
-                                                     align = "center",
-                                                   )
-                                                )
-                                              )
-                                      )
-                                  },
-                                  onClick = "expand",
-                                  defaultPageSize = 13
+            paste0("Abstimmungsresultate_", suchfeld, "_", time, ".xlsx")
+            
+          },
+          content = function(file) {
+            sszDownloadExcel(voteData(), file, nameVote())
+          }
         )
-        tableOutput2
-    })
-    }
     
-# Run the application 
-shinyApp(ui = ui, server = server)
+        # # Excel
+        # output$excelDownload <- downloadHandler(
+        #   filename = function(vote) {
+        # 
+        #     suchfeld <- gsub(" ", "-", nameVote(), fixed = TRUE)
+        #     time <- gsub(" ", "-", dateVote(), fixed = TRUE)
+        #     paste0("Abstimmungsresultate_", suchfeld, "_", time, ".xlsx")
+        # 
+        #   },
+        #     content = function(file) {
+        #         xlsx::write.xlsx(voteData(), file, row.names = FALSE, showNA = FALSE)
+        #     }
+        # )
     
+    
+        output$titleVote <- renderText({
+          req(nameVote())
+    
+          paste("<br><h4><b>", print(nameVote()), "</b></h4>")
+        })
+    
+        output$selectedVote <- renderReactable({
+            req(nameVote())
+    
+            # Render a bar chart with a label on the left
+            bar_chart <- function(label, width = "100%", height = "2rem", fill = "#00bfc4", background = NULL) {
+              bar <- div(style = list(background = fill, width = width, height = height))
+              chart <- div(style = list(flexGrow = 1, marginLeft = "1.5rem", background = background), bar)
+              div(style = list(display = "flex"), chart)
+            }
+    
+            # always have one decimal
+            specify_decimal <- function(x, k) trimws(format(round(x, k), nsmall=k))
+    
+            # Prepare dfs
+            data_vote <- filteredData() %>%
+              filter(Abstimmungstext == nameVote()) %>%
+              mutate(Chart_Anteil = specify_decimal(`Ja-Anteil (in %)`, 1),
+                     `Stimmbeteiligung (in %)` = specify_decimal(`Stimmbeteiligung (in %)`, 1),
+                     `Ja-Anteil (in %)` = specify_decimal(`Ja-Anteil (in %)`, 1),
+                     `Nein-Anteil (in %)` = specify_decimal(`Nein-Anteil (in %)`, 1)) %>%
+              arrange(NrGebiet) %>% 
+              select(Gebiet, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, Chart_Anteil,`Nein-Anteil (in %)`)
+    
+            data_detail <-filteredData() %>%
+              filter(Abstimmungstext == nameVote()) %>%
+              select(Gebiet, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`) %>% 
+              pivot_longer(!Gebiet) %>% 
+              # When row is empty or 0 (maily Stimmberechtigt is empty or 0 for old data) then delete
+              filter(!is.na(value) & value != 0) %>% 
+              mutate(Test1 = " ",
+                     Test2 = " ", 
+                     Test3 = " ")
+    
+            tableOutput2 <- reactable(data_vote,
+                                      paginationType = "simple",
+                                      language = reactableLang(
+                                        noData = "Keine Einträge gefunden",
+                                        pageNumbers = "{page} von {pages}",
+                                        pageInfo = "{rowStart} bis {rowEnd} von {rows} Einträgen",
+                                        pagePrevious = "\u276e",
+                                        pageNext = "\u276f",
+                                        pagePreviousLabel = "Vorherige Seite",
+                                        pageNextLabel = "Nächste Seite"
+                                      ),
+                                      theme = reactableTheme(
+                                        borderColor = "#DEDEDE"
+                                      ),
+                                      outlined = TRUE,
+                                      highlight = TRUE,
+                                      columns = list(
+                                        Gebiet =  colDef(minWidth = 60,
+                                                         sortable = FALSE),
+                                        `Stimmbeteiligung (in %)` = colDef(html = TRUE,
+                                                                           name = "Beteiligung<br>(in %)",
+                                                                           minWidth = 40,
+                                                                           align = "left"),
+                                        `Ja-Anteil (in %)` = colDef(
+                                          minWidth = 30,
+                                          html = TRUE,
+                                          name = "Ja-Anteil<br>(in %)",
+                                          align = "right",
+                                          headerClass = "barHeadershares"),
+                                        Chart_Anteil = colDef(
+                                          minWidth = 40,
+                                          html = TRUE,
+                                          name = "Ergebnis Abstimmung<br>(in %)",
+                                          align = "left",
+                                          cell = function(value) {
+                                            width <- paste0(value, "%")
+                                            bar_chart(value, width = width, fill = "#6995C3", background = "#D68692")
+                                        },
+                                        class = "bar",
+                                        headerClass = "barHeader"),
+                                        `Nein-Anteil (in %)` = colDef(
+                                          minWidth = 20,
+                                          name = " ",
+                                          align = "left",
+                                          class = "bar",
+                                          headerClass = "barHeader")
+                                      ),
+                                      details = function(index) {
+                                        det <- filter(data_detail, Gebiet == data_vote$Gebiet[index]) %>% select(-Gebiet)
+                                        htmltools::div(
+                                          class = "Details",
+                                          reactable(det, 
+                                                    class = "innerTable",
+                                                    outlined = TRUE,
+                                                    fullWidth = TRUE,
+                                                    borderless = TRUE,
+                                                    theme = reactableTheme(
+                                                      borderColor = "#DEDEDE"
+                                                    ),
+                                                    columns = list(
+                                                      name = colDef(
+                                                        name = " ",
+                                                        align = "left",
+                                                        minWidth = 60,
+                                                        sortable = FALSE
+                                                      ),
+                                                      value = colDef(
+                                                        name = " ",
+                                                        align = "right",
+                                                        minWidth = 50,
+                                                        sortable = FALSE,
+                                                        cell = function(value) {
+                                                          if (is.numeric(value)) {
+                                                            format(value, big.mark = " ")
+                                                          } else
+                                                          {
+                                                            return(value)
+                                                          }
+                                                        }
+                                                      ),
+                                                       Test1 = colDef(
+                                                         minWidth = 30,
+                                                         name = " ",
+                                                        align = "center",
+                                                        sortable = FALSE
+                                                       ),
+                                                       Test2 = colDef(
+                                                         name = "",
+                                                         align = "left",
+                                                         minWidth = 40,
+                                                         sortable = FALSE,
+                                                         class = "spacer",
+                                                         headerClass = "spacerHeader"),
+                                                      Test3 = colDef(
+                                                        minWidth = 20,
+                                                        name = " ",
+                                                        align = "center",
+                                                        sortable = FALSE
+                                                      )
+                                                    )
+                                                  )
+                                          )
+                                      },
+                                      onClick = "expand",
+                                      defaultPageSize = 13
+            )
+            tableOutput2
+        })
+        }
+        
+    # Run the application 
+    shinyApp(ui = ui, server = server)
+}       
