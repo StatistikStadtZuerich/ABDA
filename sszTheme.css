@@ -536,21 +536,6 @@ button:active {
   min-width: 0px !important;
   flex: 0;
 }
-/*
-.rt-th.rt { 
-    position: relative;
-    min-width: 0px !important;
-    flex: 0;
-}
-*/
-#rt-th  {
-    position: relative;
-    flex: 0 0 auto;
-    min-width: 45px;
-    width: 45px;
-    max-width: 45px;
-}
-
 
 /* Table Pagination */
 .rt-pagination {
@@ -592,6 +577,10 @@ button:active {
 
 /* Delete row select */
 .rt-td-select {
+  display: none;
+}
+
+.rt-th-select {
   display: none;
 }
 

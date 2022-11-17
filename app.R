@@ -1,4 +1,5 @@
 ### Required packages
+
 library(tidyverse)
 library(openxlsx)
 library(readxl)
@@ -292,8 +293,8 @@ if(is.null(data)) {
                                     defaultPageSize = 5,
                                     onClick = "select",
                                     selection = "single",
-                                    rowClass = JS("function(rowInfo) {return rowInfo.selected ? 'selected' : ''}"),
-                                    rowStyle = JS("function(rowInfo) {if (rowInfo.selected) { return { backgroundColor: '#F2F2F2'}}}")
+                                    rowClass = JS("function(rowInfo) {return rowInfo.selected ? 'selected' : ''}") #,
+                                   # rowStyle = JS("function(rowInfo) {if (rowInfo.selected) { return { backgroundColor: '#F2F2F2'}}}")
           )
           tableOutput1
         })
