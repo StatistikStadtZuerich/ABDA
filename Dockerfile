@@ -1,6 +1,6 @@
 FROM rocker/tidyverse:4.0.3
 RUN install2.r rsconnect shiny reactable icons htmltools Rcpp openxlsx
-WORKDIR /home/mpe-test
+WORKDIR /home/abda-test
 COPY app.R app.R
 COPY exportExcel.R exportExcel.R
 COPY logo_stzh_stat_sw_pos_1.png logo_stzh_stat_sw_pos_1.png
