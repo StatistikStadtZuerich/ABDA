@@ -355,7 +355,7 @@ if(is.null(data)) {
     
             },
             content = function(file) {
-                write.csv(voteData(), file, row.names = FALSE, na = " ")
+                write.csv(voteData(), file, fileEncoding = "UTF-8", row.names = FALSE, na = " ")
             }
         )
         
