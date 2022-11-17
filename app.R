@@ -1,6 +1,6 @@
 ### Required packages
-
 library(tidyverse)
+library(lubridate)
 library(openxlsx)
 library(readxl)
 library(reactable)
