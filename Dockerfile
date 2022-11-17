@@ -1,5 +1,6 @@
 FROM rocker/tidyverse:4.0.3
-RUN install2.r rsconnect shiny reactable icons htmltools Rcpp openxlsx
+RUN install2.r rsconnect shiny reactable remotes htmltools Rcpp openxlsx
+RUN RScript -e "remotes::install_github('mitchelloharawild/icons')"
 WORKDIR /home/abda-test
 COPY app.R app.R
 COPY exportExcel.R exportExcel.R
