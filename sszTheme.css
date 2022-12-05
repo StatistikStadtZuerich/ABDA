@@ -42,6 +42,7 @@ h3 {
   font-size: 18px;
   line-height: 25px;
   font-weight: 750;
+  margin-top: -20px;
 }
 
 /* Paragraph Text */
@@ -87,42 +88,11 @@ a:hover {
   color: #070250;
 }
 
-/* Media Queries */
-@media screen and (max-width: 3000px) {
-   p {
-    font-size: 14px;
-    line-height: 23px;
-  }
-  
-  ol {
-    font-size: 14px;
-    line-height: 23px;
-  }
-  
-  h1 {
-    font-size: 20px;
-    line-height: 28px;
-  }
-  
-  h2 {
-    font-size: 18px;
-    line-height: 25px;
-  }
-  
-  h3 {
-    font-size: 14px;
-    line-height: 23px;
-  }
-  
-  hr {
-    margin-top: 12px;
-    margin-bottom: 16px;
-  }
-  
-  .barHeadershares {
-   color: transparent;
- }
+.barHeadershares {
+  color: transparent;
 }
+
+/* Media Queries */
 @media screen and (max-width: 767px) {
   p {
     font-size: 14px;
@@ -153,10 +123,6 @@ a:hover {
     margin-top: 12px;
     margin-bottom: 16px;
   }
-  
-  .barHeadershares {
-   color: transparent;
- }
 }
 
 @media screen and (max-width: 600px) {

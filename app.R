@@ -139,7 +139,7 @@ if(is.null(data)) {
                 # Define subtitle
                 tags$div(
                   class = "infoDiv",
-                  p("Für Detailinformationen zur Beteiligung und Ergebnis einer Abstimmung wählen Sie eine Zeile aus.")
+                  p("Für Detailinformationen zur Stimmbeteiligung und zum Ergebnis einer Abstimmung wählen Sie eine Zeile aus.")
                 )
               ),
               conditionalPanel(
@@ -391,7 +391,7 @@ if(is.null(data)) {
         output$titleVote <- renderText({
           req(nameVote())
     
-          paste("<br><h4><b>", print(nameVote()), "</b></h4>")
+          paste("<br><h2>", print(nameVote()), "</h2><hr>")
         })
     
         output$selectedVote <- renderReactable({
@@ -459,8 +459,8 @@ if(is.null(data)) {
                                         Chart_Anteil = colDef(
                                           minWidth = 40,
                                           html = TRUE,
-                                          name = "Ergebnis Abstimmung<br>(in %)",
-                                          align = "left",
+                                          name = "Ja-/Nein-<br>Anteil (in %)",
+                                          align = "center",
                                           cell = function(value) {
                                             width <- paste0(value, "%")
                                             bar_chart(value, width = width, fill = "#6995C3", background = "#D68692")
@@ -488,15 +488,15 @@ if(is.null(data)) {
                                                     ),
                                                     columns = list(
                                                       name = colDef(
-                                                        name = " ",
+                                                        name = "Details",
                                                         align = "left",
                                                         minWidth = 60,
                                                         sortable = FALSE
                                                       ),
                                                       value = colDef(
-                                                        name = " ",
-                                                        align = "right",
-                                                        minWidth = 50,
+                                                        name = "Wert",
+                                                        align = "left",
+                                                        minWidth = 40,
                                                         sortable = FALSE,
                                                         cell = function(value) {
                                                           if (is.numeric(value)) {
