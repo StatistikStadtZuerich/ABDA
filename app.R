@@ -463,7 +463,7 @@ if(is.null(data)) {
                                           align = "center",
                                           cell = function(value) {
                                             width <- paste0(value, "%")
-                                            bar_chart(value, width = width, fill = "#6995C3", background = "#D68692")
+                                            bar_chart(value, width = width, fill = "#0f05a0", background = "#ea4f61")
                                             },
                                           class = "bar",
                                           headerClass = "barHeader"),
