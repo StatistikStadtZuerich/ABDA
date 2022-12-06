@@ -400,7 +400,7 @@ if(is.null(data)) {
             # Render a bar chart with a label on the left
             bar_chart <- function(label, width = "100%", height = "2rem", fill = "#00bfc4", background = NULL) {
               bar <- div(style = list(background = fill, width = width, height = height))
-              chart <- div(style = list(flexGrow = 1, marginLeft = "1.5rem", background = background), bar)
+              chart <- div(style = list(flexGrow = 1, marginLeft = "0rem", background = background), bar)
               div(style = list(display = "flex"), chart)
             }
     
@@ -444,36 +444,36 @@ if(is.null(data)) {
                                       outlined = TRUE,
                                       highlight = TRUE,
                                       columns = list(
-                                        Gebiet =  colDef(minWidth = 60,
+                                        Gebiet =  colDef(minWidth = 40,
                                                          sortable = FALSE),
                                         `Stimmbeteiligung (in %)` = colDef(html = TRUE,
                                                                            name = "Beteiligung<br>(in %)",
-                                                                           minWidth = 40,
+                                                                           minWidth = 30,
                                                                            align = "left"),
                                         `Ja-Anteil (in %)` = colDef(
-                                          minWidth = 30,
+                                          minWidth = 20,
                                           html = TRUE,
                                           name = "Ja-Anteil<br>(in %)",
                                           align = "right",
                                           headerClass = "barHeadershares"),
                                         Chart_Anteil = colDef(
-                                          minWidth = 40,
+                                          minWidth = 70,
                                           html = TRUE,
                                           name = "Ja-/Nein-<br>Anteil (in %)",
                                           align = "center",
                                           cell = function(value) {
                                             width <- paste0(value, "%")
                                             bar_chart(value, width = width, fill = "#6995C3", background = "#D68692")
-                                        },
-                                        class = "bar",
-                                        headerClass = "barHeader"),
+                                            },
+                                          class = "bar",
+                                          headerClass = "barHeader"),
                                         `Nein-Anteil (in %)` = colDef(
                                           minWidth = 20,
                                           name = " ",
                                           align = "left",
                                           class = "bar",
                                           headerClass = "barHeader")
-                                      ),
+                                        ),
                                       details = function(index) {
                                         det <- filter(data_detail, Gebiet == data_vote$Gebiet[index]) %>% select(-Gebiet)
                                         htmltools::div(
@@ -490,13 +490,13 @@ if(is.null(data)) {
                                                       name = colDef(
                                                         name = "Details",
                                                         align = "left",
-                                                        minWidth = 60,
+                                                        minWidth = 40,
                                                         sortable = FALSE
                                                       ),
                                                       value = colDef(
                                                         name = "Wert",
                                                         align = "left",
-                                                        minWidth = 40,
+                                                        minWidth = 30,
                                                         sortable = FALSE,
                                                         cell = function(value) {
                                                           if (is.numeric(value)) {
@@ -508,7 +508,7 @@ if(is.null(data)) {
                                                         }
                                                       ),
                                                        Test1 = colDef(
-                                                         minWidth = 30,
+                                                         minWidth = 20,
                                                          name = " ",
                                                         align = "center",
                                                         sortable = FALSE
@@ -516,7 +516,7 @@ if(is.null(data)) {
                                                        Test2 = colDef(
                                                          name = "",
                                                          align = "left",
-                                                         minWidth = 40,
+                                                         minWidth = 70,
                                                          sortable = FALSE,
                                                          class = "spacer",
                                                          headerClass = "spacerHeader"),
@@ -524,7 +524,9 @@ if(is.null(data)) {
                                                         minWidth = 20,
                                                         name = " ",
                                                         align = "center",
-                                                        sortable = FALSE
+                                                        sortable = FALSE,
+                                                        class = "bar",
+                                                        headerClass = "barHeader"
                                                       )
                                                     )
                                                   )
