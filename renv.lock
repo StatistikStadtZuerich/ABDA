@@ -874,6 +874,18 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "c7eef2996ac270a18c2715c997a727c5"
+    },
+    "zuericssstyle": {
+      "Package": "zuericssstyle",
+      "Version": "0.0.0.9000",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "zuericssstyle",
+      "RemoteUsername": "StatistikStadtZuerich",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "3e9aef467f8705098029a0370ac9ae5d190f6fc0",
+      "Hash": "8a7a8576ebeb0c36a72d4c0631163f41"
     }
   }
 }
