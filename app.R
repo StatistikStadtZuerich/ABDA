@@ -88,7 +88,6 @@ if(is.null(data)) {
                                 selected = "Alle Vorlagen")
               ),
               
-              
               # Action Button
               conditionalPanel(
                 condition = 'input.ActionButtonId==0',
@@ -406,7 +405,7 @@ if(is.null(data)) {
               filter(Abstimmungstext == nameVote()) %>%
               select(Gebiet, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`) %>% 
               pivot_longer(!Gebiet) %>% 
-              # When row is empty or 0 (maily Stimmberechtigt is empty or 0 for old data) then delete
+              # When row is empty or 0 (maily Stimmberechtigt is empty or 0 because of old data) then delete
               filter(!is.na(value) & value != 0) %>% 
               mutate(Test1 = " ",
                      Test2 = " ", 
@@ -428,14 +427,27 @@ if(is.null(data)) {
                                       ),
                                       outlined = TRUE,
                                       highlight = TRUE,
+                                      
+                                      ####### Attention: Here we have to define values for NAs
+                                      defaultColDef = colDef(
+                                        cell = function(value) {
+                                          if(!is.numeric(value)) {
+                                            return(value)
+                                          }
+                                          if(!is.na(value)) {
+                                            return(value)
+                                          } else {
+                                            "–"
+                                          }
+                                        }
+                                      ),
                                       columns = list(
                                         Gebiet =  colDef(minWidth = 40,
                                                          sortable = FALSE),
                                         `Stimmbeteiligung (in %)` = colDef(html = TRUE,
                                                                            name = "Beteiligung<br>(in %)",
                                                                            minWidth = 30,
-                                                                           align = "left",
-                                                                           na = ""), # NA somehow not working...
+                                                                           align = "left"), 
                                         `Ja-Anteil (in %)` = colDef(
                                           minWidth = 20,
                                           html = TRUE,
