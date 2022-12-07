@@ -7,9 +7,7 @@ library(reactable)
 library(icons)
 library(shiny)
 library(htmltools)
-
-# Source Download Function
-source("sszDownload.R", encoding = "UTF-8")
+library(zuericssstyle)
 
 # Source Prepared Data
 source("prepareData.R", encoding = "UTF-8")
@@ -28,7 +26,7 @@ if(is.null(data)) {
   ui <- fluidPage(
     
     # Include CSS
-    includeCSS("sszTheme.css"),
+    includeCSS("sszThemeShiny.css"),
     
     h1("Fehler"),
     p("Aufgrund momentaner Wartungsarbeiten ist die Applikation zur Zeit nicht verfügbar.")
@@ -52,7 +50,7 @@ if(is.null(data)) {
         # tags$hr(),
         
         # CSS
-        includeCSS("sszTheme.css"),
+        includeCSS("sszThemeShiny.css"),
         
         # Sidebar with a slider input for number of bins 
         sidebarLayout(
@@ -64,28 +62,28 @@ if(is.null(data)) {
               # h2("Abfrage definieren:"),
                 
               # Text input to facilitate search
-              textInput("suchfeld",
-                        "Suchtext:"),
+              sszTextInput("suchfeld",
+                           "Suchtext:"),
               
               # Select Date Range
-              dateRangeInput("DateRange",
-                             "Datum:",
-                             start = "1993-01-01",
-                             end = Sys.Date(),
-                             format = "dd.mm.yyyy",
-                             language = "de",
-                             separator = icon("calendar")),
+              sszDateRange("DateRange",
+                           "Datum:",
+                           start = "1993-01-01",
+                           end = Sys.Date(),
+                           format = "dd.mm.yyyy",
+                           language = "de",
+                           separator = icon("calendar")),
               
               # Select level of vote/referendum
               tags$div(
                 class = "radioDiv",
-                radioButtons("ButtonGroupLabel",
-                             "Politische Ebene der Abstimmung:",
-                             choices = c("Alle Vorlagen", 
-                                         "Eidgenössische Vorlagen", 
-                                         "Kantonale Vorlagen", 
-                                         "Städtische Vorlagen"),
-                             selected = "Alle Vorlagen")
+                sszRadioButtons("ButtonGroupLabel",
+                                "Politische Ebene der Abstimmung:",
+                                choices = c("Alle Vorlagen", 
+                                            "Eidgenössische Vorlagen", 
+                                            "Kantonale Vorlagen", 
+                                            "Städtische Vorlagen"),
+                                selected = "Alle Vorlagen")
               ),
               
               
@@ -93,8 +91,8 @@ if(is.null(data)) {
               conditionalPanel(
                 condition = 'input.ActionButtonId==0',
                 
-                actionButton("ActionButtonId",
-                             "Abfrage starten")
+                sszActionButton("ActionButtonId",
+                                "Abfrage starten")
               ),
               conditionalPanel(
                 condition = 'input.ActionButtonId>0',
@@ -119,9 +117,9 @@ if(is.null(data)) {
                     sszDownload("excelDownload",
                                 label = "xlsx"
                     ),
-                    actionButton(inputId = "ogdDown",
-                                 label = "OGD",
-                                 onclick ="window.open('https://data.stadt-zuerich.ch/dataset/politik_abstimmungen_seit1933', '_blank')"
+                    sszOgdDownload(inputId = "ogdDown",
+                                   label = "OGD",
+                                   onclick ="window.open('https://data.stadt-zuerich.ch/dataset/politik_abstimmungen_seit1933', '_blank')"
                     )
                   )
                 )

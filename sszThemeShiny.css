@@ -1,109 +1,190 @@
 /********************************
- * SSZ Shiny css
- *******************************/
+* SSZ Shiny css
+*******************************/
  
- /*******************************
- * General Settings
- *******************************/
+/*******************************
+* General Settings
+*******************************/
  
- /* Font Family*/
-* {
-  font-family: HelveticaNeueLTW01_41488878;
-}
 
 /* Ruler */
 hr {
-  height: 1px;
+  height: 0.2px;
   background-color: #DEDEDE;
   border: none;
+  margin-top: 16px;
+  margin-bottom: 25px;
 }
 
-/* Headings */
+/* h1 */
+h1 {
+  font-family: HelveticaNeueLTW05_85Heavy;
+  color: #0F05A0;
+  font-size: 22px;
+  line-height: 31px;
+  font-weight: 750;
+  margin-top: 28px;
+}
+
+/* h2 Font */
 h2 {
   font-family: HelveticaNeueLTW05_85Heavy;
   color: #0F05A0;
-  font-size: 32px;
-  line-height: 42px;
+  font-size: 20px;
+  line-height: 28px;
   font-weight: 750;
 }
 
 /* h3 Font */
 h3 {
   font-family: HelveticaNeueLTW05_85Heavy;
-  color: #0F05A0;
-  font-size: 22px;
-  line-height: 31px;
-  font-weight: 750;
-}
-
-/* h4 Font */
-h4 {
-  font-family: HelveticaNeueLTW05_85Heavy;
   color: #4D4D4D;
   font-size: 18px;
   line-height: 25px;
   font-weight: 750;
+  margin-top: -20px;
 }
 
 /* Paragraph Text */
 p {
   font-style: normal;
   font-weight: 400;
-  font-size: 18px;
-  line-height: 29px;
+  font-size: 14px;
+  line-height: 23px;
   font-family: HelveticaNeueLTW01_55Roman;
   color: #646464;
-  margin-top: 32px;
-  margin-bottom: 24px;
+}
+
+/* Lists */
+ol {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 23px;
+  font-family: HelveticaNeueLTW01_55Roman;
+  color: #646464;
+}
+
+li::marker {
+  font-size: 14px;
+  line-height: 23px;
+  font-family: HelveticaNeueLTW01_55Roman;
+  color: #646464;
+}
+
+/* Code */
+code {
+  background-color: #F2F2F2;
+  color: #0F05A0;
+}
+
+/* Links */
+a {
+  text-decoration: underline;
+  color: #0F05A0;
+}
+
+a:hover {
+  color: #070250;
+}
+
+.barHeadershares {
+  color: transparent;
 }
 
 /* Media Queries */
-@media screen and (max-width: 799px) {
+@media screen and (max-width: 768px) {
   p {
-    font-size: 16px;
-    line-height: 26px;
+    font-size: 14px;
+    line-height: 23px;
   }
+  
+  ol {
+    font-size: 14px;
+    line-height: 23px;
+  }
+  
+  h1 {
+    font-size: 20px;
+    line-height: 28px;
+  }
+  
   h2 {
-    font-size: 28px;
-    line-height: 36px;
-  }
-  h3 {
-    font-size: 22px;
-    line-height: 31px;
-  }
-  h4 {
     font-size: 18px;
     line-height: 25px;
+  }
+  
+  h3 {
+    font-size: 14px;
+    line-height: 23px;
+  }
+  
+  hr {
+    margin-top: 12px;
+    margin-bottom: 16px;
   }
 }
 
 @media screen and (max-width: 600px) {
   p {
-    font-size: 18px;
-    line-height: 29px;
+    font-size: 14px;
+    line-height: 23px;
   }
-  h2 {
-    font-size: 20px;
-    line-height: 28px;
+  
+  ol {
+    font-size: 14px;
+    line-height: 23px;
   }
-  h3 {
+  
+  h1 {
     font-size: 18px;
     line-height: 25px;
   }
-  h4 {
+  
+  h2 {
     font-size: 16px;
     line-height: 22px;
   }
+  
+  h3 {
+    font-size: 14px;
+    line-height: 23px;
+  }
+  
+  hr {
+    margin-top: 12px;
+    margin-bottom: 16px;
+  }
+  
+ .bar {
+   display: none;
+ }
+ 
+ .barHeader {
+   display: none;
+ }
+ 
+ .barHeadershares {
+   color: #0F05A0;
+ }
+ 
+ .spacer {
+   display: none;
+ }
+ 
+ .spacerHeader {
+   display: none;
+ }
 }
 
 
- /*******************************
- * Control Labels
- *******************************/
-
+/*******************************
+* Control Labels
+*******************************/
+ 
 /* Control Label Font (Radio Button Title) */
-#ButtonGroupLabel-label {
-  font-family: HelveticaNeueLTW01_41488878;
+.sszRadioButton-label {
+  font-family: HelveticaNeueLTW01_55Roman;
   color: #646464;
   font-weight: 400;
   font-size: 12px;
@@ -112,49 +193,13 @@ p {
   text-align: left;
 }
 
-/* Control Label (Text Input) */
-#suchfeld-label.control-label {
+/* Control Label (Date Range, select input, text input) */
+.ssz-label.control-label {
     top: 14px;
-    font-family: 'HelveticaNeueLTW01_41488878';
-    font-weight: 400;
-    color: #646464;
-    font-size: 12px;
-    line-height: 19px;
-    letter-spacing: 0.01em;
-    text-align: left;
-    position: relative;
-    left: 16px;
-    z-index: 10;
-    background-color: white;
-    padding-left: 2px;
-    padding-right: 2px;
-}
-
-/* Control Label (Date Range) */
-#DateRange-label.control-label {
-    top: 14px;
-    font-family: 'HelveticaNeueLTW01_41488878';
+    font-family: 'HelveticaNeueLTW01_55Roman';
     font-weight: 400;
     font-size: 12px;
     color: #646464;
-    line-height: 19px;
-    letter-spacing: 0.01em;
-    text-align: left;
-    position: relative;
-    left: 16px;
-    z-index: 10;
-    background-color: white;
-    padding-left: 2px;
-    padding-right: 2px;
-}
-
-/* Control Label (Select Input) */
-#select-label.control-label {
-    top: 14px;
-    font-family: 'HelveticaNeueLTW01_41488878';
-    font-weight: 400;
-    color: #646464;
-    font-size: 12px;
     line-height: 19px;
     letter-spacing: 0.01em;
     text-align: left;
@@ -173,18 +218,20 @@ p {
 
 /* Radio Buttons Label */
 .radioDiv {
-  margin-top: 16px;
-  margin-bottom: -10px;
+  margin-top: 18px;
+  margin-bottom: 40px;
 }
 
-#ButtonGroupLabel {
+.sszRadioButton {
   margin-top: 10px;
 }
+
 
 /* Radio Buttons Text */
 .radio span {
   padding-left: 0.7em;
   display: inline-block;
+  font-family: HelveticaNeueLTW01_55Roman;
 }
 
 .radio label {
@@ -201,53 +248,43 @@ p {
 }
 
 
- /*******************************
- * Context Box
- *******************************/
+/*******************************
+* Context Box
+*******************************/
  
 /* Context Box */
 .well {
-    border-radius: 0px;
-    background-color: transparent;
-    box-shadow: none;
-    border: 0 solid #646464;
-    position: relative;
-    z-index: 0;
-    padding: 0;
+  border-radius: 0px;
+  background-color: transparent;
+  box-shadow: none;
+  border: 0 solid #646464;
+  position: relative;
+  z-index: 0;
+  padding: 0;
+  margin-top: 20px;
 }
 
 
- /*******************************
- * Form Control (Input)
- *******************************/
- 
-.form-control {
-    border-color: #646464;
-    outline: 0;
-    border-radius: 2px;
-    height: 40px;
-    box-shadow: none;
-    font-family: HelveticaNeueLTW01_55Roman;
-    font-size: 14px;
-    line-height: 26px;
-    padding: 6px 16px 6px 16px;
-}
+/*******************************
+* Form Control (Input)
+*******************************/
 
 .form-group {
   margin-bottom: 0px;
+  margin-top: -10px;
 }
 
 
- /*******************************
- * Radio Buttons
- *******************************/
+/*******************************
+* Radio Buttons
+*******************************/
 
 /* Radio Buttons Input */
-input[type="radio"]:hover {
+.radio input[type="radio"]:hover {
   border: 0.05em solid #030033;
 }
 
-input[type="radio"]:focus {
+.radio input[type="radio"]:focus {
   border: 0.05em solid #080490;
 }
 
@@ -258,14 +295,14 @@ input[type="radio"]:focus {
   margin-bottom: 1.15em;
 }
 
-input[type=radio] {
-    margin: 0px 0 0 ;
-    display: inline-grid;
-    margin-left: -1.25em;
-    margin-top: 2px;
+.radio input[type=radio] {
+  margin: 0px 0 0 ;
+  display: inline-grid;
+  margin-left: -1.25em;
+  margin-top: 2px;
 }
 
-input[type="radio"] {
+.radio input[type="radio"] {
   -webkit-appearance: none;
   appearance: none;
   background-color: white;
@@ -279,7 +316,7 @@ input[type="radio"] {
   place-content: center;
 }
 
-input[type="radio"]::before {
+.radio input[type="radio"]::before {
   content: "";
   width: 0.25em;
   height: 0.25em;
@@ -288,41 +325,49 @@ input[type="radio"]::before {
   background-color: #646464;
 }
 
-input[type="radio"]:checked::before {
+.radio input[type="radio"]:checked::before {
   transform: scale(1);
   background-color: #080490;
   border: 0.03em solid #080490;
 }
 
-input[type="radio"]:focus {
+.radio input[type="radio"]:focus {
   outline: max(2px, 0.15em) solid transparent;
   outline-offset: max(2px, 0.15em);
 }
 
+.rt-select {
+  visibility:hidden;
+}
 
- /*******************************
- * Text Input
- *******************************/
+.rt-tbody {
+  font-family: HelveticaNeueLTW01_55Roman;
+}
+
+
+/*******************************
+* Text Input
+*******************************/
  
 /* Input */
 .form-control {
-    border-color: #646464;
-    outline: 0;
-    border-radius: 2px;
-    height: 40px;
-    box-shadow: none;
-    font-family: HelveticaNeueLTW01_55Roman;
-    font-size: 14px;
-    line-height: 26px;
-    padding: 6px 16px 6px 16px;
+  border-color: #646464;
+  outline: 0;
+  border-radius: 2px;
+  height: 40px;
+  box-shadow: none;
+  font-family: HelveticaNeueLTW01_55Roman;
+  font-size: 14px;
+  line-height: 26px;
+  padding: 6px 16px 6px 16px;
 }
 
 .form-control:hover {
-    background-color: white;
-    color:  #070250;
-    border-color: #070250;
-    padding: 6px 16px 6px 16px;
-    transition: 0.7s;
+  background-color: white;
+  color:  #070250;
+  border-color: #070250;
+  padding: 6px 16px 6px 16px;
+  transition: 0.7s;
 }
 
 .form-control:focus {
@@ -334,32 +379,27 @@ input[type="radio"]:focus {
 }
 
 
- /*******************************
- * Action Buttons
- *******************************/
- 
-/*.btn, .btn-default, .action-button {
-  margin-top: 20px;
-}*/
+/*******************************
+* Action Buttons
+*******************************/
 
 .btn {
-    background-color: #0F05A0;
-    padding: 9px 24px 9px 24px;
-    border-radius: 3px;
-    border: 0 solid;
-    height: 40px;
-    color: white;
-    font-family: HelveticaNeueLTW01_55Roman;
-    font-size: 14px;
-    line-height: 22px;
-    stroke: #333;
-    stroke-width:4px;
+  background-color: #0F05A0;
+  padding: 9px 24px 9px 24px;
+  border-radius: 3px;
+  border: 0 solid;
+  height: 40px;
+  color: white;
+  font-family: HelveticaNeueLTW01_55Roman;
+  font-size: 14px;
+  line-height: 22px;
+  margin-top: 32px;
 }
 
 .btn:hover {
-    background-color: #070250;
-    color: white;
-    transition: 0.7s;
+  background-color: #070250;
+  color: white;
+  transition: 0.7s;
 }
 
 .btn:focus {
@@ -367,6 +407,10 @@ input[type="radio"]:focus {
   outline-style: solid;
   background-color: #070250;
   color: white;
+}
+
+#ActionButtonId {
+  margin-top: -15px;
 }
 
 #ActionButtonId:active {
@@ -377,8 +421,106 @@ input[type="radio"]:focus {
   transition: 0.7s;
 }
 
+button {
+  background-color: #F2F2F2;
+  padding: 4px 12px 4px 12px;
+  border-radius: 30px;
+  border: 0 solid;
+  color: #0F05A0;
+  font-family: HelveticaNeueLTW01_55Roman;
+  font-size: 12px;
+  line-height: 22px;
+}
 
- /*******************************
+button:hover {
+  background-color: rgba(15, 5, 160, 0.08);
+  color: #070250;
+  transition: 0.7s;
+}
+
+button:active {
+  background-color: #0F05A0;
+  color: white;
+  outline-color: transparent;
+  transition: 0.7s;
+}
+
+
+/*******************************
+* Reactablee
+*******************************/
+ 
+/* Table */
+.rt-table {
+  font-size: 11px;
+  color: #646464;
+  border: 0px;
+}
+ 
+ /* Table Header */
+.rt-thead {
+  color: #0F05A0;
+  font-family: HelveticaNeueLTW05_85Heavy;
+  position: relative;
+  min-width: 0px !important;
+  flex: 0;
+}
+
+/* Table Pagination */
+.rt-pagination {
+  font-size: 12px;
+  color: #646464
+}
+
+.rt-expander-button:hover {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin: 0 2px;
+  padding: 0;
+}
+
+.rt-expander-button:active {
+  background: none;
+  border: none;
+  cursor: pointer;
+  outline-color: transparent;
+}
+
+.rt-expander-button:focus {
+  background: none;
+  border: none;
+  outline-color: transparent;
+}
+
+.rt-page-button:disabled {
+  opacity: 0;
+  cursor: default;
+}
+
+/* Activate Background-color and pointer on hover */
+.ReactTable .rt-tr:hover .rt-td {
+  background: #F2F2F2;
+  cursor: pointer;
+}
+
+/* Delete row select */
+.rt-td-select {
+  display: none;
+}
+
+.rt-th-select {
+  display: none;
+}
+
+/* Second Detail Table */
+.Details {
+  padding-left: 45px;
+  border-top: 1px solid #DEDEDE;
+}
+
+
+/*******************************
  * Date Range
  *******************************/
 
@@ -545,15 +687,15 @@ input[type="radio"]:focus {
     color: #BFBFBF;
 }
 
-/* Day */
+/* Days */
 .day {
   color: #646464;
 }
 
 
- /*******************************
- * Select Input
- *******************************/
+/*******************************
+* Select Input
+*******************************/
 
 /* Input */
 .selectize {
@@ -572,7 +714,9 @@ input[type="radio"]:focus {
 }
 
 .selectize-dropdown {
-  z-index:100;
+  z-index: 100;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.24);
+  border-radius: 3px;
 } 
 
 .selectize-dropdown-content {
@@ -581,9 +725,9 @@ input[type="radio"]:focus {
 }
 
 .selectize:hover {
-    background-color: #F2F2F2;
-    color: #070250;
-    transition: 0.7s;
+  background-color: #F2F2F2;
+  color: #070250;
+  transition: 0.7s;
 }
 
 .selectize-input.full{
@@ -599,11 +743,11 @@ input[type="radio"]:focus {
 }
 
 .selectize-input.full:hover {
-    background-color: white;
-    color:  #070250;
-    border-color: #070250;
-    padding: 6px 16px 6px 16px;
-    transition: 0.7s;
+  background-color: white;
+  color:  #070250;
+  border-color: #070250;
+  padding: 6px 16px 6px 16px;
+  transition: 0.7s;
 }
 
 .selectize-input.full:focus {
@@ -615,151 +759,61 @@ input[type="radio"]:focus {
 }
 
 .selectize-dropdown [data-selectable], .selectize-dropdown .optgroup-header {
-    padding: 9px 20px;
+  padding: 9px 20px;
 }
 
 
- /*******************************
- * Downloads
- *******************************/
+/*******************************
+* Downloads
+*******************************/
  
  /* Donwload Container */
- .downloadWrapperDiv {
+.downloadWrapperDiv {
     margin-top: 16px;
  }
- 
-#csvDown {
+
+.sszDownload {
+    text-decoration: none;
     border-radius: 50px;
     background-color: #F2F2F2;
     padding: 0;
     height: 24px;
-    font-size: 12px;
     width: 50px;
+    font-size: 12px;
     margin-right: 16px;
     color: #0F05A0;
- }
- 
-#csvDown:hover {
-    background-color: rgba(15, 5, 160, 0.08);
-    color: #070250;
-    transition: 0.7s;
- }
- 
-#csvDown:active {
-    background-color: #0F05A0;
-    color: white;
-    outline-color: transparent;
-    outline-style: solid;
-    transition: 0.7s;
- }
- 
-
-#excelDown {
-    border-radius: 50px;
-    background-color: #F2F2F2;
-    padding: 0;
-    height: 24px;
-    font-size: 12px;
-    width: 50px;
-    margin-right: 16px;
-    color: #0F05A0;
- }
- 
-#excelDown:hover {
-    background-color: rgba(15, 5, 160, 0.08);
-    color: #070250;
-    transition: 0.7s;
- }
- 
-#excelDown:active {
-    background-color: #0F05A0;
-    color: white;
-    outline-color: transparent;
-    outline-style: solid;
-    transition: 0.7s;
- }
- 
- 
-#ogdDown {
-   border-radius: 50px;
-    background-color: #F2F2F2;
-    padding: 0;
-    height: 24px;
-    font-size: 12px;
-    width: 50px;
-    margin-right: 16px;
-    color: #0F05A0;
- }
- 
-#ogdDown:hover {
-    background-color: rgba(15, 5, 160, 0.08);
-    color: #070250;
-    transition: 0.7s;
- }
- 
-#ogdDown:active {
-    background-color: #0F05A0;
-    color: white;
-    outline-color: transparent;
-    outline-style: solid;
-    transition: 0.7s;
- }
- 
- 
- /*******************************
- *  Media Queries
- *******************************/
- 
-@media screen and (max-width: 799px) {
-  p {
-    font-size: 16px;
-    line-height: 26px;
-  }
-  h2 {
-    font-size: 28px;
-    line-height: 36px;
-  }
-  h3 {
-    font-size: 22px;
-    line-height: 31px;
-  }
-  h4 {
-    font-size: 18px;
-    line-height: 25px;
-  }
-  .downloadWrapperDiv {
-    display: flex;
-    justify-content: space-between;
-  }
+    margin-top: 0;
 }
 
-@media screen and (max-width: 600px) {
-  p {
-    font-size: 18px;
-    line-height: 29px;
-  }
-  h2 {
-    font-size: 20px;
-    line-height: 28px;
-  }
-  h3 {
-    font-size: 18px;
-    line-height: 25px;
-  }
-  h4 {
-    font-size: 16px;
-    line-height: 22px;
-  }
-  .downloadWrapperDiv {
-    display: flex;
-    justify-content: space-between;
-  }
+.sszDownload:hover {
+    text-decoration: none;
+    background-color: rgba(15, 5, 160, 0.08);
+    color: #070250;
+    transition: 0.7s;
+ }
+
+.sszDownload:active {
+    text-decoration: none;
+    background-color: #0F05A0;
+    color: white;
+    outline-color: transparent;
+    outline-style: solid;
+    transition: 0.7s;
+ }
+ 
+ 
+/*******************************
+* Info Div
+*******************************/
+
+.infoDiv {
+  margin-bottom: 40px;
 }
+ 
 
-
- /*******************************
- * SSZ Fonts
- *******************************/
+/*******************************
+* SSZ Fonts
+*******************************/
  
 @font-face {
   font-family: HelveticaNeueLTW01_41488878;
