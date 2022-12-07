@@ -50,7 +50,7 @@ if(is.null(data)) {
         # tags$hr(),
         
         # CSS
-        includeCSS("sszTheme.css"),
+        includeCSS("sszThemeShiny.css"),
         
         # Sidebar with a slider input for number of bins 
         sidebarLayout(
