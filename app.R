@@ -69,7 +69,9 @@ if(is.null(data)) {
               sszDateRange("DateRange",
                            "Datum:",
                            start = "1993-01-01",
+                           min = "1993-01-01",
                            end = Sys.Date(),
+                           max = Sys.Date(),
                            format = "dd.mm.yyyy",
                            language = "de",
                            separator = icon("calendar")),
@@ -370,22 +372,7 @@ if(is.null(data)) {
             sszDownloadExcel(voteData(), file, nameVote())
           }
         )
-    
-        # # Excel
-        # output$excelDownload <- downloadHandler(
-        #   filename = function(vote) {
-        # 
-        #     suchfeld <- gsub(" ", "-", nameVote(), fixed = TRUE)
-        #     time <- gsub(" ", "-", dateVote(), fixed = TRUE)
-        #     paste0("Abstimmungsresultate_", suchfeld, "_", time, ".xlsx")
-        # 
-        #   },
-        #     content = function(file) {
-        #         xlsx::write.xlsx(voteData(), file, row.names = FALSE, showNA = FALSE)
-        #     }
-        # )
-    
-    
+
         output$titleVote <- renderText({
           req(nameVote())
     
@@ -447,7 +434,8 @@ if(is.null(data)) {
                                         `Stimmbeteiligung (in %)` = colDef(html = TRUE,
                                                                            name = "Beteiligung<br>(in %)",
                                                                            minWidth = 30,
-                                                                           align = "left"),
+                                                                           align = "left",
+                                                                           na = ""), # NA somehow not working...
                                         `Ja-Anteil (in %)` = colDef(
                                           minWidth = 20,
                                           html = TRUE,

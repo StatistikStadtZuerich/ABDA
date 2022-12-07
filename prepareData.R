@@ -1,21 +1,9 @@
 ### Required packages
-packages <- c("tidyverse",
-              "httr",
-              "parallel",
-              "data.table",
-              "lubridate")
-
-### Load packages
-package.check <- lapply(
-  packages,
-  FUN = function(x) {
-    if (!require(x, character.only = TRUE)) {
-      install.packages(x, dependencies = TRUE)
-      library(x, character.only = TRUE)
-    }
-  }
-)
-
+library(dplyr)
+library(httr)
+library(parallel)
+library(data.table)
+library(lubridate)
 
 # By default the data frame is empty
 data <- NULL
@@ -84,7 +72,6 @@ tryCatch(                       # Applying tryCatch
              'Nein-Anteil (in %)' = Nein....,
              'Stände Ja' = StaendeJa,
              'Stände Nein' = StaendeNein)
-    
     rm(df)
     rm(cl)
 
