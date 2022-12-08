@@ -69,7 +69,9 @@ if(is.null(data)) {
               sszDateRange("DateRange",
                            "Datum:",
                            start = "1993-01-01",
+                           min = "1993-01-01",
                            end = Sys.Date(),
+                           max = Sys.Date(),
                            format = "dd.mm.yyyy",
                            language = "de",
                            separator = icon("calendar")),
@@ -85,7 +87,6 @@ if(is.null(data)) {
                                             "Städtische Vorlagen"),
                                 selected = "Alle Vorlagen")
               ),
-              
               
               # Action Button
               conditionalPanel(
@@ -370,22 +371,7 @@ if(is.null(data)) {
             sszDownloadExcel(voteData(), file, nameVote())
           }
         )
-    
-        # # Excel
-        # output$excelDownload <- downloadHandler(
-        #   filename = function(vote) {
-        # 
-        #     suchfeld <- gsub(" ", "-", nameVote(), fixed = TRUE)
-        #     time <- gsub(" ", "-", dateVote(), fixed = TRUE)
-        #     paste0("Abstimmungsresultate_", suchfeld, "_", time, ".xlsx")
-        # 
-        #   },
-        #     content = function(file) {
-        #         xlsx::write.xlsx(voteData(), file, row.names = FALSE, showNA = FALSE)
-        #     }
-        # )
-    
-    
+
         output$titleVote <- renderText({
           req(nameVote())
     
@@ -409,7 +395,7 @@ if(is.null(data)) {
             data_vote <- filteredData() %>%
               filter(Abstimmungstext == nameVote()) %>%
               mutate(Chart_Anteil = specify_decimal(`Ja-Anteil (in %)`, 1),
-                     `Stimmbeteiligung (in %)` = specify_decimal(`Stimmbeteiligung (in %)`, 1),
+                     `Stimmbeteiligung (in %)` = as.numeric(`Stimmbeteiligung (in %)`),
                      `Ja-Anteil (in %)` = specify_decimal(`Ja-Anteil (in %)`, 1),
                      `Nein-Anteil (in %)` = specify_decimal(`Nein-Anteil (in %)`, 1)) %>%
               arrange(NrGebiet) %>% 
@@ -419,7 +405,7 @@ if(is.null(data)) {
               filter(Abstimmungstext == nameVote()) %>%
               select(Gebiet, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`) %>% 
               pivot_longer(!Gebiet) %>% 
-              # When row is empty or 0 (maily Stimmberechtigt is empty or 0 for old data) then delete
+              # When row is empty or 0 (maily Stimmberechtigt is empty or 0 because of old data) then delete
               filter(!is.na(value) & value != 0) %>% 
               mutate(Test1 = " ",
                      Test2 = " ", 
@@ -447,7 +433,14 @@ if(is.null(data)) {
                                         `Stimmbeteiligung (in %)` = colDef(html = TRUE,
                                                                            name = "Beteiligung<br>(in %)",
                                                                            minWidth = 30,
-                                                                           align = "left"),
+                                                                           align = "left",
+                                                                           cell = function(value) {
+                                                                             if(!is.na(value)){
+                                                                               return(specify_decimal(value, 1))
+                                                                             } else {
+                                                                               "–"
+                                                                             }
+                                                                           }), 
                                         `Ja-Anteil (in %)` = colDef(
                                           minWidth = 20,
                                           html = TRUE,
