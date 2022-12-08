@@ -395,7 +395,7 @@ if(is.null(data)) {
             data_vote <- filteredData() %>%
               filter(Abstimmungstext == nameVote()) %>%
               mutate(Chart_Anteil = specify_decimal(`Ja-Anteil (in %)`, 1),
-                     `Stimmbeteiligung (in %)` = specify_decimal(`Stimmbeteiligung (in %)`, 1),
+                     `Stimmbeteiligung (in %)` = as.numeric(`Stimmbeteiligung (in %)`),
                      `Ja-Anteil (in %)` = specify_decimal(`Ja-Anteil (in %)`, 1),
                      `Nein-Anteil (in %)` = specify_decimal(`Nein-Anteil (in %)`, 1)) %>%
               arrange(NrGebiet) %>% 
@@ -427,27 +427,20 @@ if(is.null(data)) {
                                       ),
                                       outlined = TRUE,
                                       highlight = TRUE,
-                                      
-                                      ####### Attention: Here we have to define values for NAs
-                                      defaultColDef = colDef(
-                                        cell = function(value) {
-                                          if(!is.numeric(value)) {
-                                            return(value)
-                                          }
-                                          if(!is.na(value)) {
-                                            return(value)
-                                          } else {
-                                            "–"
-                                          }
-                                        }
-                                      ),
                                       columns = list(
                                         Gebiet =  colDef(minWidth = 40,
                                                          sortable = FALSE),
                                         `Stimmbeteiligung (in %)` = colDef(html = TRUE,
                                                                            name = "Beteiligung<br>(in %)",
                                                                            minWidth = 30,
-                                                                           align = "left"), 
+                                                                           align = "left",
+                                                                           cell = function(value) {
+                                                                             if(!is.na(value)){
+                                                                               return(specify_decimal(value, 1))
+                                                                             } else {
+                                                                               "-"
+                                                                             }
+                                                                           }), 
                                         `Ja-Anteil (in %)` = colDef(
                                           minWidth = 20,
                                           html = TRUE,
