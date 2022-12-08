@@ -438,7 +438,7 @@ if(is.null(data)) {
                                                                              if(!is.na(value)){
                                                                                return(specify_decimal(value, 1))
                                                                              } else {
-                                                                               "-"
+                                                                               "–"
                                                                              }
                                                                            }), 
                                         `Ja-Anteil (in %)` = colDef(
