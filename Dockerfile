@@ -1,7 +1,8 @@
 FROM rocker/tidyverse:4.2.2
-RUN install2.r rsconnect shiny reactable remotes htmltools Rcpp openxlsx
+RUN install2.r rsconnect shiny remotes htmltools Rcpp openxlsx
 RUN Rscript -e "remotes::install_github('mitchelloharawild/icons')"
 RUN Rscript -e "remotes::install_github('StatistikStadtZuerich/zuericssstyle')"
+RUN Rscript -e "remotes::install_version('reactable', version = '0.2.3')"
 WORKDIR /home/abda-test
 COPY app.R app.R
 COPY exportExcel.R exportExcel.R
