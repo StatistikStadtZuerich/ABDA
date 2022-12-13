@@ -1,4 +1,4 @@
-FROM rocker/tidyverse:4.0.3
+FROM rocker/tidyverse:4.2.2
 RUN install2.r rsconnect shiny reactable remotes htmltools Rcpp openxlsx
 RUN Rscript -e "remotes::install_github('mitchelloharawild/icons')"
 RUN Rscript -e "remotes::install_github('StatistikStadtZuerich/zuericssstyle')"
