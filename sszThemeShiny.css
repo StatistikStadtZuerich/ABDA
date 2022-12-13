@@ -409,18 +409,6 @@ a:hover {
   color: white;
 }
 
-#ActionButtonId {
-  margin-top: -15px;
-}
-
-#ActionButtonId:active {
-  outline-color: transparent;
-  outline-style: solid;
-  background-color: #070250;
-  color: white;
-  transition: 0.7s;
-}
-
 button {
   background-color: #F2F2F2;
   padding: 4px 12px 4px 12px;
