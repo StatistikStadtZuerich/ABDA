@@ -74,16 +74,13 @@ if(is.null(data)) {
                            separator = icon("calendar")),
               
               # Select level of vote/referendum
-              tags$div(
-                class = "radioDiv",
                 sszRadioButtons("ButtonGroupLabel",
                                 "Politische Ebene der Abstimmung:",
                                 choices = c("Alle Vorlagen", 
                                             "Eidgenössische Vorlagen", 
                                             "Kantonale Vorlagen", 
                                             "Städtische Vorlagen"),
-                                selected = "Alle Vorlagen")
-              ),
+                                selected = "Alle Vorlagen"),
               
               # Action Button
               conditionalPanel(

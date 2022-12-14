@@ -42,7 +42,6 @@ h3 {
   font-size: 18px;
   line-height: 25px;
   font-weight: 750;
-  margin-top: -20px;
 }
 
 /* Paragraph Text */
@@ -218,13 +217,14 @@ a:hover {
 
 /* Radio Buttons Label */
 .radioDiv {
-  margin-top: 18px;
-  margin-bottom: 40px;
+  margin-top: 36px;
 }
 
 .sszRadioButton {
   margin-top: 10px;
 }
+
+
 
 
 /* Radio Buttons Text */
