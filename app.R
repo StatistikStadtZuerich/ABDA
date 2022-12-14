@@ -46,9 +46,6 @@ if(is.null(data)) {
         # Application title
         # titlePanel("Abstimmungsresultate App"),
         
-        # Horizontal Ruler
-        # tags$hr(),
-        
         # CSS
         includeCSS("sszThemeShiny.css"),
         
@@ -68,8 +65,8 @@ if(is.null(data)) {
               # Select Date Range
               sszDateRange("DateRange",
                            "Datum:",
-                           start = "1993-01-01",
-                           min = "1993-01-01",
+                           start = "1933-01-01",
+                           min = "1933-01-01",
                            end = Sys.Date(),
                            max = Sys.Date(),
                            format = "dd.mm.yyyy",
@@ -314,8 +311,8 @@ if(is.null(data)) {
     
           print(vote$Abstimmungstext)
         })
-    
-    
+        
+        
         dateVote <- reactive({
           req(rowNumber())
     
@@ -348,7 +345,7 @@ if(is.null(data)) {
         output$csvDownload <- downloadHandler(
             filename = function(vote) {
     
-                suchfeld <- gsub(" ", "-", nameVote(), fixed = TRUE)
+                suchfeld <- gsub(" ", "-", nameVote(), fixed = TRUE) 
                 time <- gsub(" ", "-", dateVote(), fixed = TRUE)
                 paste0("Abstimmungsresultate_", suchfeld, "_", time, ".csv")
     
@@ -362,7 +359,7 @@ if(is.null(data)) {
         output$excelDownload <- downloadHandler(
           filename = function(vote) {
             
-            suchfeld <- gsub(" ", "-", nameVote(), fixed = TRUE)
+            suchfeld <- gsub(" ", "-",  nameVote(), fixed = TRUE)
             time <- gsub(" ", "-", dateVote(), fixed = TRUE)
             paste0("Abstimmungsresultate_", suchfeld, "_", time, ".xlsx")
             
