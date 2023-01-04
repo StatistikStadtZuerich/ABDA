@@ -140,11 +140,11 @@ if(is.null(data)) {
                 conditionalPanel("false",
                                  numericInput(label = NULL, inputId = 'show_details', value = 0)),
       
-                                   # Name of selected vote
-                                   htmlOutput("titleVote"),
+                # Name of selected vote
+                htmlOutput("titleVote"),
                                    
-                                   # Details about selected vote
-                                   reactableOutput("selectedVote")
+                # Details about selected vote
+                reactableOutput("selectedVote")
                                  
               ),
             )
@@ -287,7 +287,7 @@ if(is.null(data)) {
     // Send the click event to Shiny, which will be available in input$show_details
     // Note that the row index starts at 0 in JavaScript, so we add 1
     if (window.Shiny) {
-      Shiny.setInputValue('show_details', { index: rowInfo.index + 1 }, { priority: 'event' })
+      Shiny.setInputValue('show_details', rowInfo.index + 1, { priority: 'event' })
     }
   }")
           )
