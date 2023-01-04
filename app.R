@@ -284,16 +284,21 @@ if(is.null(data)) {
                                     outlined = TRUE,
                                     highlight = TRUE,
                                     defaultPageSize = 5,
-                                    onClick = "select",
-                                    selection = "single",
-                                    rowClass = JS("function(rowInfo) {return rowInfo.selected ? 'selected' : ''}") #,
-                                   # rowStyle = JS("function(rowInfo) {if (rowInfo.selected) { return { backgroundColor: '#F2F2F2'}}}")
+                                    onClick = JS("function(rowInfo, column) {
+    
+    // Send the click event to Shiny, which will be available in input$show_details
+    // Note that the row index starts at 0 in JavaScript, so we add 1
+    if (window.Shiny) {
+      Shiny.setInputValue('show_details', { index: rowInfo.index + 1 }, { priority: 'event' })
+    }
+  }")
           )
           tableOutput1
         })
     
         rowNumber <- reactive( {
-          getReactableState("voteList", "selected")
+          #print(input$show_details$index)
+          input$show_details$index
         })
     
     
@@ -492,6 +497,7 @@ if(is.null(data)) {
                                                           }
                                                         }
                                                       ),
+                                                      # braucht leere Spalten für die ausklappbare Tabelle, damit die gleiche Spaltenanzahl
                                                        Test1 = colDef(
                                                          minWidth = 20,
                                                          name = " ",
