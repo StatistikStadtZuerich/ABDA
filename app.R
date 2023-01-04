@@ -74,7 +74,7 @@ if(is.null(data)) {
                            separator = icon("calendar")),
               
               # Select level of vote/referendum
-                sszRadioButtons("ButtonGroupLabel",
+                sszRadioButtons("abstimmungsebene",
                                 "Politische Ebene der Abstimmung:",
                                 choices = c("Alle Vorlagen", 
                                             "Eidgenössische Vorlagen", 
@@ -84,14 +84,10 @@ if(is.null(data)) {
               
               # Action Button
               conditionalPanel(
-                condition = 'input.ActionButtonId==0',
+                condition = 'input.abfragestart==0',
                 
-                sszActionButton("ActionButtonId",
+                sszActionButton("abfragestart",
                                 "Abfrage starten")
-              ),
-              conditionalPanel(
-                condition = 'input.ActionButtonId>0',
-             
               ),
               
               br(),
@@ -124,7 +120,7 @@ if(is.null(data)) {
             mainPanel(
               
               conditionalPanel(
-                condition = 'input.ActionButtonId>0',
+                condition = 'input.abfragestart>0',
                 
                 # Title for table
                 h1("Die untenstehenden Vorlagen entsprechen Ihren Suchkriterien"),
@@ -134,10 +130,6 @@ if(is.null(data)) {
                   class = "infoDiv",
                   p("Für Detailinformationen zur Stimmbeteiligung und zum Ergebnis einer Abstimmung wählen Sie eine Zeile aus.")
                 )
-              ),
-              conditionalPanel(
-                condition = 'input.ActionButtonId==0',
-                
               ),
               
               # Table Output to select vote
@@ -159,8 +151,8 @@ if(is.null(data)) {
         # First button click to activate search, after not necessary anymore
         global <- reactiveValues(activeButton = FALSE)
     
-        observeEvent(input$ActionButtonId, {
-          req(input$ActionButtonId)
+        observeEvent(input$abfragestart, {
+          req(input$abfragestart)
           global$activeButton <- TRUE
         })
     
@@ -176,7 +168,7 @@ if(is.null(data)) {
           req(global$activeButton == TRUE)
             datum <- data %>%
                 dplyr::filter(
-                    `Politische Ebene` %in% input$ButtonGroupLabel,
+                    `Politische Ebene` %in% input$abstimmungsebene,
                     Datum >= input$DateRange[1],
                     Datum <= input$DateRange[2]) %>%
                 pull(Datum) %>%
@@ -196,11 +188,11 @@ if(is.null(data)) {
                     select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, NrGebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
     
                 # Filter the level of vote
-                if(input$ButtonGroupLabel == "Alle Vorlagen"){
+                if(input$abstimmungsebene == "Alle Vorlagen"){
                     filtered
                 }else{
                   filtered <- filtered %>%
-                      filter(`Politische Ebene` %in% input$ButtonGroupLabel)
+                      filter(`Politische Ebene` %in% input$abstimmungsebene)
                   filtered
                 }
     
@@ -214,11 +206,11 @@ if(is.null(data)) {
                     select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, NrGebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
     
                 # Filter the level of vote
-                if(input$ButtonGroupLabel == "Alle Vorlagen"){
+                if(input$abstimmungsebene == "Alle Vorlagen"){
                     filtered
                 }else{
                     filtered <- filtered %>%
-                        filter(`Politische Ebene` %in% input$ButtonGroupLabel)
+                        filter(`Politische Ebene` %in% input$abstimmungsebene)
                     filtered
                 }
             }
@@ -241,7 +233,7 @@ if(is.null(data)) {
         # Reactive Subtitle
         subtitleReactive <- reactive({
           req(global$activeButton == TRUE)
-            subtitle <- input$ButtonGroupLabel
+            subtitle <- input$abstimmungsebene
         })
         output$subtitle <- renderText({
             subtitleReactive()
@@ -300,6 +292,10 @@ if(is.null(data)) {
           #print(input$show_details$index)
           input$show_details$index
         })
+        
+        # observeEvent({list(input$in1,input$in2,input$in3)},
+        #              {status("Needs recalculation")})
+        
     
     
         nameVote <- reactive({
