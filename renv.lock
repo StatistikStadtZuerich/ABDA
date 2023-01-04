@@ -974,10 +974,10 @@
     },
     "reactable": {
       "Package": "reactable",
-      "Version": "0.2.3",
+      "Version": "0.4.1",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "ac1afe50d1c77470a72971a07fd146b1",
+      "Hash": "ed723387f4057a717516a98904a3701b",
       "Requirements": [
         "digest",
         "htmltools",

@@ -129,18 +129,24 @@ if(is.null(data)) {
                 tags$div(
                   class = "infoDiv",
                   p("Für Detailinformationen zur Stimmbeteiligung und zum Ergebnis einer Abstimmung wählen Sie eine Zeile aus.")
-                )
+                ),
+                
+                # Table Output to select vote
+                reactableOutput("voteList"),
+                
+                # Details: show only if one row selected _________
+                
+                # initialise hidden variable for row selection, to be used with JS function
+                conditionalPanel("false",
+                                 numericInput(label = NULL, inputId = 'show_details', value = 0)),
+      
+                                   # Name of selected vote
+                                   htmlOutput("titleVote"),
+                                   
+                                   # Details about selected vote
+                                   reactableOutput("selectedVote")
+                                 
               ),
-              
-              # Table Output to select vote
-              reactableOutput("voteList"),
-              
-              # Name of selected vote
-              htmlOutput("titleVote"),
-              
-              # Details about selected vote
-              reactableOutput("selectedVote")
-    
             )
         )
     )
@@ -289,12 +295,15 @@ if(is.null(data)) {
         })
     
         rowNumber <- reactive( {
-          #print(input$show_details$index)
-          input$show_details$index
+          print(input$show_details)
+          input$show_details
         })
         
-        # observeEvent({list(input$in1,input$in2,input$in3)},
-        #              {status("Needs recalculation")})
+        observeEvent(eventExpr = list(input$suchfeld,input$DateRange,input$abstimmungsebene),
+                     handlerExpr = {
+                       print("setting to zero")
+                       updateNumericInput(session, "show_details", value = 0)},
+                     ignoreNULL = FALSE)
         
     
     
@@ -307,7 +316,8 @@ if(is.null(data)) {
             mutate(ID = row_number()) %>%
             filter(ID == rowNumber())
     
-          print(vote$Abstimmungstext)
+          print(glue::glue("nameVote, row number: {rowNumber()}"))
+          vote$Abstimmungstext
         })
         
         
@@ -320,7 +330,8 @@ if(is.null(data)) {
             mutate(ID = row_number()) %>%
             filter(ID == rowNumber())
     
-          print(vote$Datum)
+          print("dateVote")
+          vote$Datum
         })
     
         voteData <- reactive({
@@ -332,6 +343,7 @@ if(is.null(data)) {
                    `Stimm-berechtigte` = `Stimmberechtigte`) %>% 
             arrange(NrGebiet) %>% 
             select(Gebiet, `Stimm-berechtigte`, `Ja-Stimmen`, `Nein-Stimmen`, `Beteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
+          print("voteData")
           vote
         })
     
@@ -369,8 +381,9 @@ if(is.null(data)) {
 
         output$titleVote <- renderText({
           req(nameVote())
+          print("titleVote")
     
-          paste("<br><h2>", print(nameVote()), "</h2><hr>")
+          paste("<br><h2>", nameVote(), "</h2><hr>")
         })
     
         output$selectedVote <- renderReactable({
