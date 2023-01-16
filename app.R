@@ -10,7 +10,8 @@ library(htmltools)
 library(zuericssstyle)
 
 # Source Prepared Data
-source("R/prepareData.R", encoding = "UTF-8")
+source("R/get_data.R", encoding = "UTF-8")
+data <- get_data()
 
 # Source Export Excel
 source("R/exportExcel.R", encoding = "UTF-8")
