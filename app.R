@@ -10,23 +10,23 @@ library(htmltools)
 library(zuericssstyle)
 
 # Source Prepared Data
-source("prepareData.R", encoding = "UTF-8")
+source("R/prepareData.R", encoding = "UTF-8")
 
 # Source Export Excel
-source("exportExcel.R", encoding = "UTF-8")
+source("R/exportExcel.R", encoding = "UTF-8")
 
 
 # Set the Icon path
 icon <- icon_set("icons/")
 
-# if data load didn't work shzow message
+# if data load didn't work show message
 if(is.null(data)) {
   
   # Define UI
   ui <- fluidPage(
     
     # Include CSS
-    includeCSS("sszThemeShiny.css"),
+    includeCSS("www/sszThemeShiny.css"),
     
     h1("Fehler"),
     p("Aufgrund momentaner Wartungsarbeiten ist die Applikation zur Zeit nicht verfügbar.")
@@ -47,7 +47,7 @@ if(is.null(data)) {
         # titlePanel("Abstimmungsresultate App"),
         
         # CSS
-        includeCSS("sszThemeShiny.css"),
+        includeCSS("www/sszThemeShiny.css"),
         
         # Sidebar with a slider input for number of bins 
         sidebarLayout(
