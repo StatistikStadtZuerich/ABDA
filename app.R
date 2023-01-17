@@ -184,115 +184,66 @@ if(is.null(data)) {
     ## Get Data for Download
     filtered_data <- reactive({
       req(global$active_button == TRUE)
-      # Filter: No Search
-      if(input$suchfeld == "") {
-        filtered <- data %>%
-          dplyr::filter(Datum >= input$date_range[1] & Datum <= input$date_range[2]) %>%
-          mutate(Datum = as.character(as.Date(Datum, "%d.%m.%Y")),
-                 Stimmberechtigte = as.integer(Stimmberechtigte))  %>%
-          select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, NrGebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
-        
-        # Filter the level of vote
-        if(input$abstimmungsebene == "Alle Vorlagen"){
-          filtered
-        }else{
-          filtered <- filtered %>%
-            filter(`Politische Ebene` %in% input$abstimmungsebene)
-          filtered
-        }
-        
-        # Filter: With Search
-      } else {
-        filtered <- data %>%
-          filter(grepl(input$suchfeld, Abstimmungstext, ignore.case=TRUE)) %>%
-          dplyr::filter(Datum >= input$date_range[1] & Datum <= input$date_range[2]) %>%
-          mutate(Datum = as.character(as.Date(Datum, "%d.%m.%Y")),
-                 Stimmberechtigte = as.integer(Stimmberechtigte))  %>%
-          select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, NrGebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
-        
-        # Filter the level of vote
-        if(input$abstimmungsebene == "Alle Vorlagen"){
-          filtered
-        }else{
-          filtered <- filtered %>%
-            filter(`Politische Ebene` %in% input$abstimmungsebene)
-          filtered
-        }
+      
+      # Filter what needs to be filtered in any case
+      filtered <- data %>%
+        dplyr::filter(Datum >= input$date_range[1] & Datum <= input$date_range[2]) %>%
+        mutate(Datum = as.character(as.Date(Datum, "%d.%m.%Y")),
+               Stimmberechtigte = as.integer(Stimmberechtigte))  %>%
+        select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, NrGebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
+      
+      # Filter: Some search term entered
+      if(input$suchfeld != "") {
+        filtered <- filtered %>%
+          filter(grepl(input$suchfeld, Abstimmungstext, ignore.case=TRUE))
       }
-    })
-    
-    # Captions
-    # Reactive Title
-    title_reactive <- reactive({
-      req(global$active_button == TRUE)
-      if(input$suchfeld == ""){
-        title <- "Ohne Suchtext"
-      } else {
-        title <- paste0("Suche: ", input$suchfeld)
+      
+      # Filter the level of vote
+      if(input$abstimmungsebene != "Alle Vorlagen"){
+        filtered <- filtered %>%
+          filter(`Politische Ebene` %in% input$abstimmungsebene)
       }
+      
+      filtered
     })
-    output$title <- renderText({
-      title_reactive()
-    })
-    
-    # Reactive Subtitle
-    subtitle_reactive <- reactive({
-      req(global$active_button == TRUE)
-      subtitle <- input$abstimmungsebene
-    })
-    output$subtitle <- renderText({
-      subtitle_reactive()
-    })
-    
-    # Reactive Sub-Subtitle
-    subsubtitle_reactive <- reactive({
-      req(global$active_button == TRUE)
-      subSubtitle <- paste0("Zeitraum: ", input$date_range[1], " bis ", input$date_range[2])
-    })
-    output$subSubtitle <- renderText({
-      subsubtitle_reactive()
-    })
-    
     
     output$vote_list <- renderReactable({
       get_main_reactable(filtered_data())
     })
     
-    rowNumber <- reactive( {
-      print(input$show_details)
-      input$show_details
-    })
-    
+    # once an input is changed, update input$show_details to zero so the extra
+    # table etc. is not shown anymore
     observeEvent(eventExpr = list(input$suchfeld,input$date_range,input$abstimmungsebene),
                  handlerExpr = {
                    print("setting to zero")
                    updateNumericInput(session, "show_details", value = 0)},
                  ignoreNULL = FALSE)
     
-    
+    # Name, date and data of selected vote as reactive, as they are used 
+    # for csv and excel
     
     name_vote <- reactive({
-      req(rowNumber())
+      req(input$show_details > 0)
       
       vote <- filtered_data() %>%
         select(Datum, `Politische Ebene`, Abstimmungstext) %>%
         unique() %>%
         mutate(ID = row_number()) %>%
-        filter(ID == rowNumber())
+        filter(ID == input$show_details)
       
-      print(glue::glue("name_vote, row number: {rowNumber()}"))
+      print(glue::glue("name_vote, row number: {input$show_details}"))
       vote$Abstimmungstext
     })
     
     
     date_vote <- reactive({
-      req(rowNumber())
+      req(input$show_details > 0)
       
       vote <- filtered_data() %>%
         select(Datum, `Politische Ebene`, Abstimmungstext) %>%
         unique() %>%
         mutate(ID = row_number()) %>%
-        filter(ID == rowNumber())
+        filter(ID == input$show_details)
       
       print("date_vote")
       vote$Datum
@@ -306,13 +257,11 @@ if(is.null(data)) {
         rename(`Beteiligung (in %)` = `Stimmbeteiligung (in %)`,
                `Stimm-berechtigte` = `Stimmberechtigte`) %>% 
         arrange(NrGebiet) %>% 
-        select(Gebiet, `Stimm-berechtigte`, `Ja-Stimmen`, `Nein-Stimmen`, `Beteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
+        select(Gebiet, `Stimm-berechtigte`, `Ja-Stimmen`, `Nein-Stimmen`, 
+               `Beteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
       print("vote_data")
       vote
     })
-    
-    
-    
     
     ## Write Download Table
     # CSV
