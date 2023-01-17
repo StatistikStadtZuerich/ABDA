@@ -9,12 +9,15 @@ library(htmltools)
 library(zuericssstyle)
 
 # Source Prepared Data
-source("R/get_data.R", encoding = "UTF-8")
+source("R/get_data.R")
 data <- get_data()
 
 # Source Export Excel
-source("R/ssz_download_excel.R", encoding = "UTF-8")
+source("R/ssz_download_excel.R",)
 
+# source functions to create reactables
+source("R/get_main_reactable.R")
+source("R/get_second_reactable.R")
 
 # Set the Icon path
 icons_ssz <- icon_set("icons/")
@@ -252,42 +255,7 @@ if(is.null(data)) {
     
     
     output$vote_list <- renderReactable({
-      tableOutput1 <- reactable(filtered_data() %>%
-                                  select(Datum, `Politische Ebene`, Abstimmungstext) %>%
-                                  unique()
-                                ,
-                                paginationType = "simple",
-                                language = reactableLang(
-                                  noData = "Keine Einträge gefunden",
-                                  pageNumbers = "{page} von {pages}",
-                                  pageInfo = "{rowStart} bis {rowEnd} von {rows} Einträgen",
-                                  pagePrevious = "\u276e",
-                                  pageNext = "\u276f",
-                                  pagePreviousLabel = "Vorherige Seite",
-                                  pageNextLabel = "Nächste Seite"
-                                  
-                                ),
-                                theme = reactableTheme(
-                                  borderColor = "#DEDEDE"
-                                ),
-                                columns = list(
-                                  Datum = colDef(minWidth = 80, align = "left", cell = function(value) strftime(value, "%d.%m.%Y")),   # 12,5% width, 50px minimum
-                                  `Politische Ebene` = colDef(minWidth = 100, align = "left"),   # 25% width, 100px minimum
-                                  Abstimmungstext = colDef(minWidth = 225, align = "left") # 62,5% width, 250px minimum
-                                ),
-                                outlined = TRUE,
-                                highlight = TRUE,
-                                defaultPageSize = 5,
-                                onClick = JS("function(rowInfo, column) {
-    
-    // Send the click event to Shiny, which will be available in input$show_details
-    // Note that the row index starts at 0 in JavaScript, so we add 1
-    if (window.Shiny) {
-      Shiny.setInputValue('show_details', rowInfo.index + 1, { priority: 'event' })
-    }
-  }")
-      )
-      tableOutput1
+      get_main_reactable(filtered_data())
     })
     
     rowNumber <- reactive( {
@@ -384,154 +352,7 @@ if(is.null(data)) {
     
     output$selected_vote <- renderReactable({
       req(name_vote())
-      
-      # Render a bar chart with a label on the left
-      bar_chart <- function(label, width = "100%", height = "2rem", fill = "#00bfc4", background = NULL) {
-        bar <- div(style = list(background = fill, width = width, height = height))
-        chart <- div(style = list(flexGrow = 1, marginLeft = "0rem", background = background), bar)
-        div(style = list(display = "flex"), chart)
-      }
-      
-      # always have one decimal
-      specify_decimal <- function(x, k) trimws(format(round(x, k), nsmall=k))
-      
-      # Prepare dfs
-      data_vote <- filtered_data() %>%
-        filter(Abstimmungstext == name_vote()) %>%
-        mutate(Chart_Anteil = specify_decimal(`Ja-Anteil (in %)`, 1),
-               `Stimmbeteiligung (in %)` = as.numeric(`Stimmbeteiligung (in %)`),
-               `Ja-Anteil (in %)` = specify_decimal(`Ja-Anteil (in %)`, 1),
-               `Nein-Anteil (in %)` = specify_decimal(`Nein-Anteil (in %)`, 1)) %>%
-        arrange(NrGebiet) %>% 
-        select(Gebiet, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, Chart_Anteil,`Nein-Anteil (in %)`)
-      
-      data_detail <-filtered_data() %>%
-        filter(Abstimmungstext == name_vote()) %>%
-        select(Gebiet, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`) %>% 
-        pivot_longer(!Gebiet) %>% 
-        # When row is empty or 0 (maily Stimmberechtigt is empty or 0 because of old data) then delete
-        filter(!is.na(value) & value != 0) %>% 
-        mutate(Test1 = " ",
-               Test2 = " ", 
-               Test3 = " ")
-      
-      tableOutput2 <- reactable(data_vote,
-                                paginationType = "simple",
-                                language = reactableLang(
-                                  noData = "Keine Einträge gefunden",
-                                  pageNumbers = "{page} von {pages}",
-                                  pageInfo = "{rowStart} bis {rowEnd} von {rows} Einträgen",
-                                  pagePrevious = "\u276e",
-                                  pageNext = "\u276f",
-                                  pagePreviousLabel = "Vorherige Seite",
-                                  pageNextLabel = "Nächste Seite"
-                                ),
-                                theme = reactableTheme(
-                                  borderColor = "#DEDEDE"
-                                ),
-                                outlined = TRUE,
-                                highlight = TRUE,
-                                columns = list(
-                                  Gebiet =  colDef(minWidth = 40,
-                                                   sortable = FALSE),
-                                  `Stimmbeteiligung (in %)` = colDef(html = TRUE,
-                                                                     name = "Beteiligung<br>(in %)",
-                                                                     minWidth = 30,
-                                                                     align = "left",
-                                                                     cell = function(value) {
-                                                                       if(!is.na(value)){
-                                                                         return(specify_decimal(value, 1))
-                                                                       } else {
-                                                                         "–"
-                                                                       }
-                                                                     }), 
-                                  `Ja-Anteil (in %)` = colDef(
-                                    minWidth = 20,
-                                    html = TRUE,
-                                    name = "Ja-Anteil<br>(in %)",
-                                    align = "right",
-                                    headerClass = "barHeadershares"),
-                                  Chart_Anteil = colDef(
-                                    minWidth = 70,
-                                    html = TRUE,
-                                    name = "Ja-/Nein-<br>Anteil (in %)",
-                                    align = "center",
-                                    cell = function(value) {
-                                      width <- paste0(value, "%")
-                                      bar_chart(value, width = width, fill = "#0f05a0", background = "#ea4f61")
-                                    },
-                                    class = "bar",
-                                    headerClass = "barHeader"),
-                                  `Nein-Anteil (in %)` = colDef(
-                                    minWidth = 20,
-                                    name = " ",
-                                    align = "left",
-                                    class = "bar",
-                                    headerClass = "barHeader")
-                                ),
-                                details = function(index) {
-                                  det <- filter(data_detail, Gebiet == data_vote$Gebiet[index]) %>% select(-Gebiet)
-                                  htmltools::div(
-                                    class = "Details",
-                                    reactable(det, 
-                                              class = "innerTable",
-                                              outlined = TRUE,
-                                              fullWidth = TRUE,
-                                              borderless = TRUE,
-                                              theme = reactableTheme(
-                                                borderColor = "#DEDEDE"
-                                              ),
-                                              columns = list(
-                                                name = colDef(
-                                                  name = "Details",
-                                                  align = "left",
-                                                  minWidth = 40,
-                                                  sortable = FALSE
-                                                ),
-                                                value = colDef(
-                                                  name = "Wert",
-                                                  align = "left",
-                                                  minWidth = 30,
-                                                  sortable = FALSE,
-                                                  cell = function(value) {
-                                                    if (is.numeric(value)) {
-                                                      format(value, big.mark = " ")
-                                                    } else
-                                                    {
-                                                      return(value)
-                                                    }
-                                                  }
-                                                ),
-                                                # braucht leere Spalten für die ausklappbare Tabelle, damit die gleiche Spaltenanzahl
-                                                Test1 = colDef(
-                                                  minWidth = 20,
-                                                  name = " ",
-                                                  align = "center",
-                                                  sortable = FALSE
-                                                ),
-                                                Test2 = colDef(
-                                                  name = "",
-                                                  align = "left",
-                                                  minWidth = 70,
-                                                  sortable = FALSE,
-                                                  class = "spacer",
-                                                  headerClass = "spacerHeader"),
-                                                Test3 = colDef(
-                                                  minWidth = 20,
-                                                  name = " ",
-                                                  align = "center",
-                                                  sortable = FALSE,
-                                                  class = "bar",
-                                                  headerClass = "barHeader"
-                                                )
-                                              )
-                                    )
-                                  )
-                                },
-                                onClick = "expand",
-                                defaultPageSize = 13
-      )
-      tableOutput2
+      get_second_reactable(filtered_data(), name_vote())
     })
   }
   
