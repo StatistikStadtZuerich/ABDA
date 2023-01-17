@@ -77,9 +77,7 @@ if(is.null(data)) {
                 sszRadioButtons("abstimmungsebene",
                                 "Politische Ebene der Abstimmung:",
                                 choices = c("Alle Vorlagen", 
-                                            "Eidgenössische Vorlagen", 
-                                            "Kantonale Vorlagen", 
-                                            "Städtische Vorlagen"),
+                                            sort(unique(data$`Politische Ebene`))),
                                 selected = "Alle Vorlagen"),
               
               # Action Button
