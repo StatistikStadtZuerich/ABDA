@@ -1,4 +1,4 @@
-sszDownloadExcel <- function(filteredData, file, nameVote){
+ssz_download_excel <- function(filtered_data, file, name_vote){
     
     # Data Paths
     hauptPfad <- "www/Titelblatt.xlsx"
@@ -11,22 +11,34 @@ sszDownloadExcel <- function(filteredData, file, nameVote){
     # Data Sheet 1
     data <- data %>%
       mutate(
-        Date = ifelse(is.na(Date), NA, paste0(format(Sys.Date(), "%d"), ".", format(Sys.Date(), "%m"), ".", format(Sys.Date(), "%Y"))),
-        Titel = ifelse(is.na(Titel), NA, paste0("Abstimmungsresultate für Ihre Auswahl: ", nameVote))
+        Date = ifelse(is.na(Date), 
+                      NA, 
+                      paste0(format(Sys.Date(), "%d"), ".", 
+                             format(Sys.Date(), "%m"), ".", 
+                             format(Sys.Date(), "%Y"))),
+        Titel = ifelse(is.na(Titel), 
+                       NA, 
+                       paste0("Abstimmungsresultate für Ihre Auswahl: ", 
+                              name_vote))
         )
     
-    selected <- list(c("T_1", "Abstimmungsresultate für Ihre Auswahl:", paste(nameVote), " ", " ","Quelle: Statistik Stadt Zürich, Präsidialdepartement")) %>% 
+    selected <- c("T_1", 
+                  "Abstimmungsresultate für Ihre Auswahl:", 
+                  name_vote, 
+                  " ", 
+                  " ",
+                  "Quelle: Statistik Stadt Zürich, Präsidialdepartement") %>% 
       as.data.frame()
       
     # Data Sheet 2
     # Styling
     sty <- createStyle(fgFill="#ffffff")
-    styConcept <- createStyle(textDecoration=c("bold"),
+    sty_concept <- createStyle(textDecoration = c("bold"),
                             valign = "top",
                             wrapText = TRUE)
-    styDefinition <- createStyle(valign = "top",
+    sty_definition <- createStyle(valign = "top",
                                  wrapText = TRUE)
-    styTitle <- createStyle(fontName = "Arial Black")
+    sty_title <- createStyle(fontName = "Arial Black")
     
     # Create Workbook
     wb <- createWorkbook()
@@ -48,19 +60,20 @@ sszDownloadExcel <- function(filteredData, file, nameVote){
               startCol = 1,
               startRow = 1,
               withFilter = FALSE)
-    writeData(wb, sheet = 2, x = filteredData,
+    writeData(wb, sheet = 2, x = filtered_data,
             colNames = TRUE, rowNames = FALSE,
             startCol = 1,
             startRow = 9,
             withFilter = FALSE)
     
     # Insert Logo on Sheet 1
-    insertImage(wb, imagePfad, sheet = 1, startRow= 2, startCol = 2, width = 1.75 , height = 0.35)
+    insertImage(wb, imagePfad, sheet = 1, startRow= 2, startCol = 2, 
+                width = 1.75 , height = 0.35)
 
     # Add Styling
     addStyle(wb, 1, style = sty, row = 1:19, cols = 1:6, gridExpand = TRUE)
-    addStyle(wb, 1, style = styTitle, row = 14, cols = 2, gridExpand = TRUE)
-    addStyle(wb, 2, style = styConcept, row = 9, cols = 1:50, gridExpand = TRUE)
+    addStyle(wb, 1, style = sty_title, row = 14, cols = 2, gridExpand = TRUE)
+    addStyle(wb, 2, style = sty_concept, row = 9, cols = 1:50, gridExpand = TRUE)
     modifyBaseFont(wb, fontSize = 8, fontName = "Arial")
     
     # Set Column Width

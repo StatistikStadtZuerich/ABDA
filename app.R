@@ -14,7 +14,7 @@ source("R/get_data.R", encoding = "UTF-8")
 data <- get_data()
 
 # Source Export Excel
-source("R/exportExcel.R", encoding = "UTF-8")
+source("R/ssz_download_excel.R", encoding = "UTF-8")
 
 
 # Set the Icon path
@@ -376,7 +376,7 @@ if(is.null(data)) {
             
           },
           content = function(file) {
-            sszDownloadExcel(voteData(), file, nameVote())
+            ssz_download_excel(voteData(), file, nameVote())
           }
         )
 
