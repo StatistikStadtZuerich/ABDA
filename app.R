@@ -8,6 +8,7 @@ library(icons)
 library(shiny)
 library(htmltools)
 library(zuericssstyle)
+library(zuericolors)
 
 # Source Prepared Data
 source("prepareData.R", encoding = "UTF-8")
@@ -460,7 +461,10 @@ if(is.null(data)) {
                                           align = "center",
                                           cell = function(value) {
                                             width <- paste0(value, "%")
-                                            bar_chart(value, width = width, fill = "#0f05a0", background = "#ea4f61")
+                                            bar_chart(value, 
+                                                      width = width, 
+                                                      fill = get_zuericolors("qual6", nth = 1), 
+                                                      background = get_zuericolors("qual6", nth = 6))
                                             },
                                           class = "bar",
                                           headerClass = "barHeader"),
