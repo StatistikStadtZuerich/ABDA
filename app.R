@@ -154,36 +154,9 @@ if(is.null(data)) {
   # Define server logic required to draw a histogram
   server <- function(input, output, session) {
     
-    # First button click to activate search, after not necessary anymore
-    global <- reactiveValues(active_button = FALSE)
-    
-    observeEvent(input$abfragestart, {
-      req(input$abfragestart)
-      global$active_button <- TRUE
-    })
-    
-    ## Test with Date
-    date_range <- reactive({
-      req(global$active_button == TRUE)
-      date_range <- input$date_range
-      date_range
-    })
-    
-    data_date <- reactive({
-      req(global$active_button == TRUE)
-      datum <- data %>%
-        dplyr::filter(
-          `Politische Ebene` %in% input$abstimmungsebene,
-          Datum >= input$date_range[1],
-          Datum <= input$date_range[2]) %>%
-        pull(Datum) %>%
-        unique()
-      datum
-    })
-    
     ## Get Data for Download
     filtered_data <- reactive({
-      req(global$active_button == TRUE)
+      req(input$abfragestart > 0)
       
       # Filter what needs to be filtered in any case
       filtered <- data %>%
