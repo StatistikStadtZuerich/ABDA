@@ -463,8 +463,8 @@ if(is.null(data)) {
                                             width <- paste0(value, "%")
                                             bar_chart(value, 
                                                       width = width, 
-                                                      fill = get_zuericolors("qual6", nth = 1), 
-                                                      background = get_zuericolors("qual6", nth = 6))
+                                                      fill = get_zuericolors("div9val", nth = 9), 
+                                                      background = get_zuericolors("div9val", nth = 5))
                                             },
                                           class = "bar",
                                           headerClass = "barHeader"),
