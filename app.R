@@ -8,6 +8,7 @@ library(icons)
 library(shiny)
 library(htmltools)
 library(zuericssstyle)
+library(zuericolors)
 
 # Source Prepared Data
 source("prepareData.R", encoding = "UTF-8")
@@ -74,24 +75,18 @@ if(is.null(data)) {
                            separator = icon("calendar")),
               
               # Select level of vote/referendum
-                sszRadioButtons("ButtonGroupLabel",
+                sszRadioButtons("abstimmungsebene",
                                 "Politische Ebene der Abstimmung:",
                                 choices = c("Alle Vorlagen", 
-                                            "Eidgenössische Vorlagen", 
-                                            "Kantonale Vorlagen", 
-                                            "Städtische Vorlagen"),
+                                            sort(unique(data$`Politische Ebene`))),
                                 selected = "Alle Vorlagen"),
               
               # Action Button
               conditionalPanel(
-                condition = 'input.ActionButtonId==0',
+                condition = 'input.abfragestart==0',
                 
-                sszActionButton("ActionButtonId",
+                sszActionButton("abfragestart",
                                 "Abfrage starten")
-              ),
-              conditionalPanel(
-                condition = 'input.ActionButtonId>0',
-             
               ),
               
               br(),
@@ -124,7 +119,7 @@ if(is.null(data)) {
             mainPanel(
               
               conditionalPanel(
-                condition = 'input.ActionButtonId>0',
+                condition = 'input.abfragestart>0',
                 
                 # Title for table
                 h1("Die untenstehenden Vorlagen entsprechen Ihren Suchkriterien"),
@@ -133,22 +128,24 @@ if(is.null(data)) {
                 tags$div(
                   class = "infoDiv",
                   p("Für Detailinformationen zur Stimmbeteiligung und zum Ergebnis einer Abstimmung wählen Sie eine Zeile aus.")
-                )
-              ),
-              conditionalPanel(
-                condition = 'input.ActionButtonId==0',
+                ),
                 
+                # Table Output to select vote
+                reactableOutput("voteList"),
+                
+                # Details: show only if one row selected _________
+                
+                # initialise hidden variable for row selection, to be used with JS function
+                conditionalPanel("false",
+                                 numericInput(label = NULL, inputId = 'show_details', value = 0)),
+      
+                # Name of selected vote
+                htmlOutput("titleVote"),
+                                   
+                # Details about selected vote
+                reactableOutput("selectedVote")
+                                 
               ),
-              
-              # Table Output to select vote
-              reactableOutput("voteList"),
-              
-              # Name of selected vote
-              htmlOutput("titleVote"),
-              
-              # Details about selected vote
-              reactableOutput("selectedVote")
-    
             )
         )
     )
@@ -159,8 +156,8 @@ if(is.null(data)) {
         # First button click to activate search, after not necessary anymore
         global <- reactiveValues(activeButton = FALSE)
     
-        observeEvent(input$ActionButtonId, {
-          req(input$ActionButtonId)
+        observeEvent(input$abfragestart, {
+          req(input$abfragestart)
           global$activeButton <- TRUE
         })
     
@@ -176,7 +173,7 @@ if(is.null(data)) {
           req(global$activeButton == TRUE)
             datum <- data %>%
                 dplyr::filter(
-                    `Politische Ebene` %in% input$ButtonGroupLabel,
+                    `Politische Ebene` %in% input$abstimmungsebene,
                     Datum >= input$DateRange[1],
                     Datum <= input$DateRange[2]) %>%
                 pull(Datum) %>%
@@ -196,11 +193,11 @@ if(is.null(data)) {
                     select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, NrGebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
     
                 # Filter the level of vote
-                if(input$ButtonGroupLabel == "Alle Vorlagen"){
+                if(input$abstimmungsebene == "Alle Vorlagen"){
                     filtered
                 }else{
                   filtered <- filtered %>%
-                      filter(`Politische Ebene` %in% input$ButtonGroupLabel)
+                      filter(`Politische Ebene` %in% input$abstimmungsebene)
                   filtered
                 }
     
@@ -214,11 +211,11 @@ if(is.null(data)) {
                     select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, NrGebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
     
                 # Filter the level of vote
-                if(input$ButtonGroupLabel == "Alle Vorlagen"){
+                if(input$abstimmungsebene == "Alle Vorlagen"){
                     filtered
                 }else{
                     filtered <- filtered %>%
-                        filter(`Politische Ebene` %in% input$ButtonGroupLabel)
+                        filter(`Politische Ebene` %in% input$abstimmungsebene)
                     filtered
                 }
             }
@@ -241,7 +238,7 @@ if(is.null(data)) {
         # Reactive Subtitle
         subtitleReactive <- reactive({
           req(global$activeButton == TRUE)
-            subtitle <- input$ButtonGroupLabel
+            subtitle <- input$abstimmungsebene
         })
         output$subtitle <- renderText({
             subtitleReactive()
@@ -284,17 +281,29 @@ if(is.null(data)) {
                                     outlined = TRUE,
                                     highlight = TRUE,
                                     defaultPageSize = 5,
-                                    onClick = "select",
-                                    selection = "single",
-                                    rowClass = JS("function(rowInfo) {return rowInfo.selected ? 'selected' : ''}") #,
-                                   # rowStyle = JS("function(rowInfo) {if (rowInfo.selected) { return { backgroundColor: '#F2F2F2'}}}")
+                                    onClick = JS("function(rowInfo, column) {
+    
+    // Send the click event to Shiny, which will be available in input$show_details
+    // Note that the row index starts at 0 in JavaScript, so we add 1
+    if (window.Shiny) {
+      Shiny.setInputValue('show_details', rowInfo.index + 1, { priority: 'event' })
+    }
+  }")
           )
           tableOutput1
         })
     
         rowNumber <- reactive( {
-          getReactableState("voteList", "selected")
+          print(input$show_details)
+          input$show_details
         })
+        
+        observeEvent(eventExpr = list(input$suchfeld,input$DateRange,input$abstimmungsebene),
+                     handlerExpr = {
+                       print("setting to zero")
+                       updateNumericInput(session, "show_details", value = 0)},
+                     ignoreNULL = FALSE)
+        
     
     
         nameVote <- reactive({
@@ -306,7 +315,8 @@ if(is.null(data)) {
             mutate(ID = row_number()) %>%
             filter(ID == rowNumber())
     
-          print(vote$Abstimmungstext)
+          print(glue::glue("nameVote, row number: {rowNumber()}"))
+          vote$Abstimmungstext
         })
         
         
@@ -319,7 +329,8 @@ if(is.null(data)) {
             mutate(ID = row_number()) %>%
             filter(ID == rowNumber())
     
-          print(vote$Datum)
+          print("dateVote")
+          vote$Datum
         })
     
         voteData <- reactive({
@@ -331,6 +342,7 @@ if(is.null(data)) {
                    `Stimm-berechtigte` = `Stimmberechtigte`) %>% 
             arrange(NrGebiet) %>% 
             select(Gebiet, `Stimm-berechtigte`, `Ja-Stimmen`, `Nein-Stimmen`, `Beteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
+          print("voteData")
           vote
         })
     
@@ -368,8 +380,9 @@ if(is.null(data)) {
 
         output$titleVote <- renderText({
           req(nameVote())
+          print("titleVote")
     
-          paste("<br><h2>", print(nameVote()), "</h2><hr>")
+          paste("<br><h2>", nameVote(), "</h2><hr>")
         })
     
         output$selectedVote <- renderReactable({
@@ -448,7 +461,10 @@ if(is.null(data)) {
                                           align = "center",
                                           cell = function(value) {
                                             width <- paste0(value, "%")
-                                            bar_chart(value, width = width, fill = "#0f05a0", background = "#ea4f61")
+                                            bar_chart(value, 
+                                                      width = width, 
+                                                      fill = get_zuericolors("div9val", nth = 9), 
+                                                      background = get_zuericolors("div9val", nth = 5))
                                             },
                                           class = "bar",
                                           headerClass = "barHeader"),
@@ -492,6 +508,7 @@ if(is.null(data)) {
                                                           }
                                                         }
                                                       ),
+                                                      # braucht leere Spalten für die ausklappbare Tabelle, damit die gleiche Spaltenanzahl
                                                        Test1 = colDef(
                                                          minWidth = 20,
                                                          name = " ",
