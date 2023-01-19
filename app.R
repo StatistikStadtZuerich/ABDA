@@ -7,6 +7,7 @@ library(icons)
 library(shiny)
 library(htmltools)
 library(zuericssstyle)
+library(zuericolors)
 
 # Source Prepared Data
 source("R/get_data.R")
