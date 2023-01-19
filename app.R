@@ -21,7 +21,7 @@ source("R/get_main_reactable.R")
 source("R/get_second_reactable.R")
 
 # Set the Icon path
-icons_ssz <- icon_set("icons/")
+icons_ssz <- icon_set("www/icons/")
 
 # if data load didn't work show message
 if(is.null(data)) {
