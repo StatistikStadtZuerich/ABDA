@@ -47,9 +47,6 @@ if(is.null(data)) {
   # Define UI for application that draws a histogram
   ui <- fluidPage(
     
-    # Application title
-    # titlePanel("Abstimmungsresultate App"),
-    
     # CSS
     includeCSS("www/sszThemeShiny.css"),
     
@@ -196,7 +193,7 @@ if(is.null(data)) {
     # Name, date and data of selected vote as reactive, as they are used 
     # for csv and excel
     
-    name_vote <- reactive({
+    name_date_vote <- reactive({
       req(input$show_details > 0)
       
       vote <- filtered_data() %>%
@@ -206,28 +203,15 @@ if(is.null(data)) {
         filter(ID == input$show_details)
       
       print(glue::glue("name_vote, row number: {input$show_details}"))
-      vote$Abstimmungstext
-    })
-    
-    
-    date_vote <- reactive({
-      req(input$show_details > 0)
       
-      vote <- filtered_data() %>%
-        select(Datum, `Politische Ebene`, Abstimmungstext) %>%
-        unique() %>%
-        mutate(ID = row_number()) %>%
-        filter(ID == input$show_details)
-      
-      print("date_vote")
-      vote$Datum
+      vote
     })
     
     vote_data <- reactive({
-      req(name_vote())
+      req(name_date_vote())
       
       vote <- filtered_data() %>%
-        filter(Abstimmungstext == name_vote()) %>%
+        filter(Abstimmungstext == name_date_vote()$Abstimmungstext) %>%
         rename(`Beteiligung (in %)` = `Stimmbeteiligung (in %)`,
                `Stimm-berechtigte` = `Stimmberechtigte`) %>% 
         arrange(NrGebiet) %>% 
@@ -242,10 +226,15 @@ if(is.null(data)) {
     output$csv_download <- downloadHandler(
       filename = function(vote) {
         
-        suchfeld <- gsub(" ", "-", name_vote(), fixed = TRUE) 
-        time <- gsub(" ", "-", date_vote(), fixed = TRUE)
-        paste0("Abstimmungsresultate_", suchfeld, "_", time, ".csv")
+        suchfeld <- name_date_vote()$Abstimmungstext %>% 
+          stringr::str_replace_all(" ", "-") %>% 
+          stringr::str_replace_all("[:punct:]", "") 
         
+        time <- stringr::str_replace(name_date_vote()$Datum, " ", "-") 
+        
+        filename <- paste0("Abstimmungsresultate_", suchfeld, "_", time, ".csv")
+        
+        filename
       },
       content = function(file) {
         write.csv(vote_data(), file, fileEncoding = "UTF-8", row.names = FALSE, na = " ")
@@ -255,27 +244,31 @@ if(is.null(data)) {
     # Excel
     output$excel_download <- downloadHandler(
       filename = function(vote) {
+        suchfeld <- name_date_vote()$Abstimmungstext %>% 
+          stringr::str_replace_all(" ", "-") %>% 
+          stringr::str_replace_all("[:punct:]", "") 
         
-        suchfeld <- gsub(" ", "-",  name_vote(), fixed = TRUE)
-        time <- gsub(" ", "-", date_vote(), fixed = TRUE)
-        paste0("Abstimmungsresultate_", suchfeld, "_", time, ".xlsx")
+        time <- stringr::str_replace(name_date_vote()$Datum, " ", "-") 
         
+        filename <- paste0("Abstimmungsresultate_", suchfeld, "_", time, ".xlsx")
+        
+        filename
       },
       content = function(file) {
-        ssz_download_excel(vote_data(), file, name_vote())
+        ssz_download_excel(vote_data(), file, name_date_vote()$Abstimmungstext)
       }
     )
     
     output$title_vote <- renderText({
-      req(name_vote())
+      req(name_date_vote())
       print("title_vote")
       
-      paste("<br><h2>", name_vote(), "</h2><hr>")
+      paste("<br><h2>", name_date_vote()$Abstimmungstext, "</h2><hr>")
     })
     
     output$selected_vote <- renderReactable({
-      req(name_vote())
-      get_second_reactable(filtered_data(), name_vote())
+      req(name_date_vote())
+      get_second_reactable(filtered_data(), name_date_vote()$Abstimmungstext)
     })
   }
   
