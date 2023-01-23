@@ -101,12 +101,12 @@ if(is.null(data)) {
             class = "downloadWrapperDiv",
             
             sszDownloadButton("csv_download",
-                        label = "csv",
-                        image = img(icons_ssz("download"))
+                              label = "csv",
+                              image = img(icons_ssz("download"))
             ),
             sszDownloadButton("excel_download",
-                        label = "xlsx",
-                        image = img(icons_ssz("download"))
+                              label = "xlsx",
+                              image = img(icons_ssz("download"))
             ),
             sszOgdDownload(outputId = "ogd_download",
                            label = "OGD",
@@ -127,10 +127,8 @@ if(is.null(data)) {
           h1("Die untenstehenden Vorlagen entsprechen Ihren Suchkriterien"),
           hr(),
           # Define subtitle
-          tags$div(
-            class = "infoDiv",
-            p("Für Detailinformationen zur Stimmbeteiligung und zum Ergebnis einer Abstimmung wählen Sie eine Zeile aus.")
-          ),
+          p(paste0("Für Detailinformationen zur Stimmbeteiligung und zum Ergebnis ",
+                   "einer Abstimmung wählen Sie eine Zeile aus.")),
           
           # Table Output to select vote
           reactableOutput("vote_list"),
