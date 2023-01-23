@@ -100,15 +100,18 @@ if(is.null(data)) {
             id = "downloadWrapperId",
             class = "downloadWrapperDiv",
             
-            sszDownload("csv_download",
-                        label = "csv"
+            sszDownloadButton("csv_download",
+                        label = "csv",
+                        image = img(icons_ssz("download"))
             ),
-            sszDownload("excel_download",
-                        label = "xlsx"
+            sszDownloadButton("excel_download",
+                        label = "xlsx",
+                        image = img(icons_ssz("download"))
             ),
-            sszOgdDownload(inputId = "ogd_download",
+            sszOgdDownload(outputId = "ogd_download",
                            label = "OGD",
-                           onclick ="window.open('https://data.stadt-zuerich.ch/dataset/politik_abstimmungen_seit1933', '_blank')"
+                           href ="https://data.stadt-zuerich.ch/dataset/politik_abstimmungen_seit1933",
+                           image = img(icons_ssz("external-link"))
             )
           )
         )

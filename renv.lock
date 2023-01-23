@@ -450,6 +450,22 @@
         "vctrs"
       ]
     },
+    "dqshiny": {
+      "Package": "dqshiny",
+      "Version": "0.0.5",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "daqana",
+      "RemoteRepo": "dqshiny",
+      "RemoteRef": "master",
+      "RemoteSha": "b2c60d61e4554430c0b63d311efef7e97bd45873",
+      "Hash": "09c3dc6b14074eab14d331f1e4db2850",
+      "Requirements": [
+        "htmltools",
+        "shiny"
+      ]
+    },
     "dtplyr": {
       "Package": "dtplyr",
       "Version": "1.2.2",
@@ -1110,18 +1126,16 @@
     },
     "pbkrtest": {
       "Package": "pbkrtest",
-      "Version": "0.5.1",
+      "Version": "0.5.2",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "b304ff5955f37b48bd30518faf582929",
+      "Hash": "3b5b99f4d3f067bb9c1d59317d071370",
       "Requirements": [
         "MASS",
         "Matrix",
         "broom",
         "dplyr",
-        "knitr",
         "lme4",
-        "magrittr",
         "numDeriv"
       ]
     },
@@ -1899,16 +1913,18 @@
     },
     "zuericssstyle": {
       "Package": "zuericssstyle",
-      "Version": "0.0.0.9003",
+      "Version": "0.0.0.9006",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "StatistikStadtZuerich",
       "RemoteRepo": "zuericssstyle",
       "RemoteRef": "main",
-      "RemoteSha": "abffe6f088896ada0fc02275de0ce538bc901a0f",
-      "Hash": "47d2411aee685cabadfda483bee79c7f",
+      "RemoteSha": "8e2ba8454e971f71872e758709fa1fce517ca335",
+      "Remotes": "github::daqana/dqshiny",
+      "Hash": "753bc1757310079febc91049cd5b1f50",
       "Requirements": [
+        "dqshiny",
         "htmltools",
         "shiny",
         "shinyWidgets"
