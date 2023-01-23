@@ -187,7 +187,7 @@ if(is.null(data)) {
     # table etc. is not shown anymore
     observeEvent(eventExpr = list(input$suchfeld,input$date_range,input$abstimmungsebene),
                  handlerExpr = {
-                   print("setting to zero")
+                   #print("setting to zero")
                    updateNumericInput(session, "show_details", value = 0)},
                  ignoreNULL = FALSE)
     
@@ -203,7 +203,7 @@ if(is.null(data)) {
         mutate(ID = row_number()) %>%
         filter(ID == input$show_details)
       
-      print(glue::glue("name_vote, row number: {input$show_details}"))
+      #print(glue::glue("name_vote, row number: {input$show_details}"))
       
       vote
     })
@@ -218,7 +218,6 @@ if(is.null(data)) {
         arrange(NrGebiet) %>% 
         select(Gebiet, `Stimm-berechtigte`, `Ja-Stimmen`, `Nein-Stimmen`, 
                `Beteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
-      print("vote_data")
       vote
     })
     
@@ -262,8 +261,6 @@ if(is.null(data)) {
     
     output$title_vote <- renderText({
       req(name_date_vote())
-      print("title_vote")
-      
       paste("<br><h2>", name_date_vote()$Abstimmungstext, "</h2><hr>")
     })
     
