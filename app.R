@@ -202,9 +202,7 @@ if(is.null(data)) {
         unique() %>%
         mutate(ID = row_number()) %>%
         filter(ID == input$show_details)
-      
       #print(glue::glue("name_vote, row number: {input$show_details}"))
-      
       vote
     })
     
