@@ -104,8 +104,8 @@ get_second_reactable <- function(filtered_data, name_vote) {
                   width <- paste0(value, "%")
                   bar_chart(value, 
                             width = width, 
-                            fill = "#0f05a0", 
-                            background = "#ea4f61")
+                            fill = get_zuericolors("qual6", nth = 1), 
+                            background = get_zuericolors("div9val", nth = 5))
                 },
                 class = "bar",
                 headerClass = "barHeader"
