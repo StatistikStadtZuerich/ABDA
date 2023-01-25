@@ -14,6 +14,7 @@ COPY www/icons/calendar.svg www/icons/calendar.svg
 COPY www/icons/external-link.svg www/icons/external-link.svg
 COPY www/icons/download.svg www/icons/download.svg
 COPY www/sszThemeShiny.css www/sszThemeShiny.css
+COPY www/ABDATheme.css www/ABDATheme.css
 COPY www/Titelblatt.xlsx www/Titelblatt.xlsx
 COPY deploy.R deploy.R
 CMD Rscript deploy.R

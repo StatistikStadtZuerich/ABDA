@@ -31,6 +31,7 @@ if (is.null(data)) {
     
     # Include CSS
     includeCSS("www/sszThemeShiny.css"),
+    includeCSS("www/ABDATheme.css"),
     
     h1("Fehler"),
     p("Aufgrund momentaner Wartungsarbeiten ist die Applikation zur Zeit nicht verfügbar.")
@@ -49,6 +50,7 @@ if (is.null(data)) {
     
     # CSS
     includeCSS("www/sszThemeShiny.css"),
+    includeCSS("www/ABDATheme.css"),
     
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
