@@ -24,7 +24,7 @@ source("R/get_second_reactable.R")
 icons_ssz <- icon_set("www/icons/")
 
 # if data load didn't work show message
-if(is.null(data)) {
+if (is.null(data)) {
   
   # Define UI
   ui <- fluidPage(
@@ -110,7 +110,7 @@ if(is.null(data)) {
             ),
             sszOgdDownload(outputId = "ogd_download",
                            label = "OGD",
-                           href ="https://data.stadt-zuerich.ch/dataset/politik_abstimmungen_seit1933",
+                           href = "https://data.stadt-zuerich.ch/dataset/politik_abstimmungen_seit1933",
                            image = img(icons_ssz("external-link"))
             )
           )
@@ -165,13 +165,13 @@ if(is.null(data)) {
         select(Datum, `Politische Ebene`, Abstimmungstext, Gebiet, NrGebiet, Wahlkreis, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`, `Stimmbeteiligung (in %)`, `Ja-Anteil (in %)`, `Nein-Anteil (in %)`)
       
       # Filter: Some search term entered
-      if(input$suchfeld != "") {
+      if (input$suchfeld != "") {
         filtered <- filtered %>%
-          filter(grepl(input$suchfeld, Abstimmungstext, ignore.case=TRUE))
+          filter(grepl(input$suchfeld, Abstimmungstext, ignore.case = TRUE))
       }
       
       # Filter the level of vote
-      if(input$abstimmungsebene != "Alle Vorlagen"){
+      if (input$abstimmungsebene != "Alle Vorlagen") {
         filtered <- filtered %>%
           filter(`Politische Ebene` %in% input$abstimmungsebene)
       }

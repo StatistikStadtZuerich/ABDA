@@ -27,7 +27,7 @@ bar_chart <- function(label, width = "100%", height = "2rem", fill = "#00bfc4", 
 get_second_reactable <- function(filtered_data, name_vote) {
   
   # always have one decimal
-  specify_decimal <- function(x, k) trimws(format(round(x, k), nsmall=k))
+  specify_decimal <- function(x, k) trimws(format(round(x, k), nsmall = k))
   
   # Prepare dfs
   data_vote <- filtered_data %>%
@@ -45,7 +45,7 @@ get_second_reactable <- function(filtered_data, name_vote) {
            Chart_Anteil,
            `Nein-Anteil (in %)`)
   
-  data_detail <-filtered_data %>%
+  data_detail <- filtered_data %>%
     filter(Abstimmungstext == name_vote) %>%
     select(Gebiet, Stimmberechtigte, `Ja-Stimmen`, `Nein-Stimmen`) %>% 
     pivot_longer(!Gebiet) %>% 
@@ -82,7 +82,7 @@ get_second_reactable <- function(filtered_data, name_vote) {
                 minWidth = 30,
                 align = "left",
                 cell = function(value) {
-                  if(!is.na(value)){
+                  if (!is.na(value)) {
                     return(specify_decimal(value, 1))
                     } else {
                       "–"

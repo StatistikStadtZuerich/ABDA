@@ -32,7 +32,7 @@ ssz_download_excel <- function(filtered_data, file, name_vote){
       
     # Data Sheet 2
     # Styling
-    sty <- createStyle(fgFill="#ffffff")
+    sty <- createStyle(fgFill = "#ffffff")
     sty_concept <- createStyle(textDecoration = c("bold"),
                             valign = "top",
                             wrapText = TRUE)
@@ -67,7 +67,7 @@ ssz_download_excel <- function(filtered_data, file, name_vote){
             withFilter = FALSE)
     
     # Insert Logo on Sheet 1
-    insertImage(wb, imagePfad, sheet = 1, startRow= 2, startCol = 2, 
+    insertImage(wb, imagePfad, sheet = 1, startRow = 2, startCol = 2, 
                 width = 1.75 , height = 0.35)
 
     # Add Styling
