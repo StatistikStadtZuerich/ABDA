@@ -63,15 +63,17 @@ if (is.null(data)) {
                      "Suchtext:"),
         
         # Select Date Range
-        sszDateRange("date_range",
-                     "Datum:",
-                     start = "1933-01-01",
-                     min = "1933-01-01",
-                     end = Sys.Date(),
-                     max = Sys.Date(),
-                     format = "dd.mm.yyyy",
-                     language = "de",
-                     separator = icons_ssz("calendar")),
+        sszAirDatepickerInput(inputId = "date_range",
+                     label = "Datum:",
+                     ssz_icon = icons_ssz("calendar"),
+                     range = TRUE, autoClose = TRUE,
+                     value = c("1933-01", format(Sys.Date(), "%Y-%m")),
+                     dateFormat = "MMM yyyy",
+                     minDate = "1933-01",
+                     maxDate = format(Sys.Date(), "%Y-%m"),
+                     minView = "months",
+                     monthsField = "monthsShort",
+                     language = "de"),
         
         # Select level of vote/referendum
         sszRadioButtons("abstimmungsebene",
@@ -158,6 +160,7 @@ if (is.null(data)) {
     ## Get Data for Download
     filtered_data <- reactive({
       req(input$abfragestart > 0)
+      print(input$date_range)
       
       # Filter what needs to be filtered in any case
       filtered <- data %>%
