@@ -133,7 +133,11 @@ if (is.null(data)) {
                    "einer Abstimmung wählen Sie eine Zeile aus.")),
           
           # Table Output to select vote
-          reactableOutput("vote_list"),
+          shinycssloaders::withSpinner(
+            reactableOutput("vote_list"),
+            type = 7,
+            color = "#0F05A0"
+          ),
           
           # Details: show only if one row selected _________
           
@@ -145,8 +149,11 @@ if (is.null(data)) {
           htmlOutput("title_vote"),
           
           # Details about selected vote
-          reactableOutput("selected_vote")
-          
+          shinycssloaders::withSpinner(
+            reactableOutput("selected_vote"),
+            type = 7,
+            color = "#0F05A0"
+          ),
         ),
       )
     )
