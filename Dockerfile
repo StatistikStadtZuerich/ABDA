@@ -1,8 +1,9 @@
 FROM rocker/tidyverse:4.2.1
-RUN install2.r rsconnect shiny remotes htmltools Rcpp openxlsx reactable
+RUN install2.r rsconnect shiny remotes htmltools Rcpp openxlsx reactable shyinycssloaders
 RUN Rscript -e "remotes::install_github('mitchelloharawild/icons')"
 RUN Rscript -e "remotes::install_github('StatistikStadtZuerich/zuericssstyle')"
 RUN Rscript -e "remotes::install_github('StatistikStadtZuerich/zuericolors')"
+RUN Rscript -e "remotes::install_github('daattali/shinycssloaders')" # install from github as otherwise not available for this R version
 WORKDIR /home/abda-test
 COPY app.R app.R
 COPY R/get_data.R R/get_data.R
