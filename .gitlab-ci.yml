@@ -1,5 +1,5 @@
 default:
-  image: $CI_REGISTRY/ssz-da/shiny_container:0.0.0.9001
+  image: $CI_REGISTRY/ssz-da/shiny_container:0.0.0.9002
  
 variables:
   CONTAINER_REGISTRY: $CI_REGISTRY
